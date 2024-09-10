@@ -56,23 +56,23 @@ public:
 
     //health
     int health;
-    int getHealth(const Enemy& enemy);
-    void calculateDamage(Enemy& enemy, int damage);
+    //int getHealth(const Enemy& enemy);
+    //void calculateDamage(Enemy& enemy, int damage);
     virtual Texture2D getCurrentTexture() = 0;
     //attack
 
 
-    void attack(maincharacter* target);
+    //void attack(maincharacter* target);
 
     virtual void update();
     virtual void draw() = 0;
 
     void calculatePathAsRectangle();
 
-    void setAnimation(const std::string& animationKey);
+    //void setAnimation(const std::string& animationKey);
 
     //direction
-    Direction facing = Direction::Down;
+    //Direction facing = Direction::Down;
     Direction facingDirection = Direction::Down;
 
     ControlType controltype;
@@ -113,7 +113,7 @@ protected:
     static constexpr float FRAME_DURATION = 0.1f; // Add this line, adjust the value as needed
     static std::string toLowercase(const std::string& str);
 
-    std::string m_enemyType;
+    std::string enemyType;
 
 
     std::map<std::string, AnimationInfo> animations;
@@ -155,6 +155,8 @@ protected:
     virtual void moveRandomly();
 
     void takeDamage(Enemy &enemy, int damage);
+
+    Texture2D getCurrentTexture() const;
 };
 
 

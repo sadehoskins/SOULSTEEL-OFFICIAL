@@ -39,6 +39,28 @@ float Enemy::getHealthPercentage() const {
     return healthManager.getHealthPercentage();
 }
 
+Texture2D Enemy::getCurrentTexture() const
+{
+    std::string state;
+    switch (currentAnimationState) {
+        case AnimationState::IDLE: state = "idle"; break;
+        case AnimationState::WALK: state = "walk"; break;
+        case AnimationState::ATTACK: state = "attack"; break;
+        default: state = "idle";
+    }
+
+    std::string direction;
+    switch (facingDirection) {
+        case Direction::Up: direction = "back"; break;
+        case Direction::Down: direction = "front"; break;
+        case Direction::Left: direction = "left"; break;
+        case Direction::Right: direction = "right"; break;
+    }
+
+    std::string key = "enemy_" + toLowercase(enemyType) + "_" + state + "_" + direction;
+    return assestmanagergraphics::getTexture(key);
+}
+
 void Enemy::heal(int amount) {
     healthManager.heal(amount);
 }
@@ -80,25 +102,27 @@ std::string Enemy::toLowercase(const std::string& str) {
     return lower;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void Enemy::attack(maincharacter* target) {
-    target->health -= maincharacter::attackPower;
+Texture2D Enemy::loadTexture(const std::string& animationName, const std::string& direction)
+{
+    std::string fileName = "Character - Enemy - " + enemyType + " - " + animationName + " " + direction + " - animated";
+    return assestmanagergraphics::getCharacterTexture("enemies", fileName);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void Enemy::updateAnimation(float deltaTime) {
     animationTimer += deltaTime;
@@ -124,13 +148,7 @@ void Enemy::draw() {
     DrawTexturePro(currentTexture, sourceRec, destRec, {0, 0}, 0, WHITE);
 }
 
-void Enemy::setAnimation(const std::string& animationKey) {
-    if (animations.find(animationKey) != animations.end() && animationKey != currentAnimationKey) {
-        currentAnimationKey = animationKey;
-        animationTimer = 0.0f;
-        currentFrame = 0;
-    }
-}
+
 
 
 

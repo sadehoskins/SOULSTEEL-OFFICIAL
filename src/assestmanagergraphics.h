@@ -21,6 +21,8 @@ private:
     static bool m_texturesLoaded;
     static std::map<std::string, Texture2D> m_textures;
     static std::map<std::string, std::map<std::string, Texture2D>> m_characterAnimations;
+
+    void loadEnemyAnimations();
 };
 
 

@@ -14,7 +14,7 @@ public:
     void draw() override;
 
     Texture2D getCurrentTexture() override;
-    void updateAnimation(float deltaTime) override;
+    void performTackleAttack();
     ~Enemy3();
 
 private:
@@ -22,11 +22,12 @@ private:
 
     bool isAttacking;
 
-    //void updateAnimation(float deltaTime) override;
-    //void drawAnimation() override;
+    void loadAnimations() override;
+    void updateTackleAttack();
+
     bool isNearMainCharacter() const;
 
-    void loadAnimations() override;
+
 };
 
 

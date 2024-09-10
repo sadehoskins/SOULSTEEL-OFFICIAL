@@ -258,6 +258,31 @@ void assestmanagergraphics::loadCharacterAnimations(const std::string &character
     }
 
 }
+
+//*NEW CODE*
+void assestmanagergraphics::loadEnemyAnimations()
+{
+    std::vector<std::string> enemyTypes = {"Teddy", "Spider", "Tackle Spider"};
+    std::vector<std::string> actions = {"Idle", "Walk", "Attack"};
+    std::vector<std::string> directions = {"back", "front", "side left", "side right"};
+
+    for (const auto& enemyType : enemyTypes)
+    {
+        for (const auto& action : actions)
+        {
+            for (const auto& direction : directions)
+            {
+                std::string key = "enemy_" + toLowercase(enemyType) + "_" + toLowercase(action) + "_" +
+                                  (direction == "side left" ? "left" :
+                                   direction == "side right" ? "right" : direction);
+                std::string fileName = "Character - Enemy - " + enemyType + " - " + action + " " + direction;
+
+                m_textures[key] = LoadTexture(("assets/graphics/characters/enemies/" + fileName + " - animated.png").c_str());
+            }
+        }
+    }
+}
+
 Texture2D assestmanagergraphics::getTexture(const std::string &name) {
     if (m_textures.find(name) != m_textures.end()) {
         return m_textures[name];
