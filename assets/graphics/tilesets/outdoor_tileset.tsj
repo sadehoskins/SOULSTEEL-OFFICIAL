@@ -1,0 +1,14 @@
+{ "columns":1,
+ "image":"..\/..\/..\/..\/..\/..\/..\/..\/..\/Downloads\/outdoor_tileset.png",
+ "imageheight":896,
+ "imagewidth":32,
+ "margin":0,
+ "name":"outdoor_tileset",
+ "spacing":0,
+ "tilecount":28,
+ "tiledversion":"1.10.2",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

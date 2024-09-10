@@ -1,0 +1,14 @@
+{ "columns":1,
+ "image":"..\/PNG - and Spritesheets\/Tilesnek.png",
+ "imageheight":5472,
+ "imagewidth":32,
+ "margin":0,
+ "name":"Tilesnek",
+ "spacing":0,
+ "tilecount":171,
+ "tiledversion":"1.10.2",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

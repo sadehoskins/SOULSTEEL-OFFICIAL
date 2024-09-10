@@ -1,0 +1,14 @@
+{ "columns":1,
+ "image":"tileset_alles_Stand20240820.png",
+ "imageheight":2752,
+ "imagewidth":32,
+ "margin":0,
+ "name":"tileset_alles",
+ "spacing":0,
+ "tilecount":86,
+ "tiledversion":"1.10.2",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

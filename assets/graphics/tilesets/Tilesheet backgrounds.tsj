@@ -1,0 +1,14 @@
+{ "columns":18,
+ "image":"..\/PNG - and Spritesheets\/Tilesheet backgrounds.png",
+ "imageheight":352,
+ "imagewidth":576,
+ "margin":0,
+ "name":"Tilesheet backgrounds",
+ "spacing":0,
+ "tilecount":198,
+ "tiledversion":"1.10.2",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

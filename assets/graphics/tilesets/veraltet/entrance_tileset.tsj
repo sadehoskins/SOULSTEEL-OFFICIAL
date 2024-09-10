@@ -1,0 +1,14 @@
+{ "columns":1,
+ "image":"..\/..\/..\/..\/..\/..\/..\/..\/..\/Downloads\/entrance_tileset.png",
+ "imageheight":960,
+ "imagewidth":32,
+ "margin":0,
+ "name":"entrance_tileset",
+ "spacing":0,
+ "tilecount":30,
+ "tiledversion":"1.10.2",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

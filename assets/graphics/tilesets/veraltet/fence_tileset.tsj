@@ -1,0 +1,14 @@
+{ "columns":1,
+ "image":"..\/..\/..\/..\/..\/..\/..\/..\/..\/Downloads\/fence_tileset.png",
+ "imageheight":544,
+ "imagewidth":32,
+ "margin":0,
+ "name":"fence_tileset",
+ "spacing":0,
+ "tilecount":17,
+ "tiledversion":"1.10.2",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}
