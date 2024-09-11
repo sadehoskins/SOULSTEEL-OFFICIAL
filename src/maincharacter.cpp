@@ -679,7 +679,7 @@ void maincharacter::update() {
                 currentState = AnimationState::SWITCH;
             }
 
-            if (IsKeyPressed(KEY_B) && !isSwitching) {
+            if (IsKeyPressed(KEY_U) && !isSwitching) {
                 if (_scene->isAdjacentToSwitch(position)) {
                     Vector2 characterTile = {std::floor(position.x / 32), std::floor(position.y / 32)};
                     _scene->toggleSwitchAt(characterTile);
