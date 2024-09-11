@@ -58,9 +58,9 @@ void journal::drawpage0() {
     DrawTexture(arrowright, arrowforward.x, arrowforward.y, WHITE);
 
 
-    DrawText("DAY 1", dayposleft,20,25,BLACK);
+    DrawText("DAY 1", dayposleft,25,25,BLACK);
     DrawText(day1text, textposleft, 70, 20, BLACK);
-    DrawText("DAY 2", dayposright, 20, 25, BLACK);
+    DrawText("DAY 2", dayposright, 25, 25, BLACK);
     DrawText(day2text, textposright, 70, 20, BLACK);
 }
 
@@ -83,9 +83,10 @@ void journal::drawpage1() {
     DrawTexture(arrowleft, arrowback.x, arrowback.y, WHITE);
     DrawTexture(arrowright, arrowforward.x, arrowforward.y, WHITE);
 
-    DrawText("DAY 3", dayposleft,20,25,BLACK);
-    DrawText(day3text, textposleft, 70, 20, BLACK);
-    DrawText("some image, maybe teddy enemy?", 32*12,250,20, BLACK);
+    DrawText("DAY 3", dayposleft,25,25,BLACK);
+    DrawText(day3text1, textposleft, 70, 20, BLACK);
+    DrawText(day3text2, textposright, 70, 20, BLACK);
+    DrawText("some image, maybe teddy enemy?", textposright,250,20, BLACK);
     //DrawTexture(texture, 32*17, 100, WHITE);
 }
 
@@ -108,7 +109,7 @@ void journal::drawpage2() {
     DrawTexture(arrowleft, arrowback.x, arrowback.y, WHITE);
     DrawTexture(arrowright, arrowforward.x, arrowforward.y, WHITE);
 
-    DrawText("DAY 4",dayposleft , 20, 25, BLACK);
+    DrawText("DAY 4",dayposleft , 25, 25, BLACK);
     DrawText(day4text1, textposleft, 70, 20, BLACK);
     DrawText(day4text2, textposright, 70, 20, BLACK);
 }
@@ -127,7 +128,7 @@ void journal::drawpage3() {
     DrawTexture(closejournalbutton, hitbox_close.x, hitbox_close.y, WHITE);
     DrawTexture(arrowleft, arrowback.x, arrowback.y, WHITE);
 
-    DrawText("DAY 5", dayposleft,20,25,BLACK);
+    DrawText("DAY 5", dayposleft,25,25,BLACK);
     DrawText(day5text, textposleft, 70, 20, BLACK);
 }
 
