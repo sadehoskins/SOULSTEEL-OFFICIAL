@@ -25,6 +25,7 @@ scene *journal::evaluateSceneChange() {
 }
 
 void journal::draw() {
+    ClearBackground(GRAY);
     DrawTexture(journalbackground, 0, 0, WHITE);
 
     switch(page){
@@ -86,8 +87,7 @@ void journal::drawpage1() {
     DrawText("DAY 3", dayposleft,25,25,BLACK);
     DrawText(day3text1, textposleft, 70, 20, BLACK);
     DrawText(day3text2, textposright, 70, 20, BLACK);
-    DrawText("some image, maybe teddy enemy?", textposright,250,20, BLACK);
-    //DrawTexture(texture, 32*17, 100, WHITE);
+    DrawTexture(enemypic, textposright+75, 100, WHITE);
 }
 
 void journal::drawpage2() {

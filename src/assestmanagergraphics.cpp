@@ -64,6 +64,7 @@ void assestmanagergraphics::init() {
     m_textures["userinterface/arrowright"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Arrow_right_-_static_resized.png");
     m_textures["userinterface/closejournal"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Closing_X_-_static_resized.png");
     m_textures["userinterface/background_journal"] = LoadTexture("assets/graphics/userinterface/UI_-_Journal_-_open_-_static_resized.png");
+    m_textures["userinterface/journal_pic"] = LoadTexture("assets/graphics/userinterface/journal_image_resized.png");
 
     //final menu
     m_textures["userinterface/start"] = LoadTexture("assets/graphics/userinterface/UI - Menu Button - Start - static.png");

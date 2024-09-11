@@ -67,6 +67,7 @@ public:
     Texture2D arrowleft = assestmanagergraphics::getTexture("userinterface/arrowleft");
     Texture2D arrowright = assestmanagergraphics::getTexture("userinterface/arrowright");
     Texture2D closejournalbutton = assestmanagergraphics::getTexture("userinterface/closejournal");
+    Texture2D enemypic = assestmanagergraphics::getTexture("userinterface/journal_pic");
 
 
     gameplay *gameplayInstance;
