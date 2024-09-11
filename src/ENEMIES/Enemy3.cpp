@@ -13,10 +13,11 @@ Enemy3::Enemy3(gameplay* scene)
                 6.0f * 32.0f - 16.0f, 8 * 32 + 16, 8 * 32 - 16, 6 * 32 + 16),
           isAttacking(false)
 {
-    enemyType = "Tackle Spider";
-    loadAnimations();
+    animData.entityType = "Tackle Spider";
+    animData.currentAnimationState = AnimationState::IDLE;
+    animData.facingDirection = Direction::Down;
+    animData.currentFrame = 0;
 }
-
 
 
 void Enemy3::draw()
@@ -25,41 +26,9 @@ void Enemy3::draw()
     // Tackle Spider doesn't have a separate attack animation, so we don't need to draw anything extra
 }
 
-void Enemy3::loadAnimations()
-{
-    std::vector<std::string> actions = {"Idle", "Walk"};
-    std::vector<std::string> directions = {"back", "front", "side left", "side right"};
-
-    for (const auto& action : actions)
-    {
-        for (const auto& direction : directions)
-        {
-            std::string key = toLowercase(action) + "_" +
-                              (direction == "side left" ? "left" :
-                               direction == "side right" ? "right" : direction);
-
-            animations[key] = AnimationInfo(
-                    8,  // Assuming 8 frames for all animations
-                    0.1f,  // Assuming 0.1s duration per frame
-                    loadTexture(action, direction)
-            );
-        }
-    }
-}
-
 Texture2D Enemy3::getCurrentTexture()
 {
-    std::string state = (currentAnimationState == AnimationState::IDLE) ? "idle" : "walk";
-    std::string direction;
-    switch(facingDirection) {
-        case Direction::Left: direction = "left"; break;
-        case Direction::Right: direction = "right"; break;
-        case Direction::Up: direction = "back"; break;
-        case Direction::Down: direction = "front"; break;
-    }
-    std::string key = state + "_" + direction;
-
-    return animations[key].texture;
+    return assestmanagergraphics::getAnimationTexture(animData.entityType, animData.currentAnimationState, animData.facingDirection);
 }
 
 void Enemy3::update()
@@ -70,15 +39,15 @@ void Enemy3::update()
     // Update currentAnimationState and facingDirection based on enemy state
     if (isAttacking)
     {
-        currentAnimationState = AnimationState::WALK;  // Use walk animation for tackle
+        animData.currentAnimationState = AnimationState::WALK;  // Use walk animation for tackle
     }
-    else if (!isAttacking || (currentAnimationState == AnimationState::IDLE))
+    else if (!isAttacking || (animData.currentAnimationState == AnimationState::IDLE))
     {
-        currentAnimationState = AnimationState::WALK;
+        animData.currentAnimationState = AnimationState::WALK;
     }
     else
     {
-        currentAnimationState = AnimationState::IDLE;
+        animData.currentAnimationState = AnimationState::IDLE;
     }
 
     // Update facingDirection based on movement or target direction
@@ -101,7 +70,7 @@ void Enemy3::updateTackleAttack()
     // and checking for collisions with the player
 
     // Example:
-     position.x += (facingDirection == Direction::Right ? 5.0f : -5.0f);
+    position.x += (animData.facingDirection == Direction::Right ? 5.0f : -5.0f);
 
     // Check if the tackle attack is complete
     //if (/* tackle attack complete condition */)
@@ -110,9 +79,14 @@ void Enemy3::updateTackleAttack()
     }
 }
 
-
-
-
+bool Enemy3::isNearMainCharacter() const
+{
+    // Implement logic to check if the main character is near
+    // This could involve checking the distance between the enemy and the main character
+    // Return true if the main character is within attack range
+    return false; // Placeholder return
+}
 
 Enemy3::~Enemy3() {
+    // Destructor implementation (if needed)
 }

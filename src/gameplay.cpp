@@ -341,6 +341,18 @@ scene *gameplay::evaluateSceneChange() {
 void gameplay::draw() {
     ClearBackground(GRAY);
 
+    // Debug information
+    std::cout << "Current room: " << room << std::endl;
+    std::cout << "Number of enemies: " << enemies.size() << std::endl;
+    std::cout << "Number of game objects: " << gameobjects.size() << std::endl;
+
+    // Check if tileset_final is loaded
+    if (tileset_final.id == 0) {
+        std::cout << "Error: tileset_final texture not loaded!" << std::endl;
+        return;
+    }
+
+
     //draws the map
     int tilesetCols = 1;
     int tileSize = 32;

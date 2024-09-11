@@ -14,24 +14,23 @@ public:
     void draw() override;
     void throwBomb();
     Texture2D getCurrentTexture() override;
+    ~Enemy1() override;
 
+    //std::string enemyType;
     //static std::string toLowerCase(const std::string& str);
-
-    ~Enemy1();
-
 
 private:
     bool isThrowing;
     Vector2 bombPosition;
     float bombAnimationTimer;
-
+    void updateBombThrow();
 
     //void updateAnimation(float deltaTime) override;
     //void drawAnimation() override;
 
-    void loadAnimations() override;
-    void updateBombThrow();
-    void drawBombThrow();
+    //void loadAnimations() override;
+
+    //void drawBombThrow();
 
 
 };

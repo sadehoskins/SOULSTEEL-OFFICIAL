@@ -32,7 +32,7 @@ public:
 
     AnimationState currentState = AnimationState::IDLE;
     Direction currentDirection = Direction::Down;
-    Direction intendedDirection = Direction::Down;
+    //Direction intendedDirection = Direction::Down;
     Direction lookingdirection = Direction::Down;
 
     void update();

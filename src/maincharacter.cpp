@@ -183,53 +183,33 @@ void maincharacter::draw() {
 
 void maincharacter::drawDustAnimation() {
     if (isDusting) {
-        std::string direction;
-        switch (currentDirection) {
-            case Direction::Up:
-                direction = "back";
-                break;
-            case Direction::Down:
-                direction = "front";
-                break;
-            case Direction::Left:
-                direction = "side left";
-                break;
-            case Direction::Right:
-                direction = "side right";
-                break;
-        }
-
-        std::string characterDustTextureName = "Character - Soul - Dust " + direction + " - character - animated";
-        std::string dustEffectTextureName = "Character - Soul - Dust " + direction + " - dust - animated";
-
-        Texture2D characterDustTexture = assestmanagergraphics::getCharacterTexture("soul", characterDustTextureName);
-        Texture2D dustEffectTexture = assestmanagergraphics::getCharacterTexture("soul", dustEffectTextureName);
+        Texture2D dustTexture = assestmanagergraphics::getAnimationTexture("soul", AnimationState::DUST, currentDirection);
 
         int currentFrame = static_cast<int>((dustAnimationTimer / DUST_ANIMATION_DURATION) * DUST_FRAME_COUNT) % DUST_FRAME_COUNT;
 
         // Draw character dust animation
         Rectangle characterSourceRec = {
-                static_cast<float>(currentFrame * characterDustTexture.width / DUST_FRAME_COUNT), 0.0f,
-                static_cast<float>(characterDustTexture.width / DUST_FRAME_COUNT),
-                static_cast<float>(characterDustTexture.height)
+                static_cast<float>(currentFrame * dustTexture.width / DUST_FRAME_COUNT), 0.0f,
+                static_cast<float>(dustTexture.width / DUST_FRAME_COUNT),
+                static_cast<float>(dustTexture.height)
         };
         Vector2 characterDrawPos = {
-                position.x - static_cast<float>(characterDustTexture.width) / (2.0f * DUST_FRAME_COUNT),
-                position.y - static_cast<float>(characterDustTexture.height) / 2.0f
+                position.x - static_cast<float>(dustTexture.width) / (2.0f * DUST_FRAME_COUNT),
+                position.y - static_cast<float>(dustTexture.height) / 2.0f
         };
-        DrawTextureRec(characterDustTexture, characterSourceRec, characterDrawPos, WHITE);
+        DrawTextureRec(dustTexture, characterSourceRec, characterDrawPos, WHITE);
 
         // Draw dust effect animation
         Rectangle dustSourceRec = {
-                static_cast<float>(currentFrame * dustEffectTexture.width / DUST_FRAME_COUNT), 0.0f,
-                static_cast<float>(dustEffectTexture.width / DUST_FRAME_COUNT),
-                static_cast<float>(dustEffectTexture.height)
+                static_cast<float>(currentFrame * dustTexture.width / DUST_FRAME_COUNT), 0.0f,
+                static_cast<float>(dustTexture.width / DUST_FRAME_COUNT),
+                static_cast<float>(dustTexture.height)
         };
         Vector2 dustDrawPos = {
-                dustPosition.x - static_cast<float>(dustEffectTexture.width) / (2.0f * DUST_FRAME_COUNT),
-                dustPosition.y - static_cast<float>(dustEffectTexture.height) / 2.0f
+                dustPosition.x - static_cast<float>(dustTexture.width) / (2.0f * DUST_FRAME_COUNT),
+                dustPosition.y - static_cast<float>(dustTexture.height) / 2.0f
         };
-        DrawTextureRec(dustEffectTexture, dustSourceRec, dustDrawPos, WHITE);
+        DrawTextureRec(dustTexture, dustSourceRec, dustDrawPos, WHITE);
     }
 }
 
@@ -237,20 +217,8 @@ void maincharacter::drawsoul() {
     Texture2D currentTexture = getCurrentTexture();
 
     if (currentState == AnimationState::DUST) {
-        // Draw Soul Dust animation
-        std::string direction;
-        switch (currentDirection) {
-            case Direction::Up: direction = "back"; break;
-            case Direction::Down: direction = "front"; break;
-            case Direction::Left: direction = "side left"; break;
-            case Direction::Right: direction = "side right"; break;
-        }
-
-        std::string characterDustTextureName = "Character - Soul - Dust " + direction + " - character - animated";
-        std::string dustEffectTextureName = "Character - Soul - Dust " + direction + " - dust - animated";
-
-        Texture2D characterDustTexture = assestmanagergraphics::getCharacterTexture("soul", characterDustTextureName);
-        Texture2D dustEffectTexture = assestmanagergraphics::getCharacterTexture("soul", dustEffectTextureName);
+        Texture2D characterDustTexture = assestmanagergraphics::getAnimationTexture("soul", AnimationState::DUST, currentDirection);
+        Texture2D dustEffectTexture = assestmanagergraphics::getAnimationTexture("soul", AnimationState::DUST, currentDirection);
 
         int frameWidth = characterDustTexture.width / DUST_FRAME_COUNT;
         Rectangle sourceRec = {
@@ -290,64 +258,23 @@ void maincharacter::drawsoul() {
 void maincharacter::drawrobot() {
     std::cout << "Drawing robot. Current state: " << static_cast<int>(currentState) << std::endl;
 
-    if (currentState == AnimationState::ATTACK) {
-        std::cout << "Drawing attack animation" << std::endl;
-        std::string direction;
-        switch (currentDirection) {
-            case Direction::Up: direction = "back"; break;
-            case Direction::Down: direction = "front"; break;
-            case Direction::Left: direction = "side left"; break;
-            case Direction::Right: direction = "side right"; break;
-        }
+    Texture2D bodyTexture = assestmanagergraphics::getAnimationTexture("robot", currentState, currentDirection);
 
-        std::string bodyAnimName = "Character - Robot - Melee " + direction;
-        std::string armAnimName = bodyAnimName;
+    int frame = (currentState == AnimationState::ATTACK_NORMAL)
+                ? static_cast<int>((attackTimer / ATTACK_DURATION) * 8) % 8
+                : currentFrame;
 
-        if (direction == "side left" || direction == "side right") {
-            bodyAnimName += " - Body";
-            armAnimName += " - Arm";
-        }
+    Rectangle sourceRect = { frame * 32.0f, 0, 32, 32 };
+    Vector2 origin = { 16, 32 };  // Adjust origin to bottom center of sprite
+    Vector2 drawPos = { position.x, position.y };
 
-        bodyAnimName += " - animated";
-        armAnimName += " - animated";
+    DrawTexturePro(bodyTexture, sourceRect, (Rectangle){ drawPos.x, drawPos.y, 32, 32 }, origin, 0, WHITE);
 
-        std::cout << "Requesting body texture: " << bodyAnimName << std::endl;
-        Texture2D bodyTexture = assestmanagergraphics::getCharacterTexture("robot", bodyAnimName);
-        std::cout << "Requesting arm texture: " << armAnimName << std::endl;
-        Texture2D armTexture = assestmanagergraphics::getCharacterTexture("robot", armAnimName);
-
-        int frame = static_cast<int>((attackTimer / ATTACK_DURATION) * 8) % 8;
-        Rectangle sourceRect = { frame * 32.0f, 0, 32, 32 };
-        Vector2 origin = { 16, 32 };  // Adjust origin to bottom center of sprite
-
-        // Adjust the position to center the animation on the character's feet
-        Vector2 drawPos = { position.x, position.y };
-
-        if (bodyTexture.id != 0) {
-            std::cout << "Drawing body texture" << std::endl;
-            DrawTexturePro(bodyTexture, sourceRect, (Rectangle){ drawPos.x, drawPos.y, 32, 32 }, origin, 0, WHITE);
-        } else {
-            std::cout << "Drawing error rectangle for body" << std::endl;
-            DrawRectangle(drawPos.x - 16, drawPos.y - 32, 32, 32, PINK);
-            DrawRectangleLines(drawPos.x - 16, drawPos.y - 32, 32, 32, BLACK);
-        }
-
-        if (armTexture.id != 0 && (direction == "side left" || direction == "side right")) {
-            std::cout << "Drawing arm texture" << std::endl;
-            DrawTexturePro(armTexture, sourceRect, (Rectangle){ drawPos.x, drawPos.y, 32, 32 }, origin, 0, WHITE);
-        }
-    } else {
-        std::cout << "Drawing normal robot texture" << std::endl;
-        Texture2D currentTexture = getCurrentTexture();
-        if (currentTexture.id != 0) {
-            Rectangle sourceRect = { currentFrame * 32.0f, 0, 32, 32 };
-            Vector2 drawPos = { position.x - 16, position.y - 32 };  // Adjust to draw from top-left corner
-            DrawTextureRec(currentTexture, sourceRect, drawPos, WHITE);
-        } else {
-            std::cout << "Drawing error rectangle for normal texture" << std::endl;
-            DrawRectangle(position.x - 16, position.y - 32, 32, 32, PINK);
-            DrawRectangleLines(position.x - 16, position.y - 32, 32, 32, BLACK);
-        }
+    // Draw attack effect if necessary
+    if (currentState == AnimationState::ATTACK_NORMAL || currentState == AnimationState::ATTACK_RANGED) {
+        AnimationState effectState = (currentState == AnimationState::ATTACK_NORMAL) ? AnimationState::NORMAL_EFFECT : AnimationState::RANGED_EFFECT;
+        Texture2D effectTexture = assestmanagergraphics::getAnimationTexture("robot", effectState, currentDirection);
+        DrawTexturePro(effectTexture, sourceRect, (Rectangle){ drawPos.x, drawPos.y, 32, 32 }, origin, 0, WHITE);
     }
 }
 
@@ -356,74 +283,26 @@ Rectangle maincharacter::getCollisionRectangle() const {
 }
 
 Texture2D maincharacter::getCurrentTexture() {
-    std::string state;
-    std::string key;
+    std::string entityType = (currentmodus == soulmodus) ? "soul" : "robot";
+    AnimationState state = currentState;
+    Direction direction = currentDirection;
 
-    switch (currentState) {
-        case AnimationState::IDLE:
-            state = "Idle";
-            break;
-        case AnimationState::WALK:
-            state = "Walk";
-            break;
-        case AnimationState::DASH:
-            state = "Dash";
-            break;
-        case AnimationState::DUST:
-            state = "Dust";
-            break;
-        case AnimationState::ATTACK:
-            state = "Melee";
-            break;
-        case AnimationState::SWITCH:
-            return assestmanagergraphics::getCharacterTexture(
-                    "Switch-Animation",
-                    (currentmodus == soulmodus)
-                    ? "Character - Robot+Soul - Switch Soul to Robot - animated"
-                    : "Character - Robot+Soul - Switch Robot to Soul - animated"
-            );
-        default:
-            state = "Idle";
+    if (currentState == AnimationState::SWITCH) {
+        return assestmanagergraphics::getAnimationTexture(
+                entityType,
+                AnimationState::SWITCH,
+                Direction::Down  // Switch animation doesn't have directions
+        );
     }
 
-    std::string direction;
-    switch (currentDirection) {
-        case Direction::Up:
-            direction = "back";
-            break;
-        case Direction::Down:
-            direction = "front";
-            break;
-        case Direction::Left:
-            direction = "side left";
-            break;
-        case Direction::Right:
-            direction = "side right";
-            break;
-    }
+    Texture2D texture = assestmanagergraphics::getAnimationTexture(entityType, state, direction);
 
-    std::string characterName = (currentmodus == soulmodus) ? "soul" : "robot";
+    // Print debug information
+    std::cout << "Getting texture for: " << entityType << ", State: " << static_cast<int>(state)
+              << ", Direction: " << static_cast<int>(direction) << std::endl;
+    std::cout << "Texture ID: " << texture.id << std::endl;
 
-    std::string animationName = std::string("Character - ") +
-                                (characterName == "soul" ? "Soul" : "Robot") +
-                                " - " + state + " " + direction;
-
-    if (characterName == "robot") {
-        if (state == "Idle" || state == "Walk") {
-            if (direction == "front" || direction == "side left" || direction == "side right") {
-                animationName += isCharacterPossessed() ? " - possessed" : " - normal";
-            }
-        } else if (state == "Melee" && (direction == "side left" || direction == "side right")) {
-            animationName += " - Body";
-        }
-    } else if (characterName == "soul" && state == "Dust") {
-        animationName += " - character";
-    }
-
-    animationName += " - animated";
-
-    std::cout << "Requesting texture: " << characterName << " - " << animationName << std::endl;
-    return assestmanagergraphics::getCharacterTexture(characterName, animationName);
+    return texture;
 }
 
 int getHealth(const maincharacter &maincharacter) {
@@ -589,7 +468,6 @@ void maincharacter::souldash() {
 bool maincharacter::souldustcanbeused() const {
     return _scene->isAdjacentToFirebowl(position);
 }
-
 void maincharacter::souldust() {
     if (souldustcanbeused() && currentState == AnimationState::DUST) {
         auto [bowlX, bowlY] = _scene->getNearestFirebowlTile(position);
@@ -599,10 +477,7 @@ void maincharacter::souldust() {
     }
 }
 
-
-
 void maincharacter::throwBomb() {
-    //std::cout << "Throwing bomb!" << std::endl;
     Vector2 bombPosition;
     switch (currentDirection) {
         case Direction::Up:
@@ -692,7 +567,7 @@ void maincharacter::update() {
             if (IsKeyPressed(KEY_U) && GetTime() - lastAttackTime >= ATTACK_COOLDOWN) {
                 std::cout << "Initiating melee attack" << std::endl;
                 performMeleeAttack();
-                currentState = AnimationState::ATTACK;
+                currentState = AnimationState::ATTACK_NORMAL;
             }
             break;
     }
@@ -701,12 +576,12 @@ void maincharacter::update() {
         if (IsKeyPressed(KEY_U) && GetTime() - lastAttackTime >= ATTACK_COOLDOWN) {
             std::cout << "Initiating melee attack" << std::endl;
             performMeleeAttack();
-            currentState = AnimationState::ATTACK;
+            currentState = AnimationState::ATTACK_NORMAL;
             std::cout << "State set to ATTACK in update: " << static_cast<int>(currentState) << std::endl;
         }
     }
 
-    if (currentState == AnimationState::ATTACK) {
+    if (currentState == AnimationState::ATTACK_NORMAL) {
         attackTimer += GetFrameTime();
         std::cout << "Attack timer: " << attackTimer << std::endl;
         if (attackTimer >= ATTACK_DURATION) {
@@ -726,10 +601,10 @@ void maincharacter::update() {
         }
     } else {
         std::cout << "Before state update. Current state: " << static_cast<int>(currentState) << std::endl;
-        if (Vector2Equals(oldPosition, position) && currentState != AnimationState::DASH && currentState != AnimationState::ATTACK && currentState != AnimationState::DUST) {
+        if (Vector2Equals(oldPosition, position) && currentState != AnimationState::DASH && currentState != AnimationState::ATTACK_NORMAL && currentState != AnimationState::DUST) {
             currentState = AnimationState::IDLE;
             std::cout << "State set to IDLE" << std::endl;
-        } else if (currentState != AnimationState::DASH && currentState != AnimationState::ATTACK && currentState != AnimationState::DUST) {
+        } else if (currentState != AnimationState::DASH && currentState != AnimationState::ATTACK_NORMAL && currentState != AnimationState::DUST) {
             currentState = AnimationState::WALK;
             std::cout << "State set to WALK" << std::endl;
         }
@@ -821,8 +696,8 @@ void maincharacter::updateLastSafePosition() {
 void maincharacter::performMeleeAttack() {
     std::cout << "Performing melee attack!" << std::endl;
     std::cout << "Current state before attack: " << static_cast<int>(currentState) << std::endl;
-    currentAnimationState = AnimationState::ATTACK;
-    currentState = AnimationState::ATTACK;
+    currentAnimationState = AnimationState::ATTACK_NORMAL;
+    currentState = AnimationState::ATTACK_NORMAL;
     std::cout << "Current state after setting to ATTACK: " << static_cast<int>(currentState) << std::endl;
     attackTimer = 0.0f;
     lastAttackTime = GetTime();

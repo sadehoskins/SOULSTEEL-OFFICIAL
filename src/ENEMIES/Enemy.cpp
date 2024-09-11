@@ -13,10 +13,11 @@
 
 Enemy::Enemy(gameplay* scene, int hp, int damage, bool melee, bool ranged, bool armed,
              float left, float down, float right, float up)
-        : _scene(scene), healthManager(hp), enemyDamage(damage),  currentAnimationState(AnimationState::IDLE),
-          facingDirection(Direction::Down), animationTimer(0.0f), currentFrame(0)
+        : _scene(scene), healthManager(hp), enemyDamage(damage),
+          animData{AnimationState::IDLE, Direction::Down, 0, ""},
+          stopleft(left), stopdown(down), stopright(right), stopup(up)
 {
-    //this->health = hp; //initialization of health.
+    // Other initialization...
 }
 
 void Enemy::calculatePathAsRectangle() {
@@ -31,6 +32,23 @@ bool Enemy::checkCollision(const Wall &wall) { //Oli-> looks prettier than in Ut
     return Collision::checkCollision(*this, wall);
 }
 
+void Enemy::draw() {
+    Texture2D currentTexture = assestmanagergraphics::getAnimationTexture(enemyType, animData.currentAnimationState, animData.facingDirection);
+    Rectangle sourceRec = {
+            static_cast<float>(animData.currentFrame * currentTexture.width / AnimationData::FRAME_COUNT), 0.0f,
+            static_cast<float>(currentTexture.width / AnimationData::FRAME_COUNT),
+            static_cast<float>(currentTexture.height)
+    };
+    Rectangle destRec = {
+            position.x - static_cast<float>(currentTexture.width) / (2.0f * AnimationData::FRAME_COUNT),
+            position.y - static_cast<float>(currentTexture.height) / 2.0f,
+            static_cast<float>(currentTexture.width / AnimationData::FRAME_COUNT),
+            static_cast<float>(currentTexture.height)
+    };
+    DrawTexturePro(currentTexture, sourceRec, destRec, {0, 0}, 0, WHITE);
+}
+
+
 Rectangle Enemy::getCollisionRectangle() const{
     return Rectangle{position.x-8,position.y-8,16,16};
 }
@@ -39,31 +57,8 @@ float Enemy::getHealthPercentage() const {
     return healthManager.getHealthPercentage();
 }
 
-Texture2D Enemy::getCurrentTexture() const
-{
-    std::string state;
-    switch (currentAnimationState) {
-        case AnimationState::IDLE: state = "idle"; break;
-        case AnimationState::WALK: state = "walk"; break;
-        case AnimationState::ATTACK: state = "attack"; break;
-        default: state = "idle";
-    }
 
-    std::string direction;
-    switch (facingDirection) {
-        case Direction::Up: direction = "back"; break;
-        case Direction::Down: direction = "front"; break;
-        case Direction::Left: direction = "left"; break;
-        case Direction::Right: direction = "right"; break;
-    }
 
-    std::string key = "enemy_" + toLowercase(enemyType) + "_" + state + "_" + direction;
-    return assestmanagergraphics::getTexture(key);
-}
-
-void Enemy::heal(int amount) {
-    healthManager.heal(amount);
-}
 
 bool Enemy::isAlive() const {
     return healthManager.isAlive();
@@ -102,56 +97,14 @@ std::string Enemy::toLowercase(const std::string& str) {
     return lower;
 }
 
-Texture2D Enemy::loadTexture(const std::string& animationName, const std::string& direction)
-{
-    std::string fileName = "Character - Enemy - " + enemyType + " - " + animationName + " " + direction + " - animated";
-    return assestmanagergraphics::getCharacterTexture("enemies", fileName);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void Enemy::updateAnimation(float deltaTime) {
     animationTimer += deltaTime;
     if (animationTimer >= FRAME_DURATION) {
-        currentFrame = (currentFrame + 1) % FRAME_COUNT;
+        animData.currentFrame = (animData.currentFrame + 1) % AnimationData::FRAME_COUNT;
         animationTimer -= FRAME_DURATION;
     }
 }
-
-void Enemy::draw() {
-    Texture2D currentTexture = getCurrentTexture();
-    Rectangle sourceRec = {
-            static_cast<float>(currentFrame * currentTexture.width / FRAME_COUNT), 0.0f,
-            static_cast<float>(currentTexture.width / FRAME_COUNT),
-            static_cast<float>(currentTexture.height)
-    };
-    Rectangle destRec = {
-            position.x - static_cast<float>(currentTexture.width) / (2.0f * FRAME_COUNT),
-            position.y - static_cast<float>(currentTexture.height) / 2.0f,
-            static_cast<float>(currentTexture.width) / FRAME_COUNT,
-            static_cast<float>(currentTexture.height)
-    };
-    DrawTexturePro(currentTexture, sourceRec, destRec, {0, 0}, 0, WHITE);
-}
-
-
-
-
-
 
 
 void Enemy::update() {

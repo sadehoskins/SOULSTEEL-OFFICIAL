@@ -16,16 +16,15 @@ public:
     ~Enemy2();
 
 private:
-    void loadAnimations() override;
     Vector2 attackPosition;
     bool isAttacking;
     void drawRangedAttack();
-
 
     float attackAnimationTimer;
 
     void updateRangedAttack();
 };
+
 
 
 #endif //RAYLIBSTARTER_ENEMY2_H

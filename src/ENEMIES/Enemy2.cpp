@@ -4,13 +4,20 @@
 
 #include <regex>
 #include "Enemy2.h"
+#include "../assestmanagergraphics.h"
 
 Enemy2::Enemy2(gameplay *scene)
-        : Enemy(scene,2, 2, false, true, false,
+        : Enemy(scene, 2, 2, false, true, false,
                 6.0f * 32.0f - 16.0f, 8 * 32 + 16, 8 * 32 - 16, 6 * 32 + 16),
-          isAttacking(false){
-    enemyType = "Spider";
-    loadAnimations();
+          isAttacking(false)
+{
+    animData.entityType = "Spider";
+    animData.currentAnimationState = AnimationState::IDLE;
+    animData.facingDirection = Direction::Down;
+    animData.currentFrame = 0;
+
+    attackAnimationTimer = 0.0f;
+    attackPosition = {0, 0};
 }
 
 void Enemy2::draw()
@@ -25,80 +32,26 @@ void Enemy2::draw()
 
 void Enemy2::drawRangedAttack()
 {
-    std::string effectKey = "ranged_effect_" + std::string(facingDirection == Direction::Left ? "left" :
-                                                           facingDirection == Direction::Right ? "right" :
-                                                           facingDirection == Direction::Up ? "back" : "front");
-    const AnimationInfo& effectAnim = animations[effectKey];
+    std::string effectKey = "ranged_effect_" + std::string(animData.facingDirection == Direction::Left ? "left" :
+                                                           animData.facingDirection == Direction::Right ? "right" :
+                                                           animData.facingDirection == Direction::Up ? "back" : "front");
+    Texture2D effectTexture = assestmanagergraphics::getAnimationTexture(animData.entityType, AnimationState::ATTACK_RANGED, animData.facingDirection);
 
     Rectangle sourceRec = {
-            static_cast<float>(currentFrame * effectAnim.texture.width / effectAnim.frameCount), 0.0f,
-            static_cast<float>(effectAnim.texture.width / effectAnim.frameCount),
-            static_cast<float>(effectAnim.texture.height)
+            static_cast<float>(animData.currentFrame * effectTexture.width / AnimationData::FRAME_COUNT), 0.0f,
+            static_cast<float>(effectTexture.width / AnimationData::FRAME_COUNT),
+            static_cast<float>(effectTexture.height)
     };
-    Vector2 position = {
-            attackPosition.x - static_cast<float>(effectAnim.texture.width) / (2.0f * effectAnim.frameCount),
-            attackPosition.y - static_cast<float>(effectAnim.texture.height) / 2.0f
+    Vector2 drawPos = {
+            attackPosition.x - static_cast<float>(effectTexture.width) / (2.0f * AnimationData::FRAME_COUNT),
+            attackPosition.y - static_cast<float>(effectTexture.height) / 2.0f
     };
-    DrawTextureRec(effectAnim.texture, sourceRec, position, WHITE);
+    DrawTextureRec(effectTexture, sourceRec, drawPos, WHITE);
 }
-
-
-
-void Enemy2::loadAnimations()
-{
-    std::vector<std::string> actions = {"Idle", "Walk", "Ranged"};
-    std::vector<std::string> directions = {"back", "front", "side left", "side right"};
-
-    for (const auto& action : actions)
-    {
-        for (const auto& direction : directions)
-        {
-            std::string key = toLowercase(action) + "_" +
-                              (direction == "side left" ? "left" :
-                               direction == "side right" ? "right" : direction);
-
-            animations[key] = AnimationInfo(
-                    8,  // Assuming 8 frames for all animations
-                    0.1f,  // Assuming 0.1s duration per frame
-                    loadTexture(action, direction)
-            );
-
-            if (action == "Ranged")
-            {
-                std::string effectKey = "ranged_effect_" +
-                                        (direction == "side left" ? "left" :
-                                         direction == "side right" ? "right" : direction);
-                animations[effectKey] = AnimationInfo(
-                        8,
-                        0.1f,
-                        assestmanagergraphics::getTexture("Character object - Enemy - Spider - Ranged attack " + direction + " - animated")
-                );
-            }
-        }
-    }
-}
-
 
 Texture2D Enemy2::getCurrentTexture()
 {
-    std::string state;
-    switch (currentAnimationState) {
-        case AnimationState::IDLE: state = "idle"; break;
-        case AnimationState::WALK: state = "walk"; break;
-        case AnimationState::ATTACK: state = "ranged"; break;
-        default: state = "idle";
-    }
-
-    std::string direction;
-    switch (facingDirection) {
-        case Direction::Up: direction = "back"; break;
-        case Direction::Down: direction = "front"; break;
-        case Direction::Left: direction = "left"; break;
-        case Direction::Right: direction = "right"; break;
-    }
-
-    std::string key = state + "_" + direction;
-    return animations[key].texture;
+    return assestmanagergraphics::getAnimationTexture(animData.entityType, animData.currentAnimationState, animData.facingDirection);
 }
 
 void Enemy2::update()
@@ -109,15 +62,15 @@ void Enemy2::update()
     // Update currentAnimationState and facingDirection based on enemy state
     if (isAttacking)
     {
-        currentAnimationState = AnimationState::ATTACK;
+        animData.currentAnimationState = AnimationState::ATTACK_RANGED;
     }
-    else if (!isAttacking || (currentAnimationState == AnimationState::IDLE))
+    else if (!isAttacking || (animData.currentAnimationState == AnimationState::IDLE))
     {
-        currentAnimationState = AnimationState::WALK;
+        animData.currentAnimationState = AnimationState::WALK;
     }
     else
     {
-        currentAnimationState = AnimationState::IDLE;
+        animData.currentAnimationState = AnimationState::IDLE;
     }
 
     // Update facingDirection based on movement or target direction
@@ -128,10 +81,10 @@ void Enemy2::update()
 void Enemy2::performRangedAttack()
 {
     isAttacking = true;
-    currentFrame = 0;
+    animData.currentFrame = 0;
     attackAnimationTimer = 0.0f;
     // Set the attack's initial position relative to the enemy
-    attackPosition = {position.x + (facingDirection == Direction::Right ? 20.0f : -20.0f), position.y};
+    attackPosition = {position.x + (animData.facingDirection == Direction::Right ? 20.0f : -20.0f), position.y};
 }
 
 void Enemy2::updateRangedAttack()
@@ -139,24 +92,22 @@ void Enemy2::updateRangedAttack()
     if (!isAttacking) return;
 
     attackAnimationTimer += GetFrameTime();
-    if (attackAnimationTimer >= animations["ranged_effect_left"].frameDuration)
+    if (attackAnimationTimer >= FRAME_DURATION)
     {
-        attackAnimationTimer -= animations["ranged_effect_left"].frameDuration;
-        currentFrame++;
-        if (currentFrame >= animations["ranged_effect_left"].frameCount)
+        attackAnimationTimer -= FRAME_DURATION;
+        animData.currentFrame++;
+        if (animData.currentFrame >= AnimationData::FRAME_COUNT)
         {
             isAttacking = false;
-            currentFrame = 0;
+            animData.currentFrame = 0;
             // Here you would typically create an actual projectile or apply damage
         }
     }
 
     // Update attack effect position if needed
-    // attackPosition.x += (facingDirection == Direction::Right ? 2.0f : -2.0f);
+    // attackPosition.x += (animData.facingDirection == Direction::Right ? 2.0f : -2.0f);
 }
 
-
-
-
 Enemy2::~Enemy2() {
+    // Destructor implementation (if needed)
 }

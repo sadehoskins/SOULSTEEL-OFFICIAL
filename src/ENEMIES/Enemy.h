@@ -20,18 +20,7 @@ class gameplay;
 class Wall;
 class maincharacter;
 
-struct AnimationInfo {
-    int frameCount;
-    float frameDuration;
-    Texture2D texture;
-
-    AnimationInfo() : frameCount(0), frameDuration(0.0f), texture{0} {}
-    AnimationInfo(int count, float duration, Texture2D tex)
-            : frameCount(count), frameDuration(duration), texture(tex) {}
-};
-
 class Enemy{
-
 public:
     Enemy(gameplay*scene,int hp, int damage, bool melee, bool ranged, bool armed,
           float left, float down, float right, float up);
@@ -48,38 +37,26 @@ public:
     //*NEW CODE* HEALTH
 
     HealthManager healthManager;
+    int health;
 
     void takeDamage(int amount);
-    void heal(int amount);
+    //void heal(int amount);
     bool isAlive() const;
     float getHealthPercentage() const;
 
-    //health
-    int health;
-    //int getHealth(const Enemy& enemy);
-    //void calculateDamage(Enemy& enemy, int damage);
-    virtual Texture2D getCurrentTexture() = 0;
-    //attack
-
-
-    //void attack(maincharacter* target);
-
     virtual void update();
-    virtual void draw() = 0;
+    virtual void draw();
+    virtual Texture2D getCurrentTexture() = 0;
 
     void calculatePathAsRectangle();
 
-    //void setAnimation(const std::string& animationKey);
-
-    //direction
-    //Direction facing = Direction::Down;
-    Direction facingDirection = Direction::Down;
-
     ControlType controltype;
+
+    Direction facingDirection = Direction::Down;
 
     gameplay *_scene;
 
-    Enemy(gameplay *scene);
+   // Enemy(gameplay *scene);
 
     virtual ~Enemy() = default; //virtual destructor for proper cleanup
 
@@ -87,14 +64,8 @@ public:
 
     //Collision check
     bool checkCollision(const Wall &wall);
-
     Rectangle getCollisionRectangle() const;
 
-    //*NEW CODE*
-    //static const int MAX_HEALTH = 10;
-
-
-    //int m_health = MAX_HEALTH;
 
     float stepsize = 2;
     float size = 12;
@@ -102,61 +73,44 @@ public:
 
 
 protected:
-    //animation enemy
+    struct AnimationData {
+        AnimationState currentAnimationState;
+        Direction facingDirection;
+        int currentFrame;
+        static const int FRAME_COUNT = 8;
+        std::string entityType;
+    };
+
+    std::string enemyType;  // This will be set in derived classes
+    AnimationData animData;
 
 
-    AnimationState currentAnimationState = AnimationState::IDLE;
-    float animationTimer;
-    int currentFrame = 0;
+   float animationTimer;
+    //int currentFrame = 0;
 
-    static constexpr int FRAME_COUNT = 8; // Add this line, adjust the value as needed
+    //static constexpr int FRAME_COUNT = 8; // Add this line, adjust the value as needed
     static constexpr float FRAME_DURATION = 0.1f; // Add this line, adjust the value as needed
     static std::string toLowercase(const std::string& str);
 
-    std::string enemyType;
+    //std::string enemyType;
 
-
-    std::map<std::string, AnimationInfo> animations;
-    std::string currentAnimationKey;
-
-
-    virtual void loadAnimations() = 0;
-
-
-    // New method to handle animations
 
     virtual void updateAnimation(float deltaTime);
-    //virtual std::string getTextureKey() const = 0;
 
 
-    // Texture loading helper
-    Texture2D loadTexture(const std::string& animationName, const std::string& direction);
-
-
-    int enemyHP{};
     int enemyDamage{};
     bool enemyTypeMelee{};
     bool enemyTypeRanged{};
     bool enemyTypeArmed{};
 
 
-    //health
-    int maxHealth{};
-
-
     // position and direction
-    Direction direction{};
+    //Direction direction{};
     ControlRandom controlrandom;
 
-
-
-    //methods for movement: path or random
     virtual void moveOnPath();
     virtual void moveRandomly();
 
-    void takeDamage(Enemy &enemy, int damage);
-
-    Texture2D getCurrentTexture() const;
 };
 
 

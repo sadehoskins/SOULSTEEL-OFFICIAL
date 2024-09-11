@@ -14,6 +14,31 @@ enum Direction {
     Left = 3,
 };
 
+enum class AnimationState {
+    IDLE,               // General idle state for body animation
+    WALK,               // General walk state for body animation
+    ATTACK_NORMAL,      // General normal attack state for body animations
+    ATTACK_RANGED,      // General ranged attack state for body animations
+
+    DASH,               // Soul-specific dash attack
+    DUST,               // Soul-specific dust attack
+    SWITCH,             // Sou- and robot-specific switch animation
+
+    // Effects that are drawn on top of the body
+
+    NORMAL_EFFECT,      // special effect for normal robot attacks
+    RANGED_EFFECT,      // special effect for ranged robot attacks
+    BOMB_EFFECT,        // special effect for Teddy bomb attack
+
+    //ranged attacks that don't have to be drawn on top of the body animation
+
+    FLYINGSCREWS,        // special effect (throws screws) for robot ranged attack
+    SPIDERTOOTH,         // Special effect (shoots tooth) for tackle spider
+    LIT,                 // Special effect for bombs (bomb is lit)
+    EXPLOTION           // Special effect for bombs (bomb explodes)
+
+};
+
 enum class ControlType {
     Path,
     Random
@@ -25,15 +50,6 @@ enum class ControlRandom {
     RandomStop
 };
 
-enum class AnimationState {
-    IDLE,
-    WALK,
-    ATTACK,
-    SPECIAL,
-    DASH,
-    DUST,
-    SWITCH
-};
 
 //enum AnimationFacingDirection {BACK,FRONT,LEFT,RIGHT};
 
