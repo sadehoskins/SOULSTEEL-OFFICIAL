@@ -7,76 +7,254 @@
 #include "mainmenu.h"
 
 void journal::update() {
-    //navigating the journal by using arrow keys
-    if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
-        if (cursor == 2) {
-            cursor = 2; //ends with last box, does not come back on the other side of the screen
-        } else {
-            cursor++;
-        }
-    }
-
-    if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) {
-        if (cursor == 0) {
-            cursor = 0; //same here: you can't go more the side if you're already on the last box
-        } else {
-            cursor--;
-        }
-    }
+    journalnavigation();
+    flippingpages();
 }
 
 scene *journal::evaluateSceneChange() {
     if (IsKeyPressed(KEY_T)) {
         return gameplayInstance;
-    }else if (IsKeyPressed(KEY_M)) {
+    } else if (IsKeyPressed(KEY_M)) {
         return new mainmenu();
-    } else if (IsKeyPressed(KEY_ENTER)) {
-        switch (cursor) {
-            case 0:
-                //no journal content yet
-                break;
-            case 1:
-                //no journal content yet
-                break;
-            case 2:
-                return gameplayInstance;
-        }
+    } else if (closejournal) {
+        closejournal = false;  // Reset the bool
+        return gameplayInstance;
     } else {
         return this;
     }
 }
 
 void journal::draw() {
-    DrawTexture(journalbackground, 5, 5, WHITE);
+    ClearBackground(GRAY);
+    DrawTexture(journalbackground, 0, 0, WHITE);
 
-    switch (cursor) { //shows which box is selected by giving it a white outline
+    switch(page){
         case 0:
-            DrawRectangleRec(journalpage1_marked, WHITE);
+            drawpage0();
             break;
         case 1:
-            DrawRectangleRec(journalpage2_marked, WHITE);
+            drawpage1();
             break;
         case 2:
-            DrawRectangleRec(hitbox_close_marked, WHITE);
+            drawpage2();
+            break;
+        case 3:
+            drawpage3();
+    }
+}
+
+void journal::drawpage0() {
+    switch (cursor) { //shows which box is selected by giving it a white outline
+        case 1:
+            DrawRectangleLinesEx(arrowforward_marked, 5,DARKGRAY);
+            break;
+        case 2:
+            DrawRectangleLinesEx(hitbox_close_marked, 5,DARKGRAY);
             break;
         default:
             break;
     }
 
+    DrawTexture(closejournalbutton, hitbox_close.x, hitbox_close.y, WHITE);
+    DrawTexture(arrowright, arrowforward.x, arrowforward.y, WHITE);
 
-    DrawRectangleRec(journalpage1, GRAY);
-    DrawRectangleRec(journalpage2, GRAY);
-    DrawRectangleRec(hitbox_close, GRAY);
 
-    DrawTexture(closeButton, 685, 395, WHITE);
-
-    DrawText("Journal content TBD", 45, 20, 23, BLACK);
-    DrawText("Journal content TBD", 395, 20, 23, BLACK);
-    DrawText("Eventually here\nwill be a journal\nwith different pages.", 60, 200, 20, BLACK);
-    DrawText("At this time\nnothing happens on\nthese two pages.", 410, 200, 20, BLACK);
-
+    DrawText("DAY 1", dayposleft,25,25,BLACK);
+    DrawText(day1text, textposleft, 70, 20, BLACK);
+    DrawText("DAY 2", dayposright, 25, 25, BLACK);
+    DrawText(day2text, textposright, 70, 20, BLACK);
 }
+
+void journal::drawpage1() {
+    switch (cursor) { //shows which box is selected by giving it a white outline
+        case 0:
+            DrawRectangleLinesEx(arrowback_marked, 5,DARKGRAY);
+            break;
+        case 1:
+            DrawRectangleLinesEx(arrowforward_marked, 5,DARKGRAY);
+            break;
+        case 2:
+            DrawRectangleLinesEx(hitbox_close_marked, 5,DARKGRAY);
+            break;
+        default:
+            break;
+    }
+
+    DrawTexture(closejournalbutton, hitbox_close.x, hitbox_close.y, WHITE);
+    DrawTexture(arrowleft, arrowback.x, arrowback.y, WHITE);
+    DrawTexture(arrowright, arrowforward.x, arrowforward.y, WHITE);
+
+    DrawText("DAY 3", dayposleft,25,25,BLACK);
+    DrawText(day3text1, textposleft, 70, 20, BLACK);
+    DrawText(day3text2, textposright, 70, 20, BLACK);
+    DrawTexture(enemypic, textposright+75, 100, WHITE);
+}
+
+void journal::drawpage2() {
+    switch (cursor) { //shows which box is selected by giving it a white outline
+        case 0:
+            DrawRectangleLinesEx(arrowback_marked, 5,DARKGRAY);
+            break;
+        case 1:
+            DrawRectangleLinesEx(arrowforward_marked, 5,DARKGRAY);
+            break;
+        case 2:
+            DrawRectangleLinesEx(hitbox_close_marked, 5,DARKGRAY);
+            break;
+        default:
+            break;
+    }
+
+    DrawTexture(closejournalbutton, hitbox_close.x, hitbox_close.y, WHITE);
+    DrawTexture(arrowleft, arrowback.x, arrowback.y, WHITE);
+    DrawTexture(arrowright, arrowforward.x, arrowforward.y, WHITE);
+
+    DrawText("DAY 4",dayposleft , 25, 25, BLACK);
+    DrawText(day4text1, textposleft, 70, 20, BLACK);
+    DrawText(day4text2, textposright, 70, 20, BLACK);
+}
+void journal::drawpage3() {
+    switch (cursor) { //shows which box is selected by giving it a white outline
+        case 0:
+            DrawRectangleLinesEx(arrowback_marked, 5,DARKGRAY);
+            break;
+        case 2:
+            DrawRectangleLinesEx(hitbox_close_marked, 5,DARKGRAY);
+            break;
+        default:
+            break;
+    }
+
+    DrawTexture(closejournalbutton, hitbox_close.x, hitbox_close.y, WHITE);
+    DrawTexture(arrowleft, arrowback.x, arrowback.y, WHITE);
+
+    DrawText("DAY 5", dayposleft,25,25,BLACK);
+    DrawText(day5text, textposleft, 70, 20, BLACK);
+}
+
+
 
 void journal::drawDebug() {
 
 }
+
+void journal::journalnavigation() {
+//navigating the journal by using arrow keys
+
+switch(page){
+    case 0:
+        if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
+            if (cursor == 2) {
+                cursor = 2; //ends with last box, does not come back on the other side of the screen
+            } else {
+                cursor++;
+            }
+        }
+
+        if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) {
+            if (cursor == 1) {
+                cursor = 1; //same here: you can't go more the side if you're already on the last box
+            } else {
+                cursor--;
+            }
+        }
+        if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) {
+            cursor = 2;
+        }
+        if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) {
+            cursor = 1;
+        }
+        break;
+    case 1:
+        if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
+            if (cursor == 2) {
+                cursor = 2; //ends with last box, does not come back on the other side of the screen
+            } else {
+                cursor++;
+            }
+        }
+
+        if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) {
+            if (cursor == 0) {
+                cursor = 0; //same here: you can't go more the side if you're already on the last box
+            } else {
+                cursor--;
+            }
+        }
+        if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) {
+            cursor = 2;
+        }
+        if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) {
+            cursor = 1;
+        }
+        break;
+    case 2:
+        if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
+            if (cursor == 2) {
+                cursor = 2; //ends with last box, does not come back on the other side of the screen
+            } else {
+                cursor++;
+            }
+        }
+
+        if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) {
+            if (cursor == 0) {
+                cursor = 0; //same here: you can't go more the side if you're already on the last box
+            } else {
+                cursor--;
+            }
+        }
+        if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) {
+            cursor = 2;
+        }
+        if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) {
+            cursor = 1;
+        }
+        break;
+    case 3:
+        if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
+            if (cursor == 2) {
+                cursor = 2; //ends with last box, does not come back on the other side of the screen
+            } else {
+                cursor=2;
+            }
+        }
+
+        if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) {
+            if (cursor == 0) {
+                cursor = 0; //same here: you can't go more the side if you're already on the last box
+            } else {
+                cursor=0;
+            }
+        }
+        if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) {
+            cursor = 2;
+        }
+        if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) {
+            cursor = 0;
+        }
+        break;
+}
+}
+
+void journal::flippingpages() {
+
+    if (IsKeyPressed(KEY_ENTER)) {
+        switch (cursor) {
+            case 0:  //arrow to the left
+                if (page > 0) {
+                    page--;
+                }
+                break;
+            case 1:  //arrow to the right
+                if (page < 3) {
+                    page++;
+                }
+                break;
+            case 2:  // Close button
+                closejournal = true;
+                break;
+        }
+    }
+}
+
