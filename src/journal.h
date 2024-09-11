@@ -52,7 +52,7 @@ public:
     const char *day5text ="...I’ve come so far,\ntoo far to give up now.\nIf anyone finds this note,\nthey must destroy the generator\nin the other room; otherwise,\nall is lost.\nThis is all I can\ndo\nbefore my strength\nleaves me...";
 
     //creates the boxes that will be used as buttons and loads the textures; marked boxes will work as an outline to show which button is selected
-    Rectangle hitbox_close = {670, 400, 100, 60};
+    Rectangle hitbox_close = {650, 400, 100, 60};
     Rectangle hitbox_close_marked = {660, 390, 120, 80};
     Texture2D closeButton = assestmanagergraphics::getTexture("userinterface/button_close");
 
@@ -62,7 +62,11 @@ public:
     Rectangle arrowforward = {32*24-16, 32*7+16, 32, 32};
     Rectangle arrowforward_marked = {32*24-26, 32*7+6, 52, 52};
 
-    Texture2D journalbackground = assestmanagergraphics::getTexture("userinterface/journal_background_newsize");
+    Texture2D journalbackground = assestmanagergraphics::getTexture("userinterface/background_journal");
+    Texture2D arrowleft = assestmanagergraphics::getTexture("userinterface/arrowleft");
+    Texture2D arrowright = assestmanagergraphics::getTexture("userinterface/arrowright");
+    Texture2D closejournalbutton = assestmanagergraphics::getTexture("userinterface/closejournal");
+
 
     gameplay *gameplayInstance;
 };

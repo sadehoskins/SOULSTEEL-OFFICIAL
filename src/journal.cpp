@@ -25,7 +25,7 @@ scene *journal::evaluateSceneChange() {
 }
 
 void journal::draw() {
-    DrawTexture(journalbackground, 5, 5, WHITE);
+    DrawTexture(journalbackground, 0, 0, WHITE);
 
     switch(page){
         case 0:
@@ -45,18 +45,18 @@ void journal::draw() {
 void journal::drawpage0() {
     switch (cursor) { //shows which box is selected by giving it a white outline
         case 1:
-            DrawRectangleRec(arrowforward_marked, WHITE);
+            DrawRectangleLinesEx(arrowforward_marked, 5,DARKGRAY);
             break;
         case 2:
-            DrawRectangleRec(hitbox_close_marked, WHITE);
+            DrawRectangleLinesEx(hitbox_close_marked, 5,DARKGRAY);
             break;
         default:
             break;
     }
-    DrawRectangleRec(arrowforward, GRAY);
-    DrawRectangleRec(hitbox_close, GRAY);
 
-    DrawTexture(closeButton, 685, 395, WHITE);
+    DrawTexture(closejournalbutton, hitbox_close.x, hitbox_close.y, WHITE);
+    DrawTexture(arrowright, arrowforward.x, arrowforward.y, WHITE);
+
 
     DrawText("DAY 1", dayposleft,20,25,BLACK);
     DrawText(day1text, textposleft, 70, 20, BLACK);
@@ -67,22 +67,21 @@ void journal::drawpage0() {
 void journal::drawpage1() {
     switch (cursor) { //shows which box is selected by giving it a white outline
         case 0:
-            DrawRectangleRec(arrowback_marked, WHITE);
+            DrawRectangleLinesEx(arrowback_marked, 5,DARKGRAY);
             break;
         case 1:
-            DrawRectangleRec(arrowforward_marked, WHITE);
+            DrawRectangleLinesEx(arrowforward_marked, 5,DARKGRAY);
             break;
         case 2:
-            DrawRectangleRec(hitbox_close_marked, WHITE);
+            DrawRectangleLinesEx(hitbox_close_marked, 5,DARKGRAY);
             break;
         default:
             break;
     }
-    DrawRectangleRec(arrowforward, GRAY);
-    DrawRectangleRec(hitbox_close, GRAY);
-    DrawRectangleRec(arrowback,GRAY);
 
-    DrawTexture(closeButton, 685, 395, WHITE);
+    DrawTexture(closejournalbutton, hitbox_close.x, hitbox_close.y, WHITE);
+    DrawTexture(arrowleft, arrowback.x, arrowback.y, WHITE);
+    DrawTexture(arrowright, arrowforward.x, arrowforward.y, WHITE);
 
     DrawText("DAY 3", dayposleft,20,25,BLACK);
     DrawText(day3text, textposleft, 70, 20, BLACK);
@@ -93,22 +92,22 @@ void journal::drawpage1() {
 void journal::drawpage2() {
     switch (cursor) { //shows which box is selected by giving it a white outline
         case 0:
-            DrawRectangleRec(arrowback_marked, WHITE);
+            DrawRectangleLinesEx(arrowback_marked, 5,DARKGRAY);
             break;
         case 1:
-            DrawRectangleRec(arrowforward_marked, WHITE);
+            DrawRectangleLinesEx(arrowforward_marked, 5,DARKGRAY);
             break;
         case 2:
-            DrawRectangleRec(hitbox_close_marked, WHITE);
+            DrawRectangleLinesEx(hitbox_close_marked, 5,DARKGRAY);
             break;
         default:
             break;
     }
-    DrawRectangleRec(arrowforward, GRAY);
-    DrawRectangleRec(hitbox_close, GRAY);
-    DrawRectangleRec(arrowback,GRAY);
 
-    DrawTexture(closeButton, 685, 395, WHITE);
+    DrawTexture(closejournalbutton, hitbox_close.x, hitbox_close.y, WHITE);
+    DrawTexture(arrowleft, arrowback.x, arrowback.y, WHITE);
+    DrawTexture(arrowright, arrowforward.x, arrowforward.y, WHITE);
+
     DrawText("DAY 4",dayposleft , 20, 25, BLACK);
     DrawText(day4text1, textposleft, 70, 20, BLACK);
     DrawText(day4text2, textposright, 70, 20, BLACK);
@@ -116,19 +115,18 @@ void journal::drawpage2() {
 void journal::drawpage3() {
     switch (cursor) { //shows which box is selected by giving it a white outline
         case 0:
-            DrawRectangleRec(arrowback_marked, WHITE);
+            DrawRectangleLinesEx(arrowback_marked, 5,DARKGRAY);
             break;
         case 2:
-            DrawRectangleRec(hitbox_close_marked, WHITE);
+            DrawRectangleLinesEx(hitbox_close_marked, 5,DARKGRAY);
             break;
         default:
             break;
     }
 
-    DrawRectangleRec(hitbox_close, GRAY);
-    DrawRectangleRec(arrowback,GRAY);
+    DrawTexture(closejournalbutton, hitbox_close.x, hitbox_close.y, WHITE);
+    DrawTexture(arrowleft, arrowback.x, arrowback.y, WHITE);
 
-    DrawTexture(closeButton, 685, 395, WHITE);
     DrawText("DAY 5", dayposleft,20,25,BLACK);
     DrawText(day5text, textposleft, 70, 20, BLACK);
 }
