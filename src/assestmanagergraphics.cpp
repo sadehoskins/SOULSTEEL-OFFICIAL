@@ -134,6 +134,8 @@ void assestmanagergraphics::init() {
     loadAnimations();
     loadObjectAnimations();
     loadSingleFrameTextures();
+    loadCharacterAnimations();
+    loadEnemyAnimations();
 }
 
 void assestmanagergraphics::loadAnimations() {
@@ -196,77 +198,49 @@ void assestmanagergraphics::loadCharacterAnimations() {
 }
 
 void assestmanagergraphics::loadEnemyAnimations() {
-    std::string basePath = "assets/graphics/characters/enemies/";
+
+    std::cout << "Starting to load enemy animations..." << std::endl;
+
+    std::vector<std::string> enemyTypes = {"enemy1", "enemy2", "enemy3"};
+    std::vector<std::string> states = {"idle", "walk", "normal", "ranged"};
     std::vector<std::string> directions = {"back", "front", "left", "right"};
 
-    // Teddy animations
-    std::vector<std::string> teddyStates = {"idle", "walk", "normal"};
-    for (const auto& state : teddyStates) {
-        for (const auto& dir : directions) {
-            AnimationState animState = (state == "idle") ? AnimationState::IDLE :
-                                       (state == "walk") ? AnimationState::WALK :
-                                       AnimationState::ATTACK_NORMAL;
+    for (const auto& enemyType : enemyTypes) {
+        for (const auto& state : states) {
+            for (const auto& dir : directions) {
+                std::string fileName = (enemyType == "enemy1" ? "teddy" : enemyType) + "_" + state + "_" + dir + ".png";
+                std::string path = "assets/graphics/characters/enemies/" + enemyType + "/" + fileName;
 
-            Direction direction = (dir == "back") ? Direction::Up :
-                                  (dir == "front") ? Direction::Down :
-                                  (dir == "left") ? Direction::Left : Direction::Right;
+                std::cout << "Attempting to load texture: " << path << std::endl;
 
-            std::string path = basePath + "enemy1/teddy_" + state + "_" + dir + ".png";
-            m_animations["teddy"][animState][direction] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-            (path);
+                Texture2D texture = LoadTexture(path.c_str());
+                if (texture.id == 0) {
+                    std::cout << "Failed to load texture: " << path << std::endl;
+                    // Check if file exists
+                    if (!FileExists(path.c_str())) {
+                        std::cout << "File does not exist: " << path << std::endl;
+                    }
+                } else {
+                    std::cout << "Successfully loaded texture: " << path << " (ID: " << texture.id << ")" << std::endl;
+
+                    AnimationState animState;
+                    if (state == "idle") animState = AnimationState::IDLE;
+                    else if (state == "walk") animState = AnimationState::WALK;
+                    else if (state == "normal") animState = AnimationState::ATTACK_NORMAL;
+                    else if (state == "ranged") animState = AnimationState::ATTACK_RANGED;
+
+                    Direction direction;
+                    if (dir == "back") direction = Direction::Up;
+                    else if (dir == "front") direction = Direction::Down;
+                    else if (dir == "left") direction = Direction::Left;
+                    else if (dir == "right") direction = Direction::Right;
+
+                    m_animations[enemyType][animState][direction] = texture;
+                }
+            }
         }
     }
-
-    // Teddy bomb effect
-    m_animations["teddy"][AnimationState::BOMB_EFFECT][Direction::Left] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-    (basePath + "enemy1/bomb_normal_left.png");
-    m_animations["teddy"][AnimationState::BOMB_EFFECT][Direction::Right] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-    (basePath + "enemy1/bomb_normal_right.png");
-
-    // Spider animations
-    std::vector<std::string> spiderStates = {"idle", "walk", "ranged"};
-    for (const auto& state : spiderStates) {
-        for (const auto& dir : directions) {
-            AnimationState animState = (state == "idle") ? AnimationState::IDLE :
-                                       (state == "walk") ? AnimationState::WALK :
-                                       AnimationState::ATTACK_RANGED;
-
-            Direction direction = (dir == "back") ? Direction::Up :
-                                  (dir == "front") ? Direction::Down :
-                                  (dir == "left") ? Direction::Left : Direction::Right;
-
-            std::string path = basePath + "spider_" + state + "_" + dir + ".png";
-            m_animations["spider"][animState][direction] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-            (path);
-        }
-    }
-
-    // Tackle Spider animations
-    std::vector<std::string> tackleSpiderStates = {"idle", "walk"};
-    for (const auto& state : tackleSpiderStates) {
-        for (const auto& dir : directions) {
-            AnimationState animState = (state == "idle") ? AnimationState::IDLE : AnimationState::WALK;
-
-            Direction direction = (dir == "back") ? Direction::Up :
-                                  (dir == "front") ? Direction::Down :
-                                  (dir == "left") ? Direction::Left : Direction::Right;
-
-            std::string path = basePath + "tacklespider_" + state + "_" + dir + ".png";
-            m_animations["tacklespider"][animState][direction] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-            (path);
-        }
-    }
-
-    // Tackle Spider tooth effect
-    for (const auto& dir : directions) {
-        Direction direction = (dir == "back") ? Direction::Up :
-                              (dir == "front") ? Direction::Down :
-                              (dir == "left") ? Direction::Left : Direction::Right;
-
-        std::string path = basePath + "spidertooth_ranged_" + dir + ".png";
-        m_animations["tacklespider"][AnimationState::SPIDERTOOTH][direction] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-        (path);
-    }
+    std::cout << "Finished loading enemy animations." << std::endl;
 }
 
 void assestmanagergraphics::loadObjectAnimations() {
@@ -297,14 +271,17 @@ Texture2D assestmanagergraphics::getTexture(const std::string &name) {
 }
 
 Texture2D assestmanagergraphics::getAnimationTexture(const std::string& entityType, AnimationState state, Direction direction) {
+    std::cout << "Requesting texture for: " << entityType << ", State: " << static_cast<int>(state)
+              << ", Direction: " << static_cast<int>(direction) << std::endl;
+
     if (m_animations.count(entityType) > 0 &&
         m_animations[entityType].count(state) > 0 &&
         m_animations[entityType][state].count(direction) > 0) {
         return m_animations[entityType][state][direction];
     }
-    std::cout << "Animation texture not found: " << entityType << ", "
-              << static_cast<int>(state) << ", " << static_cast<int>(direction) << std::endl;
-    return m_textures["ERROR"];
+
+    std::cout << "Animation texture not found: " << entityType << ", " << static_cast<int>(state) << ", " << static_cast<int>(direction) << std::endl;
+    return m_animations["error"][AnimationState::IDLE][Direction::Down]; // Return a default "error" texture
 }
 
 Texture2D assestmanagergraphics::getObjectTexture(const std::string& objectName, AnimationState state) {
