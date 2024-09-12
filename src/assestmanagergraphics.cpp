@@ -137,6 +137,8 @@ void assestmanagergraphics::init() {
     m_textures["item/yellow_switch_on"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Yellow Switch - Animated.png");
     m_textures["item/yellow_switch_off"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Yellow Switch - Static.png");
 
+    //journal sparkles
+    m_textures["item/journal_sparkles"] = LoadTexture("assets/graphics/characters/soul/dust_dust_left.png");
 
     //load switching animation textures
     m_textures["Switch-Animation/Soul_to_Robot"] = LoadTexture("assets/graphics/characters/soul/soul_switch.png");

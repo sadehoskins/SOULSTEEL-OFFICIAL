@@ -435,6 +435,10 @@ void gameplay::draw() {
     if(isAdjacentToTable(themaincharacter->position)){
         DrawText("You found a journal.\nPress T to open.", 15*32,100,20,WHITE);
     }
+    if(room==4){
+        updateJournalSparklesAnimation(GetFrameTime());
+        drawJournalSparklesAnimation({17.0f*32, 9.0f*32});
+    }
 }
 
 void gameplay::drawActivatedFirebowls(float deltaTime) {
@@ -531,6 +535,7 @@ gameplay::gameplay() : scene(this) {
     themaincharacter = new class maincharacter(this);
     therobot = new robot(this);
     reloadRoom();
+    initJournalSparklesAnimation();
 }
 
 void gameplay::reloadRoom() {
@@ -1284,4 +1289,36 @@ bool gameplay::isAdjacentToSwitch(Vector2 position) const {
 void gameplay::addBomb(bombs *bomb) {
     //std::cout << "Adding bomb to game!" << std::endl;
     activeBombs.push_back(bomb);
+}
+
+void gameplay::initJournalSparklesAnimation() {
+    journalSparklesTimer = 0.0f;
+    journalSparklesCurrentFrame = 0;
+    journalSparklesTotalFrames = 8;
+    journalSparklesFrameTime = 1.0f / 12.0f;  // 12 FPS, adjust as needed
+}
+
+void gameplay::updateJournalSparklesAnimation(float deltaTime) {
+    journalSparklesTimer += deltaTime;
+    if (journalSparklesTimer >= journalSparklesFrameTime) {
+        journalSparklesCurrentFrame = (journalSparklesCurrentFrame + 1) % journalSparklesTotalFrames;
+        journalSparklesTimer -= journalSparklesFrameTime;
+    }
+}
+
+void gameplay::drawJournalSparklesAnimation(Vector2 position) {
+    int frameWidth = journal_sparkles.width / journalSparklesTotalFrames;
+    Rectangle sourceRec = {
+            static_cast<float>(journalSparklesCurrentFrame * frameWidth),
+            0.0f,
+            (float)frameWidth,
+            (float)journal_sparkles.height
+    };
+    Rectangle destRec = {
+            position.x,
+            position.y,
+            (float)frameWidth,
+            (float)journal_sparkles.height
+    };
+    DrawTexturePro(journal_sparkles, sourceRec, destRec, Vector2{0, 0}, 0.0f, WHITE);
 }
