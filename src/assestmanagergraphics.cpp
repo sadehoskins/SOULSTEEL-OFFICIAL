@@ -118,6 +118,9 @@ void assestmanagergraphics::init() {
     //firebowls
     m_textures["item/animated_firebowl"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Fire bowl - animated - activated.png");
 
+    //stones
+    m_textures["item/stone"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - MovableBlock - Static.png");
+
     // Load block textures
     m_textures["item/yellow_block"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Yellow Block - Static.png");
     m_textures["item/yellow_block_turning_on"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Yellow Block - Animated - Turn on.png");
