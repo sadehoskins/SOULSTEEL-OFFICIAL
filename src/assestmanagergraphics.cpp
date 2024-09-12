@@ -115,6 +115,10 @@ void assestmanagergraphics::init() {
     m_textures["userinterface/heart_robot"]= LoadTexture("assets/graphics/userinterface/UI - HP heart - Robot - static.png");
     m_textures["userinterface/heart_soul"]= LoadTexture("assets/graphics/userinterface/UI - HP heart - Soul - static.png");
 
+    //bombs
+    m_textures["item/bomb_thrown"] = LoadTexture("assets/graphics/items/bomb_lit.png");
+    m_textures["item/bomb_exploding"] = LoadTexture("assets/graphics/items/bomb_explotion.png");
+
     //firebowls
     m_textures["item/animated_firebowl"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Fire bowl - animated - activated.png");
 
