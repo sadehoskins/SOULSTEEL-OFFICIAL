@@ -229,6 +229,7 @@ void assestmanagergraphics::loadCharacterAnimations() {
     std::cout << "Loaded special animations" << std::endl;
 }
 
+//*NEW CODE*
 void assestmanagergraphics::loadEnemyAnimations() {
     std::cout << "Starting to load enemy animations..." << std::endl;
 
@@ -271,6 +272,31 @@ void assestmanagergraphics::loadEnemyAnimations() {
 
                     m_animations[entityName][animState][direction] = texture;
                     std::cout << "Stored texture for " << entityName << ", state: " << static_cast<int>(animState) << ", direction: " << static_cast<int>(direction) << std::endl;
+                }
+            }
+        }
+
+        // Load spidertooth ranged attack animations for Enemy3
+        if (enemyType == "enemy3") {
+            for (const auto& dir : directions) {
+                std::string fileName = "spidertooth_ranged_" + dir + ".png";
+                std::string path = "assets/graphics/characters/enemies/" + enemyType + "/" + fileName;
+
+                std::cout << "Attempting to load spidertooth texture: " << path << std::endl;
+
+                Texture2D texture = LoadTexture(path.c_str());
+                if (texture.id == 0) {
+                    std::cout << "Failed to load spidertooth texture: " << path << std::endl;
+                } else {
+                    std::cout << "Successfully loaded spidertooth texture: " << path << " (ID: " << texture.id << ")" << std::endl;
+
+                    Direction direction;
+                    if (dir == "back") direction = Direction::Up;
+                    else if (dir == "front") direction = Direction::Down;
+                    else if (dir == "left") direction = Direction::Left;
+                    else if (dir == "right") direction = Direction::Right;
+
+                    m_animations["tacklespider"][AnimationState::SPIDERTOOTH][direction] = texture;
                 }
             }
         }
