@@ -12,7 +12,7 @@
 Enemy1::Enemy1(gameplay *scene)
         : Enemy(scene, 1, 1, true, false, false, 12 * 32 + 16, 10 * 32 - 16, 11 * 32 - 16, 6 * 32 + 16)
 {
-    enemyType = "enemy1";
+    enemyType = "teddy";
     animData.entityType = "teddy";
     animData.currentAnimationState = AnimationState::IDLE;
     animData.facingDirection = Direction::Down;
@@ -31,19 +31,8 @@ void Enemy1::draw() {
 
     if (isThrowing)
     {
-        // Draw bomb throw animation
-        Texture2D bombTexture = assestmanagergraphics::getAnimationTexture(enemyType, AnimationState::BOMB_EFFECT, animData.facingDirection);
+        drawBombThrow();
 
-        Rectangle sourceRec = {
-                static_cast<float>(animData.currentFrame * bombTexture.width / AnimationData::FRAME_COUNT), 0.0f,
-                static_cast<float>(bombTexture.width / AnimationData::FRAME_COUNT),
-                static_cast<float>(bombTexture.height)
-        };
-        Vector2 drawPos = {
-                position.x - static_cast<float>(bombTexture.width) / (2.0f * AnimationData::FRAME_COUNT),
-                position.y - static_cast<float>(bombTexture.height) / 2.0f
-        };
-        DrawTextureRec(bombTexture, sourceRec, drawPos, WHITE);
     }
 }
 
@@ -91,6 +80,21 @@ void Enemy1::updateBombThrow()
             // Here you would typically create an actual bomb object
         }
     }
+}
+
+void Enemy1::drawBombThrow() {
+    Texture2D bombTexture = assestmanagergraphics::getAnimationTexture(enemyType, AnimationState::BOMB_EFFECT, animData.facingDirection);
+
+    Rectangle sourceRec = {
+            static_cast<float>(animData.currentFrame * bombTexture.width / AnimationData::FRAME_COUNT), 0.0f,
+            static_cast<float>(bombTexture.width / AnimationData::FRAME_COUNT),
+            static_cast<float>(bombTexture.height)
+    };
+    Vector2 drawPos = {
+            bombPosition.x - static_cast<float>(bombTexture.width) / (2.0f * AnimationData::FRAME_COUNT),
+            bombPosition.y - static_cast<float>(bombTexture.height) / 2.0f
+    };
+    DrawTextureRec(bombTexture, sourceRec, drawPos, WHITE);
 }
 
 Enemy1::~Enemy1() {

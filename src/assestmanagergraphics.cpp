@@ -230,7 +230,6 @@ void assestmanagergraphics::loadCharacterAnimations() {
 }
 
 void assestmanagergraphics::loadEnemyAnimations() {
-
     std::cout << "Starting to load enemy animations..." << std::endl;
 
     std::vector<std::string> enemyTypes = {"enemy1", "enemy2", "enemy3"};
@@ -238,9 +237,13 @@ void assestmanagergraphics::loadEnemyAnimations() {
     std::vector<std::string> directions = {"back", "front", "left", "right"};
 
     for (const auto& enemyType : enemyTypes) {
+        std::string entityName = (enemyType == "enemy1") ? "teddy" :
+                                 (enemyType == "enemy2") ? "spider" :
+                                 (enemyType == "enemy3") ? "tacklespider" : enemyType;
+
         for (const auto& state : states) {
             for (const auto& dir : directions) {
-                std::string fileName = (enemyType == "enemy1" ? "teddy" : enemyType) + "_" + state + "_" + dir + ".png";
+                std::string fileName = entityName + "_" + state + "_" + dir + ".png";
                 std::string path = "assets/graphics/characters/enemies/" + enemyType + "/" + fileName;
 
                 std::cout << "Attempting to load texture: " << path << std::endl;
@@ -248,7 +251,6 @@ void assestmanagergraphics::loadEnemyAnimations() {
                 Texture2D texture = LoadTexture(path.c_str());
                 if (texture.id == 0) {
                     std::cout << "Failed to load texture: " << path << std::endl;
-                    // Check if file exists
                     if (!FileExists(path.c_str())) {
                         std::cout << "File does not exist: " << path << std::endl;
                     }
@@ -267,11 +269,34 @@ void assestmanagergraphics::loadEnemyAnimations() {
                     else if (dir == "left") direction = Direction::Left;
                     else if (dir == "right") direction = Direction::Right;
 
-                    m_animations[enemyType][animState][direction] = texture;
+                    m_animations[entityName][animState][direction] = texture;
+                    //std::cout << "Stored texture for " << entityName << ", state: " << static_cast<int>(animState) << ", direction: " << static_cast<int>(direction) << std::endl;
+                }
+            }
+        }
+
+        // Load attack effect animations (only for enemy1 teddy)
+        if (enemyType == "enemy1") {
+            std::vector<std::string> effectDirections = {"left", "right"};
+            for (const auto& dir : effectDirections) {
+                std::string fileName = "bomb_normal_" + dir + ".png";
+                std::string path = "assets/graphics/characters/enemies/" + enemyType + "/" + fileName;
+
+                std::cout << "Attempting to load attack effect texture: " << path << std::endl;
+
+                Texture2D texture = LoadTexture(path.c_str());
+                if (texture.id == 0) {
+                    std::cout << "Failed to load attack effect texture: " << path << std::endl;
+                } else {
+                    std::cout << "Successfully loaded attack effect texture: " << path << " (ID: " << texture.id << ")" << std::endl;
+
+                    Direction direction = (dir == "left") ? Direction::Left : Direction::Right;
+                    m_animations[entityName][AnimationState::BOMB_EFFECT][direction] = texture;
                 }
             }
         }
     }
+
     std::cout << "Finished loading enemy animations." << std::endl;
 }
 
