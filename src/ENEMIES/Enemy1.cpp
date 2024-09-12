@@ -26,6 +26,9 @@ Enemy1::Enemy1(gameplay *scene)
 void Enemy1::draw() {
     Enemy::draw();  // This will draw the main body
 
+    //*NEW CODE*
+    drawHealthStatus();  // Draw the health status
+
     if (isThrowing)
     {
         // Draw bomb throw animation

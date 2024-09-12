@@ -785,12 +785,41 @@ void maincharacter::performMeleeAttack() {
     attackTimer = 0.0f;
     lastAttackTime = GetTime();
 
-    // Check for enemies in range and apply damage
+    applyDamageInDirection();
+
+    /*/ Check for enemies in range and apply damage
     for (auto& enemy : _scene->getEnemies()) {
         if (CheckCollisionCircles(position, size + 32.0f, enemy->position, enemy->size)) {
             enemy->takeDamage(2); // Apply 2 damage to the enemy
             std::cout << "Hit enemy!" << std::endl;
         }
-    }
+    }*/
 }
 
+//*NEW CODE*
+void maincharacter::applyDamageInDirection() {
+    Vector2 attackPosition = position;
+    float attackRange = 40.0f; // Adjust this value as needed
+
+    switch (lookingdirection) {
+        case Direction::Up:
+            attackPosition.y -= attackRange;
+            break;
+        case Direction::Down:
+            attackPosition.y += attackRange;
+            break;
+        case Direction::Left:
+            attackPosition.x -= attackRange;
+            break;
+        case Direction::Right:
+            attackPosition.x += attackRange;
+            break;
+    }
+
+    for (auto& enemy : _scene->getEnemies()) {
+        if (CheckCollisionCircles(attackPosition, attackRange, enemy->position, enemy->size)) {
+            enemy->takeDamage(2); // Apply 2 damage to the enemy
+            std::cout << "Hit enemy in direction: " << static_cast<int>(lookingdirection) << std::endl;
+        }
+    }
+}

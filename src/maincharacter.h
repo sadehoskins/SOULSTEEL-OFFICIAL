@@ -51,8 +51,9 @@ public:
     void drawDustAnimation();
     bool canSwitchToRobot() const;
     void performMeleeAttack();
+    void applyDamageInDirection();
 
-    //*NEWCODE*
+
     HealthManager healthManager;
 
     // Abyss Message Timer
@@ -67,6 +68,7 @@ public:
     //health & Damage
     int health = 10;
     static int attackPower;
+
 
     //code for idle animation
     static const int FRAME_COUNT = 8;

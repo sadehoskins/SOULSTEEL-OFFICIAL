@@ -606,6 +606,7 @@ void gameplay::reloadRoom() {
                 enemy1->stopright = 12 * 32;
                 enemy1->stopup = 6 * 32 + 16;
                 enemy1->calculatePathAsRectangle();
+                enemy1->healthManager = HealthManager(5);  // Set initial health to 5
                 enemies.push_back(enemy1);
 
                 //attack
@@ -630,6 +631,7 @@ void gameplay::reloadRoom() {
                 enemy2->stopdown = 6 * 32;
                 enemy2->stopright = 8 * 32;
                 enemy2->stopup = 3 * 32 + 16;
+                enemy2->healthManager = HealthManager(8);  // Set initial health to 8
                 enemies.push_back(enemy2);
 
                 if (enemy2->health == 0) {
@@ -644,7 +646,8 @@ void gameplay::reloadRoom() {
                 enemy3->id = 203;
                 enemy3->position.x = 12 * 32;
                 enemy3->position.y = 9 * 32;
-                enemies.push_back(enemy3);
+                enemy3->healthManager = HealthManager(10);  // Set initial health to 10
+
 
 
                 float polygons = 180;
@@ -656,6 +659,7 @@ void gameplay::reloadRoom() {
                 if (enemy3->health == 0) {
                     enemyID.push_back(enemy3->id);
                 }
+                enemies.push_back(enemy3);
             }
 
             //attack character
