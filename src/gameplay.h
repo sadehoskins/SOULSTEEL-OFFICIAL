@@ -145,6 +145,9 @@ struct ActivatedFirebowl {
         std::vector<bombs*> activeBombs;
         void addBomb(bombs* bomb);
 
+        //secret room note
+        bool isAdjacentToTable(Vector2 pos) const;
+
         //collision functions
         int getTileAt(float x, float y) const;
         bool touchesWall(Vector2 pos, float size);

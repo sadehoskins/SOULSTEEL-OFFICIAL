@@ -267,6 +267,32 @@ bool gameplay::isAdjacentToFirebowl(Vector2 pos) const {
     return false;
 }
 
+bool gameplay::isAdjacentToTable(Vector2 pos) const {
+    int tileX = static_cast<int>(pos.x) / 32;
+    int tileY = static_cast<int>(pos.y) / 32;
+
+    // Only check for tables in room 4
+    if (room == 4) {
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                if (dx == 0 && dy == 0) continue; // Skip the tile the character is on
+                int checkX = tileX + dx;
+                int checkY = tileY + dy;
+
+                // Make sure we're not checking out of bounds
+                if (checkX >= 0 && checkX < mapWidth && checkY >= 0 && checkY < mapHeight) {
+                    int tileID = getTileAt(checkX * 32, checkY * 32);
+                    if (std::find(tableIDs.begin(), tableIDs.end(), tileID) != tableIDs.end()) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
 std::pair<int, int> gameplay::getNearestFirebowlTile(Vector2 pos) const {
     int tileX = pos.x / 32;
     int tileY = pos.y / 32;
@@ -404,6 +430,10 @@ void gameplay::draw() {
     //bombs
     for (auto &bomb: activeBombs) {
         bomb->draw();
+    }
+
+    if(isAdjacentToTable(themaincharacter->position)){
+        DrawText("You found a journal.\nPress T to open.", 15*32,100,20,WHITE);
     }
 }
 
