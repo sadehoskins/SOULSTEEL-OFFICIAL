@@ -85,8 +85,6 @@ struct ActivatedFirebowl {
         Texture2D heart = assestmanagergraphics::getTexture("userinterface/heart_smaller");
 
         //loads the textures on the map (Kachelsatz)
-        //Texture2D tilesetgrass = assestmanagergraphics::getTexture("tilesets/greyboxing1");
-        //Texture2D tileset_room1 = assestmanagergraphics::getTexture("tileset/level1");
         Texture2D tileset_final = assestmanagergraphics::getTexture("tileset/final");
 
         //attributes necessary for using the map
@@ -108,7 +106,7 @@ struct ActivatedFirebowl {
         float getTakeoverRadius() const;
 
         //soul dust
-        Texture2D activatedFirebowlTexture=assestmanagergraphics::getTexture("item/souldust");
+        Texture2D activatedFirebowlTexture=assestmanagergraphics::getTexture("item/animated_firebowl");
         bool isAdjacentToFirebowl(Vector2 pos) const;
         std::pair<int, int> getNearestFirebowlTile(Vector2 pos) const;
         void activateFirebowl(int x, int y);
