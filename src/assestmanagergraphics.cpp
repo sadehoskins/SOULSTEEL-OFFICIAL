@@ -270,28 +270,7 @@ void assestmanagergraphics::loadEnemyAnimations() {
                     else if (dir == "right") direction = Direction::Right;
 
                     m_animations[entityName][animState][direction] = texture;
-                    //std::cout << "Stored texture for " << entityName << ", state: " << static_cast<int>(animState) << ", direction: " << static_cast<int>(direction) << std::endl;
-                }
-            }
-        }
-
-        // Load attack effect animations (only for enemy1 teddy)
-        if (enemyType == "enemy1") {
-            std::vector<std::string> effectDirections = {"left", "right"};
-            for (const auto& dir : effectDirections) {
-                std::string fileName = "bomb_normal_" + dir + ".png";
-                std::string path = "assets/graphics/characters/enemies/" + enemyType + "/" + fileName;
-
-                std::cout << "Attempting to load attack effect texture: " << path << std::endl;
-
-                Texture2D texture = LoadTexture(path.c_str());
-                if (texture.id == 0) {
-                    std::cout << "Failed to load attack effect texture: " << path << std::endl;
-                } else {
-                    std::cout << "Successfully loaded attack effect texture: " << path << " (ID: " << texture.id << ")" << std::endl;
-
-                    Direction direction = (dir == "left") ? Direction::Left : Direction::Right;
-                    m_animations[entityName][AnimationState::BOMB_EFFECT][direction] = texture;
+                    std::cout << "Stored texture for " << entityName << ", state: " << static_cast<int>(animState) << ", direction: " << static_cast<int>(direction) << std::endl;
                 }
             }
         }
