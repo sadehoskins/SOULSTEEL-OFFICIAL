@@ -83,11 +83,6 @@ void assestmanagergraphics::init() {
     m_textures["userinterface/tile_pink"] = LoadTexture("assets/graphics/userinterface/tile_pink.png");
     m_textures["userinterface/title_3"] = LoadTexture("assets/graphics/userinterface/title_3.png");
     m_textures["userinterface/title_4"] = LoadTexture("assets/graphics/userinterface/title_4.png");
-    m_textures["userinterface/arrowleft"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Arrow_left_-_static_resized.png");
-    m_textures["userinterface/arrowright"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Arrow_right_-_static_resized.png");
-    m_textures["userinterface/closejournal"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Closing_X_-_static_resized.png");
-    m_textures["userinterface/background_journal"] = LoadTexture("assets/graphics/userinterface/UI_-_Journal_-_open_-_static_resized.png");
-    m_textures["userinterface/journal_pic"] = LoadTexture("assets/graphics/userinterface/journal_image_resized.png");
 
     //final menu
     m_textures["userinterface/start"] = LoadTexture("assets/graphics/userinterface/UI - Menu Button - Start - static.png");
@@ -104,8 +99,11 @@ void assestmanagergraphics::init() {
     m_textures["userinterface/logo_soulsteel"] = LoadTexture("assets/graphics/userinterface/Logo_resized.png");
     m_textures["userinterface/logo_team"] = LoadTexture("assets/graphics/userinterface/Team Logo White_resized.png");
     m_textures["background/background"] = LoadTexture("assets/graphics/backgrounds/Menu background_resized.png");
-
-
+    m_textures["userinterface/arrowleft"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Arrow_left_-_static_resized.png");
+    m_textures["userinterface/arrowright"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Arrow_right_-_static_resized.png");
+    m_textures["userinterface/closejournal"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Closing_X_-_static_resized.png");
+    m_textures["userinterface/background_journal"] = LoadTexture("assets/graphics/userinterface/UI_-_Journal_-_open_-_static_resized.png");
+    m_textures["userinterface/journal_pic"] = LoadTexture("assets/graphics/userinterface/journal_image_resized.png");
 
     //ability icons
     m_textures["userinterface/icon_dash"]= LoadTexture("assets/graphics/userinterface/UI - Button symbol - Soul dash - static.png");
@@ -113,9 +111,12 @@ void assestmanagergraphics::init() {
     m_textures["userinterface/icon_stone"]= LoadTexture("assets/graphics/userinterface/UI - Button symbol - Robot Interaction - static.png");
     m_textures["userinterface/icon_bomb"]= LoadTexture("assets/graphics/userinterface/UI - Button symbol - Robot bomb - static.png");
 
+    //health
     m_textures["userinterface/heart_robot"]= LoadTexture("assets/graphics/userinterface/UI - HP heart - Robot - static.png");
     m_textures["userinterface/heart_soul"]= LoadTexture("assets/graphics/userinterface/UI - HP heart - Soul - static.png");
 
+    //firebowls
+    m_textures["item/animated_firebowl"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Fire bowl - animated - activated.png");
 
     // Load block textures
     m_textures["item/yellow_block"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Yellow Block - Static.png");
