@@ -19,8 +19,8 @@ public:
     static Texture2D getObjectTexture(const std::string& objectName, AnimationState state);
     static Texture2D getSingleFrameTexture(const std::string& name);
 
+
 private:
-    static void loadAnimations();
     static void loadCharacterAnimations();
     static void loadEnemyAnimations();
     static void loadObjectAnimations();
@@ -31,6 +31,7 @@ private:
     static std::map<std::string, std::map<AnimationState, Texture2D>> m_objectAnimations;
     static std::map<std::string, Texture2D> m_singleFrameTextures;
 
+    void drawTextureAtlas(const std::string &entityType, AnimationState state, Direction direction, int x, int y);
 };
 Texture2D LoadTextureAndLog(const std::string& path);
 

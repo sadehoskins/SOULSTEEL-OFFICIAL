@@ -136,17 +136,12 @@ void assestmanagergraphics::init() {
 
     m_textures["placeholder/standby-robot"]= LoadTexture("assets/graphics/characters/robot/robot_notpossessed.png");
 
-    loadAnimations();
     loadObjectAnimations();
     loadSingleFrameTextures();
     loadCharacterAnimations();
     loadEnemyAnimations();
 }
 
-void assestmanagergraphics::loadAnimations() {
-    loadCharacterAnimations();
-    loadEnemyAnimations();
-}
 
 void assestmanagergraphics::loadCharacterAnimations() {
     std::string basePath = "assets/graphics/characters/";
@@ -182,7 +177,7 @@ void assestmanagergraphics::loadCharacterAnimations() {
 
                 // Print debug information
                 std::cout << "Loaded " << character << " animation: " << path << std::endl;
-                std::cout << "Texture ID: " << m_animations[character][animState][direction].id << std::endl;
+
             }
         }
     }
@@ -198,6 +193,24 @@ void assestmanagergraphics::loadCharacterAnimations() {
     m_animations["robot"][AnimationState::RANGED_EFFECT][Direction::Left] = LoadTexture((basePath + "robot/screwers_ranged_left.png").c_str());
     m_animations["robot"][AnimationState::RANGED_EFFECT][Direction::Right] = LoadTexture((basePath + "robot/screwers_ranged_right.png").c_str());
     m_animations["robot"][AnimationState::FLYINGSCREWS][Direction::Down] = LoadTexture((basePath + "robot/screws_flyingscrews.png").c_str());
+
+
+    //
+// Load soul dust body animations
+    m_animations["soul"][AnimationState::DUST][Direction::Up] = LoadTexture("assets/graphics/characters/soul/soul_dust_back.png");
+    m_animations["soul"][AnimationState::DUST][Direction::Down] = LoadTexture("assets/graphics/characters/soul/soul_dust_front.png");
+    m_animations["soul"][AnimationState::DUST][Direction::Left] = LoadTexture("assets/graphics/characters/soul/soul_dust_left.png");
+    m_animations["soul"][AnimationState::DUST][Direction::Right] = LoadTexture("assets/graphics/characters/soul/soul_dust_right.png");
+
+    // Load dust effect animations
+    m_animations["dust"][AnimationState::DUST][Direction::Up] = LoadTexture("assets/graphics/characters/soul/dust_dust_back.png");
+    m_animations["dust"][AnimationState::DUST][Direction::Down] = LoadTexture("assets/graphics/characters/soul/dust_dust_front.png");
+    m_animations["dust"][AnimationState::DUST][Direction::Left] = LoadTexture("assets/graphics/characters/soul/dust_dust_left.png");
+    m_animations["dust"][AnimationState::DUST][Direction::Right] = LoadTexture("assets/graphics/characters/soul/dust_dust_right.png");
+
+
+
+
 
     std::cout << "Loaded special animations" << std::endl;
 }
@@ -282,11 +295,13 @@ Texture2D assestmanagergraphics::getAnimationTexture(const std::string& entityTy
     if (m_animations.count(entityType) > 0 &&
         m_animations[entityType].count(state) > 0 &&
         m_animations[entityType][state].count(direction) > 0) {
-        return m_animations[entityType][state][direction];
+        Texture2D texture = m_animations[entityType][state][direction];
+        std::cout << "Returning texture ID: " << texture.id << " for " << entityType << std::endl;
+        return texture;
     }
 
     std::cout << "Animation texture not found: " << entityType << ", " << static_cast<int>(state) << ", " << static_cast<int>(direction) << std::endl;
-    return m_animations["error"][AnimationState::IDLE][Direction::Down]; // Return a default "error" texture
+    return m_textures["ERROR"]; // Return a default "error" texture
 }
 
 Texture2D assestmanagergraphics::getObjectTexture(const std::string& objectName, AnimationState state) {
@@ -304,4 +319,15 @@ Texture2D assestmanagergraphics::getSingleFrameTexture(const std::string& name) 
     }
     TraceLog(LOG_WARNING, "Single frame texture not found: %s", name.c_str());
     return m_textures["ERROR"];
+}
+
+void assestmanagergraphics::drawTextureAtlas(const std::string& entityType, AnimationState state, Direction direction, int x, int y) {
+    Texture2D texture = getAnimationTexture(entityType, state, direction);
+    DrawTexture(texture, x, y, WHITE);
+
+    // Draw frame boundaries
+    int frameWidth = texture.width / 8; // Assuming 8 frames
+    for (int i = 1; i < 8; i++) {
+        DrawLine(x + i * frameWidth, y, x + i * frameWidth, y + texture.height, RED);
+    }
 }

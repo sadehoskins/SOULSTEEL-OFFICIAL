@@ -214,68 +214,141 @@ void maincharacter::drawDustAnimation() {
 }
 
 void maincharacter::drawsoul() {
-    Texture2D currentTexture = getCurrentTexture();
+    std::string entityType = "soul";
+    Texture2D bodyTexture;
 
     if (currentState == AnimationState::DUST) {
-        Texture2D characterDustTexture = assestmanagergraphics::getAnimationTexture("soul", AnimationState::DUST, currentDirection);
-        Texture2D dustEffectTexture = assestmanagergraphics::getAnimationTexture("soul", AnimationState::DUST, currentDirection);
-
-        int frameWidth = characterDustTexture.width / DUST_FRAME_COUNT;
-        Rectangle sourceRec = {
-                static_cast<float>(currentFrame * frameWidth), 0.0f,
-                static_cast<float>(frameWidth),
-                static_cast<float>(characterDustTexture.height)
-        };
-        Vector2 origin = { frameWidth / 2.0f, characterDustTexture.height / 2.0f };
-
-        // Draw character dust animation
-        DrawTexturePro(characterDustTexture, sourceRec,
-                       (Rectangle){ position.x, position.y, static_cast<float>(frameWidth), static_cast<float>(characterDustTexture.height) },
-                       origin, 0, WHITE);
-
-        // Draw dust effect animation
-        DrawTexturePro(dustEffectTexture, sourceRec,
-                       (Rectangle){ position.x, position.y, static_cast<float>(frameWidth), static_cast<float>(dustEffectTexture.height) },
-                       origin, 0, WHITE);
-
-        std::cout << "Drawing Soul Dust animation. Frame: " << currentFrame << std::endl;
+        // Use the soul_dust_* textures for the body during dust attack
+        bodyTexture = assestmanagergraphics::getAnimationTexture(entityType, AnimationState::DUST, currentDirection);
     } else {
-        // Draw normal soul animation
-        DrawTextureRec(currentTexture, frameRec,
-                       {position.x - frameRec.width / 2, position.y - frameRec.height / 2},
-                       WHITE);
+        bodyTexture = assestmanagergraphics::getAnimationTexture(entityType, currentState, currentDirection);
     }
+
+    int frameWidth = bodyTexture.width / 8;  // Assuming 8 frames per animation
+    int frameHeight = bodyTexture.height;
+
+    Rectangle sourceRect = {
+            static_cast<float>(currentFrame * frameWidth),
+            0.0f,
+            static_cast<float>(frameWidth),
+            static_cast<float>(frameHeight)
+    };
+    Rectangle destRect = {
+            position.x,
+            position.y,
+            static_cast<float>(frameWidth),
+            static_cast<float>(frameHeight)
+    };
+    Vector2 origin = {
+            static_cast<float>(frameWidth) / 2.0f,
+            static_cast<float>(frameHeight) / 2.0f
+    };
+
+    // Always draw the character body
+    DrawTexturePro(bodyTexture, sourceRect, destRect, origin, 0.0f, WHITE);
+
+    // Draw dust effect if active
+    if (currentState == AnimationState::DUST) {
+        Texture2D dustTexture = assestmanagergraphics::getAnimationTexture("dust", AnimationState::DUST, currentDirection);
+
+        int dustFrameWidth = dustTexture.width / DUST_FRAME_COUNT;
+        int dustFrameHeight = dustTexture.height;
+        Rectangle dustSourceRect = {
+                static_cast<float>(currentFrame * dustFrameWidth),
+                0.0f,
+                static_cast<float>(dustFrameWidth),
+                static_cast<float>(dustFrameHeight)
+        };
+
+        // Calculate dust effect position based on facing direction
+        Vector2 dustOffset;
+        switch (currentDirection) {
+            case Direction::Up:    dustOffset = {0, -static_cast<float>(frameHeight)/4.0f}; break;
+            case Direction::Down:  dustOffset = {0, static_cast<float>(frameHeight)/4.0f}; break;
+            case Direction::Left:  dustOffset = {-static_cast<float>(frameWidth)/4.0f, 0}; break;
+            case Direction::Right: dustOffset = {static_cast<float>(frameWidth)/4.0f, 0}; break;
+        }
+
+        Rectangle dustDestRect = {
+                position.x + dustOffset.x,
+                position.y + dustOffset.y,
+                static_cast<float>(dustFrameWidth),
+                static_cast<float>(dustFrameHeight)
+        };
+        Vector2 dustOrigin = {
+                static_cast<float>(dustFrameWidth) / 2.0f,
+                static_cast<float>(dustFrameHeight) / 2.0f
+        };
+
+        DrawTexturePro(dustTexture, dustSourceRect, dustDestRect, dustOrigin, 0.0f, WHITE);
+    }
+
+    // Debug drawing
+    DrawRectangleLines(
+            static_cast<int>(position.x - frameWidth / 2),
+            static_cast<int>(position.y - frameHeight / 2),
+            frameWidth,
+            frameHeight,
+            RED
+    );
+    DrawText(
+            TextFormat("Frame: %d, State: %d", currentFrame, static_cast<int>(currentState)),
+            static_cast<int>(position.x) - 50,
+            static_cast<int>(position.y) + 40,
+            10,
+            RED
+    );
 
     if (souldustcanbeused()) {
         DrawText("Press L to use Soul Dust", position.x - 50, position.y - 40, 10, YELLOW);
     }
-
-    // Debug information
-    DrawText(TextFormat("State: %d", static_cast<int>(currentState)), position.x - 50, position.y + 40, 10, RED);
-    DrawText(TextFormat("Frame: %d", currentFrame), position.x - 50, position.y + 55, 10, RED);
 }
 
 void maincharacter::drawrobot() {
-    std::cout << "Drawing robot. Current state: " << static_cast<int>(currentState) << std::endl;
+    std::string entityType = "robot";  // Explicitly set the entity type
+    Texture2D bodyTexture = assestmanagergraphics::getAnimationTexture(entityType, currentState, currentDirection);
 
-    Texture2D bodyTexture = assestmanagergraphics::getAnimationTexture("robot", currentState, currentDirection);
+    std::cout << "Drawing robot. Texture ID: " << bodyTexture.id << std::endl;
 
-    int frame = (currentState == AnimationState::ATTACK_NORMAL)
-                ? static_cast<int>((attackTimer / ATTACK_DURATION) * 8) % 8
-                : currentFrame;
 
-    Rectangle sourceRect = { frame * 32.0f, 0, 32, 32 };
-    Vector2 origin = { 16, 32 };  // Adjust origin to bottom center of sprite
-    Vector2 drawPos = { position.x, position.y };
+    int frameWidth = bodyTexture.width / 8;  //  8 frames per animation
+    int frameHeight = bodyTexture.height;
 
-    DrawTexturePro(bodyTexture, sourceRect, (Rectangle){ drawPos.x, drawPos.y, 32, 32 }, origin, 0, WHITE);
+    Rectangle sourceRect = {
+            static_cast<float>(currentFrame * frameWidth),
+            0.0f,
+            static_cast<float>(frameWidth),
+            static_cast<float>(frameHeight)
+    };
+    Rectangle destRect = {
+            position.x,
+            position.y,
+            static_cast<float>(frameWidth),
+            static_cast<float>(frameHeight)
+    };
+    Vector2 origin = {
+            static_cast<float>(frameWidth) / 2.0f,
+            static_cast<float>(frameHeight) / 2.0f
+    };
 
-    // Draw attack effect if necessary
-    if (currentState == AnimationState::ATTACK_NORMAL || currentState == AnimationState::ATTACK_RANGED) {
-        AnimationState effectState = (currentState == AnimationState::ATTACK_NORMAL) ? AnimationState::NORMAL_EFFECT : AnimationState::RANGED_EFFECT;
-        Texture2D effectTexture = assestmanagergraphics::getAnimationTexture("robot", effectState, currentDirection);
-        DrawTexturePro(effectTexture, sourceRect, (Rectangle){ drawPos.x, drawPos.y, 32, 32 }, origin, 0, WHITE);
-    }
+    // Draw only one body texture
+    DrawTexturePro(bodyTexture, sourceRect, destRect, origin, 0.0f, WHITE);
+
+    // Draw debug info
+    DrawRectangleLines(
+            static_cast<int>(position.x - frameWidth / 2),
+            static_cast<int>(position.y - frameHeight / 2),
+            frameWidth,
+            frameHeight,
+            RED
+    );
+    DrawText(
+            TextFormat("Frame: %d, State: %d", currentFrame, static_cast<int>(currentState)),
+            static_cast<int>(position.x) - 50,
+            static_cast<int>(position.y) + 40,
+            10,
+            RED
+    );
 }
 
 Rectangle maincharacter::getCollisionRectangle() const {
@@ -642,6 +715,13 @@ void maincharacter::update() {
     if (abyssMessageTimer > 0.0f) {
         abyssMessageTimer -= GetFrameTime();
     }
+
+    AnimationState oldState;
+    if (oldState != currentState) {
+        std::cout << "State changed from " << static_cast<int>(oldState)
+                  << " to " << static_cast<int>(currentState) << std::endl;
+    }
+
 }
 
 
@@ -649,15 +729,13 @@ void maincharacter::updateAnimation(float deltaTime) {
     frameCounter += deltaTime;
     if (frameCounter >= FRAME_DURATION) {
         frameCounter = 0.0f;
-        currentFrame++;
-        if (currentFrame >= FRAME_COUNT) currentFrame = 0;
+        currentFrame = (currentFrame + 1) % FRAME_COUNT;
     }
 
-    // Updates frameRec based on current frame
-    Texture2D currentTexture = getCurrentTexture();
-    float frameWidth = static_cast<float>(currentTexture.width) / FRAME_COUNT;
-    float frameHeight = static_cast<float>(currentTexture.height);
-    frameRec = {currentFrame * frameWidth, 0, frameWidth, frameHeight};
+    // Synchronize attack animation
+    if (currentState == AnimationState::ATTACK_NORMAL || currentState == AnimationState::ATTACK_RANGED) {
+        currentFrame = static_cast<int>((attackTimer / ATTACK_DURATION) * FRAME_COUNT) % FRAME_COUNT;
+    }
 }
 
 void maincharacter::updateDashAnimation(float deltaTime) {
