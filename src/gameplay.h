@@ -147,6 +147,15 @@ struct ActivatedFirebowl {
 
         //secret room note
         bool isAdjacentToTable(Vector2 pos) const;
+        Texture2D journal_sparkles=assestmanagergraphics::getTexture("item/journal_sparkles");
+        float journalSparklesTimer;
+        int journalSparklesCurrentFrame;
+        int journalSparklesTotalFrames;
+        float journalSparklesFrameTime;
+        void initJournalSparklesAnimation();
+        void updateJournalSparklesAnimation(float deltaTime);
+        void drawJournalSparklesAnimation(Vector2 position);
+
 
         //collision functions
         int getTileAt(float x, float y) const;
