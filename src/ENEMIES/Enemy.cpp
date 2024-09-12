@@ -139,3 +139,12 @@ void Enemy::update() {
     float animationTimer;
     int currentFrame;
 }
+//*NEW CODE*
+void Enemy::drawHealthStatus() const {
+    std::string healthText = std::to_string(healthManager.getCurrentHealth()) + "/" + std::to_string(healthManager.getMaxHealth());
+    Vector2 textPosition = {
+            position.x + HEALTH_TEXT_OFFSET_X,
+            position.y + HEALTH_TEXT_OFFSET_Y
+    };
+    DrawText(healthText.c_str(), textPosition.x, textPosition.y, HEALTH_TEXT_FONT_SIZE, RED);
+}
