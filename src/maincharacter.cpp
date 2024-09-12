@@ -607,13 +607,18 @@ void maincharacter::update() {
 
             if (currentState == AnimationState::DUST) {
                 dustAnimationTimer += GetFrameTime();
-                if (dustAnimationTimer >= FRAME_DURATION) {
-                    dustAnimationTimer -= FRAME_DURATION;
-                    currentFrame++;
-                    if (currentFrame >= DUST_FRAME_COUNT) {
-                        currentState = AnimationState::IDLE;
-                        currentFrame = 0;
-                    }
+                if (dustAnimationTimer >= DUST_ANIMATION_DURATION) {
+                    currentState = AnimationState::IDLE;
+                    currentFrame = 0;
+
+                }
+            }
+
+            // Force stop dusting if moving
+            if (IsKeyDown(KEY_W) || IsKeyDown(KEY_A) || IsKeyDown(KEY_S) || IsKeyDown(KEY_D)) {
+                if (currentState == AnimationState::DUST) {
+                    currentState = AnimationState::WALK;
+                    currentFrame = 0;
                 }
             }
 

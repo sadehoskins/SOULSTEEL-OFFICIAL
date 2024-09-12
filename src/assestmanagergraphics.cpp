@@ -165,7 +165,13 @@ void assestmanagergraphics::loadCharacterAnimations() {
                                       (dir == "front") ? Direction::Down :
                                       (dir == "left") ? Direction::Left : Direction::Right;
 
-                std::string path;
+                std::string path = basePath + character + "/" + character + "_" + state + "_" + dir + ".png";
+                Texture2D texture = LoadTexture(path.c_str());
+                m_animations[character][animState][direction] = texture;
+
+                std::cout << "Loaded " << character << " animation: " << path << std::endl;
+                std::cout << "Texture ID: " << texture.id << ", Width: " << texture.width << ", Height: " << texture.height << std::endl;
+
                 if (character == "soul" && state == "dust") {
                     // Special case for soul dust effect
                     path = basePath + character + "/dust_dust_" + dir + ".png";
