@@ -44,6 +44,12 @@ public:
     bool isAlive() const;
     float getHealthPercentage() const;
 
+    //*NEW CODE*
+    void drawHealthStatus() const;
+    static constexpr float HEALTH_TEXT_OFFSET_X = 20.0f;
+    static constexpr float HEALTH_TEXT_OFFSET_Y = -20.0f;
+    static constexpr int HEALTH_TEXT_FONT_SIZE = 15;
+
     virtual void update();
     virtual void draw();
     virtual Texture2D getCurrentTexture() = 0;

@@ -24,6 +24,9 @@ void Enemy3::draw()
 {
     Enemy::draw();  // Draw the base enemy
     // Tackle Spider doesn't have a separate attack animation, so we don't need to draw anything extra
+
+    //*NEW CODE*
+    drawHealthStatus();  // Draw the health status
 }
 
 Texture2D Enemy3::getCurrentTexture()
