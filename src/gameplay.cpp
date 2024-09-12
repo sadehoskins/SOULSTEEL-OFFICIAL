@@ -433,7 +433,7 @@ void gameplay::draw() {
     }
 
     if(isAdjacentToTable(themaincharacter->position)){
-        DrawText("You found a journal.\nPress T to open.", 200,100,20,WHITE);
+        DrawText("You found a journal.\nPress T to open.", 15*32,100,20,WHITE);
     }
 }
 
