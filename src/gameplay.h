@@ -205,11 +205,27 @@ struct ActivatedFirebowl {
         float startposroom4to5=14*32+16;
         float doorfromroom5to4=14*32+20;
         float startposroom5to4=3*32;
-        float doorfromroom5to6=3*32;
-        float startposroom5to6=14*32+16;
-        float doorfromroom6to5=14*32+20;
-        float startposroom6to5=2*32+16;
-        float doorfromroom5to7=32+16;
+        float doorfromroom5to6=2*32+16;
+        float startposroom5to6=14*32;
+        float doorfromroom6to5=14*32+16;
+        float startposroom6to5=3*32;
+        float doorfromroom5to7=16;
+        float startposroom5to7=24*32;
+        float doorfromroom7to5=24*32+16;
+        float startposroom7to5=32;
+        float doorfromroom7to8=2*32;
+        float startposroom7to8=14*32;
+        float doorfromroom8to7=14*32+16;
+        float startposroom8to7=3*32;
+        float doorfromroom8to9=24*32+16;
+        float startposroom8to9=32;
+        float doorfromroom9to8=16;
+        float startposroom9to8=24*32;
+        float doorfromroom9to10=2*32;
+        float startposroom9to10=14*32;
+        float doorfromroom10to9=14*32+16;
+        float startposroom10to9=3*32;
+        float doorfromroom10to11=2*32;
 
         bool showDemoMessage=false;
 
