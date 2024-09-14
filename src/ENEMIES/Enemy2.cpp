@@ -11,11 +11,13 @@ Enemy2::Enemy2(gameplay *scene)
                 6.0f * 32.0f - 16.0f, 8 * 32 + 16, 8 * 32 - 16, 6 * 32 + 16),
           isAttacking(false)
 {
-    animData.entityType = "Spider";
+    enemyType = "spider";
+    animData.entityType = "spider";
     animData.currentAnimationState = AnimationState::IDLE;
     animData.facingDirection = Direction::Down;
     animData.currentFrame = 0;
 
+    isAttacking = false;
     attackAnimationTimer = 0.0f;
     attackPosition = {0, 0};
 }
@@ -23,7 +25,6 @@ Enemy2::Enemy2(gameplay *scene)
 void Enemy2::draw()
 {
     Enemy::draw();  // Draw the base enemy
-
     //*NEW CODE*
     drawHealthStatus();  // Draw the health status
 
@@ -33,12 +34,11 @@ void Enemy2::draw()
     }
 }
 
-void Enemy2::drawRangedAttack()
-{
+void Enemy2::drawRangedAttack() {
     std::string effectKey = "ranged_effect_" + std::string(animData.facingDirection == Direction::Left ? "left" :
                                                            animData.facingDirection == Direction::Right ? "right" :
                                                            animData.facingDirection == Direction::Up ? "back" : "front");
-    Texture2D effectTexture = assestmanagergraphics::getAnimationTexture(animData.entityType, AnimationState::ATTACK_RANGED, animData.facingDirection);
+    Texture2D effectTexture = assestmanagergraphics::getAnimationTexture(enemyType, AnimationState::ATTACK_RANGED, animData.facingDirection);
 
     Rectangle sourceRec = {
             static_cast<float>(animData.currentFrame * effectTexture.width / AnimationData::FRAME_COUNT), 0.0f,
@@ -57,26 +57,19 @@ Texture2D Enemy2::getCurrentTexture()
     return assestmanagergraphics::getAnimationTexture(animData.entityType, animData.currentAnimationState, animData.facingDirection);
 }
 
-void Enemy2::update()
-{
+void Enemy2::update() {
     Enemy::update();
-    updateAnimation(GetFrameTime());
 
-    // Update currentAnimationState and facingDirection based on enemy state
-    if (isAttacking)
-    {
+    if (isAttacking) {
         animData.currentAnimationState = AnimationState::ATTACK_RANGED;
-    }
-    else if (!isAttacking || (animData.currentAnimationState == AnimationState::IDLE))
-    {
+    } else if (stopdown || stopleft || stopright || stopup) {
         animData.currentAnimationState = AnimationState::WALK;
-    }
-    else
-    {
+    } else {
         animData.currentAnimationState = AnimationState::IDLE;
     }
 
-    // Update facingDirection based on movement or target direction
+    std::cout << "Enemy2 update: state = " << static_cast<int>(animData.currentAnimationState)
+              << ", direction = " << static_cast<int>(animData.facingDirection) << std::endl;
 
     updateRangedAttack();
 }

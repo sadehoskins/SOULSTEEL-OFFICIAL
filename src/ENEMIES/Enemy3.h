@@ -14,12 +14,19 @@ public:
     void draw() override;
     Texture2D getCurrentTexture() override;
     void performTackleAttack();
+    void performToothAttack();
     ~Enemy3();
 
 private:
     bool isAttacking;
     void updateTackleAttack();
     bool isNearMainCharacter() const;
+    void drawTackleAttack();
+    void updateToothAttack();
+    void drawToothAttack();
+    Vector2 toothPosition;
+    float attackAnimationTimer;
+    bool isToothFlying;
 };
 
 

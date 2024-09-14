@@ -24,13 +24,14 @@ private:
     Vector2 bombPosition;
     float bombAnimationTimer;
     void updateBombThrow();
+    void drawBombThrow();
 
     //void updateAnimation(float deltaTime) override;
     //void drawAnimation() override;
 
     //void loadAnimations() override;
 
-    //void drawBombThrow();
+
 
 
 };
