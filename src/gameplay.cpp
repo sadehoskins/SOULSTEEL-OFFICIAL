@@ -220,15 +220,43 @@ void gameplay::doRoomSwitch() {
                 }
                 reloadRoom();
                 themaincharacter->position.y = startposroom5to4;
-            } else if (themaincharacter->position.x <= doorfromroom5to7 ||
-                       themaincharacter->position.y <= doorfromroom5to6) {
+            } else if (themaincharacter->position.y <= (doorfromroom5to6)) {
+                if (areAllFirebowlsActivatedInRoom(5)) {
+                    if(currentmodus==robotmodus){
+                        room = 6;
+                        soulisinroom = 6;
+                        robotisinroom = 6;
+                        reloadRoom();
+                        themaincharacter->position.y = startposroom5to6;
+                        showDoorIsLockedMessage = false;
+                    }else {
+                        showHeavyDoorMessage=true;
+                    }
+                }
+            } else if (themaincharacter->position.x <= doorfromroom5to7 && !areAllFirebowlsActivatedInRoom(5)||themaincharacter->position.y <= doorfromroom5to6 && !areAllFirebowlsActivatedInRoom(5)) {
                 showDoorIsLockedMessage = true;
+            } else if (themaincharacter->position.x <= (doorfromroom5to7)) {
+                if (areAllFirebowlsActivatedInRoom(5)) {
+                    showDemoMessage=true;
+                    /*
+                    room = 7;
+                    if (currentmodus == soulmodus) {
+                        soulisinroom = 7;
+                    } else {
+                        robotisinroom = 7;
+                    }
+                    reloadRoom();
+                    themaincharacter->position.x = startposroom5to7;
+                    showDoorIsLockedMessage = false;*/
+                }
             } else {
                 showDoorIsLockedMessage = false;
+                showHeavyDoorMessage=false;
+                showDemoMessage=false;
             }
             break;
         case 6:
-            if (themaincharacter->position.y >= doorfromroom6to5) {
+            if (themaincharacter->position.y >= (doorfromroom6to5)) {
                 if (areAllFirebowlsActivatedInRoom(6)) {
                     room = 5;
                     if (currentmodus == soulmodus) {
@@ -238,7 +266,8 @@ void gameplay::doRoomSwitch() {
                     }
                     reloadRoom();
                     themaincharacter->position.y = startposroom6to5;
-                } else if (!areAllFirebowlsActivatedInRoom(6)) {
+                    showDoorIsLockedMessage = false;
+                } else if (themaincharacter->position.y >= doorfromroom6to5 && !(areAllFirebowlsActivatedInRoom(6))) {
                     showDoorIsLockedMessage = true;
                 } else {
                     showDoorIsLockedMessage = false;
@@ -246,7 +275,7 @@ void gameplay::doRoomSwitch() {
             }
             break;
         case 7:
-            if (themaincharacter->position.y >= doorfromroom7to8) {
+            if (themaincharacter->position.y <= (doorfromroom7to8)) {
                 if (areAllFirebowlsActivatedInRoom(7)) {
                     room = 8;
                     if (currentmodus == soulmodus) {
@@ -256,12 +285,11 @@ void gameplay::doRoomSwitch() {
                     }
                     reloadRoom();
                     themaincharacter->position.y = startposroom7to8;
-                } else if (!areAllFirebowlsActivatedInRoom(7)) {
-                    showDoorIsLockedMessage = true;
-                } else {
                     showDoorIsLockedMessage = false;
+                } else if (themaincharacter->position.y <= doorfromroom7to8) {
+                    showDoorIsLockedMessage = true;
                 }
-            } else if (themaincharacter->position.x <= doorfromroom7to5) {
+            } else if (themaincharacter->position.x <= (doorfromroom7to5)) {
                 room = 5;
                 if (currentmodus == soulmodus) {
                     soulisinroom = 5;
@@ -270,6 +298,9 @@ void gameplay::doRoomSwitch() {
                 }
                 reloadRoom();
                 themaincharacter->position.x = startposroom7to5;
+                showDoorIsLockedMessage = false;
+            } else {
+                showDoorIsLockedMessage = false;
             }
             break;
         case 8:
@@ -433,6 +464,9 @@ bool gameplay::areAllFirebowlsActivatedInRoom(int roomNumber) const {
         case 3:
             requiredCount = 1;
             break;
+        case 5:
+            requiredCount = 5;
+            break;
         case 6:
             requiredCount = 4;
             break;
@@ -539,14 +573,6 @@ void gameplay::draw() {
     drawBlocks();
     drawSwitches();
     drawActivatedFirebowls(GetFrameTime());
-    if (showDoorIsLockedMessage) {
-        if (room == 1) {
-            DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32, 4 * 32, 15, DARKBLUE);
-        }
-        if (room == 3) {
-            DrawText("This door is locked!\nActivate the firebowl to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
-        }
-    }
 
     if (IsKeyDown(KEY_H)) {
         this->drawDebug();
@@ -619,6 +645,39 @@ void gameplay::drawtextonscreen() {
     if (showDemoMessage == true) {
         DrawText("This is the end of the SoulSteel Demo version.", 200, 120, 20, WHITE);
     }
+
+    if (showDoorIsLockedMessage) {
+        switch(room){
+            case 1:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32, 4 * 32, 15, DARKBLUE);
+                break;
+            case 3:
+                DrawText("This door is locked!\nActivate the firebowl to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 5:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 6:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 20 * 32 + 16, 15, WHITE);
+                break;
+            case 7:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 8:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 9:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 10:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+        }
+    }
+
+    if(showHeavyDoorMessage){
+        DrawText("This door is too heavy. Maybe your friend could help?", 200, 120, 20, WHITE);
+    }
 }
 
 void gameplay::drawicons() {
@@ -685,7 +744,6 @@ void gameplay::reloadRoom() {
                 spawnStone(6, {21 * 32, 7 * 32});
                 spawnStone(6, {21 * 32, 9 * 32});
                 spawnStone(6, {21 * 32, 11 * 32});
-                spawnStone(6, {21 * 32, 13 * 32});
                 spawnStone(6, {22 * 32, 4 * 32});
                 spawnStone(6, {22 * 32, 6 * 32});
                 spawnStone(6, {22 * 32, 8 * 32});
@@ -695,7 +753,6 @@ void gameplay::reloadRoom() {
                 spawnStone(6, {23 * 32, 7 * 32});
                 spawnStone(6, {23 * 32, 9 * 32});
                 spawnStone(6, {23 * 32, 11 * 32});
-                spawnStone(6, {23 * 32, 13 * 32});
                 break;
             case 7:
                 spawnStone(7, {6 * 32, 12 * 32});
@@ -712,6 +769,33 @@ void gameplay::reloadRoom() {
                 spawnStone(7, {15 * 32, 7 * 32});
                 spawnStone(7, {15 * 32, 9 * 32});
                 break;
+            case 8:
+                spawnStone(8, {6 * 32, 5 * 32});
+                spawnStone(8, {3 * 32, 6 * 32});
+                spawnStone(8, {4 * 32, 6 * 32});
+                spawnStone(8, {5 * 32, 6 * 32});
+                spawnStone(8, {2 * 32, 7 * 32});
+                spawnStone(8, {3 * 32, 7 * 32});
+                spawnStone(8, {1 * 32, 8 * 32});
+                spawnStone(8, {10 * 32, 12 * 32});
+                spawnStone(8, {17 * 32, 13 * 32});
+                spawnStone(8, {20 * 32, 12 * 32});
+                spawnStone(8, {21 * 32, 9 * 32});
+                spawnStone(8, {20 * 32, 8 * 32});
+                spawnStone(8, {22 * 32, 4 * 32});
+                break;
+            case 9:
+                spawnStone(9, {18 * 32, 6 * 32});
+                spawnStone(9, {19 * 32, 6 * 32});
+                spawnStone(9, {20 * 32, 10 * 32});
+                break;
+            case 10:
+                spawnStone(10, {2 * 32, 6 * 32});
+                spawnStone(10, {3 * 32, 7 * 32});
+                spawnStone(10, {3 * 32, 8 * 32});
+                spawnStone(10, {4 * 32, 7 * 32});
+                break;
+
 
                 // Add cases for other rooms if needed
         }
@@ -802,6 +886,50 @@ void gameplay::reloadRoom() {
                 spawnBlock({23 * 32, 6 * 32}, false);
                 spawnSwitch({1 * 32, 10 * 32}, false);  // blue switch
                 break;
+            case 8:
+                spawnBlock({2 * 32, 3 * 32}, false);
+                spawnBlock({3 * 32, 3 * 32}, false);
+                spawnBlock({4 * 32, 3 * 32}, false);
+                spawnSwitch({23 * 32, 3 * 32}, false);  // blue switch
+                spawnBlock({23 * 32, 8 * 32}, true);
+                spawnSwitch({4 * 32, 4 * 32}, true);  // yellow switch
+            break;
+            case 9:
+                spawnBlock({11 * 32, 3 * 32}, true);
+                spawnBlock({12 * 32, 3 * 32}, true);
+                spawnBlock({13 * 32, 3 * 32}, true);
+                spawnSwitch({23 * 32, 11 * 32}, true);  // yellow switch
+
+                spawnBlock({10 * 32, 3 * 32}, false);
+                spawnBlock({10 * 32, 4 * 32}, false);
+                spawnBlock({11 * 32, 4 * 32}, false);
+                spawnBlock({12 * 32, 4 * 32}, false);
+                spawnBlock({13 * 32, 4 * 32}, false);
+                spawnBlock({14 * 32, 4 * 32}, false);
+                spawnSwitch({23 * 32, 3 * 32}, false);  // blue switch
+
+                break;
+            case 10:
+                spawnBlock({6 * 32, 3 * 32}, false);
+                spawnBlock({7 * 32, 4 * 32}, false);
+                spawnBlock({8 * 32, 3 * 32}, false);
+                spawnBlock({14 * 32, 3 * 32}, false);
+                spawnBlock({15 * 32, 4 * 32}, false);
+                spawnBlock({16 * 32, 5 * 32}, false);
+                spawnBlock({17 * 32, 6 * 32}, false);
+                spawnBlock({18 * 32, 6 * 32}, false);
+                spawnSwitch({3 * 32, 4 * 32}, false);  // blue switch
+
+                spawnBlock({17 * 32, 3 * 32}, true);
+                spawnBlock({18 * 32, 4 * 32}, true);
+                spawnBlock({19 * 32, 5 * 32}, true);
+                spawnBlock({20 * 32, 6 * 32}, true);
+                spawnBlock({21 * 32, 6 * 32}, true);
+                spawnBlock({22 * 32, 6 * 32}, true);
+                spawnBlock({23 * 32, 6 * 32}, true);
+                spawnSwitch({12 * 32, 8 * 32}, true);  // yellow switch
+                break;
+
         }
     }
     //enemies
