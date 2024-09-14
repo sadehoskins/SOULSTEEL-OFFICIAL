@@ -29,16 +29,17 @@ void gameplay::update() {
 // Check maincharacter health
     if (!themaincharacter->healthManager.isAlive()) {
         // Draw game over message
-        const char* gameOverText = "GAME OVER";
+        const char *gameOverText = "GAME OVER";
         int fontSize = 40;
         int textWidth = MeasureText(gameOverText, fontSize);
-        DrawText(gameOverText, GetScreenWidth()/2 - textWidth/2, GetScreenHeight()/2 - fontSize/2, fontSize, RED);
+        DrawText(gameOverText, GetScreenWidth() / 2 - textWidth / 2, GetScreenHeight() / 2 - fontSize / 2, fontSize,
+                 RED);
         return; // Stop updating the game
     }
 
     // Update and check enemies
     for (auto it = enemies.begin(); it != enemies.end();) {
-        Enemy* enemy = *it;
+        Enemy *enemy = *it;
         if (!enemy->healthManager.isAlive()) {
             // Handle enemy death
             delete enemy; // Free the memory
@@ -48,7 +49,6 @@ void gameplay::update() {
             ++it;
         }
     }
-
 
 
     updateAllenemies();
@@ -113,7 +113,7 @@ void gameplay::doRoomSwitch() {
                     themaincharacter->position.y = startposroom1to2;
                     reloadRoom();
                 }
-            } else if (themaincharacter->position.y <= (doortextarea)&&!(areAllFirebowlsActivatedInRoom(1))) {
+            } else if (themaincharacter->position.y <= (doortextarea) && !(areAllFirebowlsActivatedInRoom(1))) {
                 showDoorIsLockedMessage = true;
             } else {
                 showDoorIsLockedMessage = false;
@@ -218,30 +218,167 @@ void gameplay::doRoomSwitch() {
                 } else {
                     robotisinroom = 3;
                 }
-
                 reloadRoom();
-
-                themaincharacter->position.
-                        y = startposroom5to4;
-            } else if (themaincharacter->position.x <= doorfromroom5to7 ||
-                       themaincharacter->position.y <= doorfromroom5to6) {
-                showDemoMessage = true;
+                themaincharacter->position.y = startposroom5to4;
+            } else if (themaincharacter->position.y <= (doorfromroom5to6)) {
+                if (areAllFirebowlsActivatedInRoom(5)) {
+                    if(currentmodus==robotmodus){
+                        room = 6;
+                        soulisinroom = 6;
+                        robotisinroom = 6;
+                        reloadRoom();
+                        themaincharacter->position.y = startposroom5to6;
+                        showDoorIsLockedMessage = false;
+                    }else {
+                        showHeavyDoorMessage=true;
+                    }
+                }
+            } else if (themaincharacter->position.x <= doorfromroom5to7 && !areAllFirebowlsActivatedInRoom(5)||themaincharacter->position.y <= doorfromroom5to6 && !areAllFirebowlsActivatedInRoom(5)) {
+                showDoorIsLockedMessage = true;
+            } else if (themaincharacter->position.x <= (doorfromroom5to7)) {
+                if (areAllFirebowlsActivatedInRoom(5)) {
+                    showDemoMessage=true;
+                    /*
+                    room = 7;
+                    if (currentmodus == soulmodus) {
+                        soulisinroom = 7;
+                    } else {
+                        robotisinroom = 7;
+                    }
+                    reloadRoom();
+                    themaincharacter->position.x = startposroom5to7;
+                    showDoorIsLockedMessage = false;*/
+                }
+            } else {
+                showDoorIsLockedMessage = false;
+                showHeavyDoorMessage=false;
+                showDemoMessage=false;
+            }
+            break;
+        case 6:
+            if (themaincharacter->position.y >= (doorfromroom6to5)) {
+                if (areAllFirebowlsActivatedInRoom(6)) {
+                    room = 5;
+                    if (currentmodus == soulmodus) {
+                        soulisinroom = 5;
+                    } else {
+                        robotisinroom = 5;
+                    }
+                    reloadRoom();
+                    themaincharacter->position.y = startposroom6to5;
+                    showDoorIsLockedMessage = false;
+                } else if (themaincharacter->position.y >= doorfromroom6to5 && !(areAllFirebowlsActivatedInRoom(6))) {
+                    showDoorIsLockedMessage = true;
+                } else {
+                    showDoorIsLockedMessage = false;
+                }
+            }
+            break;
+        case 7:
+            if (themaincharacter->position.y <= (doorfromroom7to8)) {
+                if (areAllFirebowlsActivatedInRoom(7)) {
+                    room = 8;
+                    if (currentmodus == soulmodus) {
+                        soulisinroom = 8;
+                    } else {
+                        robotisinroom = 8;
+                    }
+                    reloadRoom();
+                    themaincharacter->position.y = startposroom7to8;
+                    showDoorIsLockedMessage = false;
+                } else if (themaincharacter->position.y <= doorfromroom7to8) {
+                    showDoorIsLockedMessage = true;
+                }
+            } else if (themaincharacter->position.x <= (doorfromroom7to5)) {
+                room = 5;
+                if (currentmodus == soulmodus) {
+                    soulisinroom = 5;
+                } else {
+                    robotisinroom = 5;
+                }
+                reloadRoom();
+                themaincharacter->position.x = startposroom7to5;
+                showDoorIsLockedMessage = false;
+            } else {
+                showDoorIsLockedMessage = false;
+            }
+            break;
+        case 8:
+            if (themaincharacter->position.x >= doorfromroom8to9) {
+                if (areAllFirebowlsActivatedInRoom(8)) {
+                    room = 9;
+                    if (currentmodus == soulmodus) {
+                        soulisinroom = 9;
+                    } else {
+                        robotisinroom = 9;
+                    }
+                    reloadRoom();
+                    themaincharacter->position.x = startposroom8to9;
+                } else if (!areAllFirebowlsActivatedInRoom(8)) {
+                    showDoorIsLockedMessage = true;
+                } else {
+                    showDoorIsLockedMessage = false;
+                }
+            } else if (themaincharacter->position.y <= doorfromroom8to7) {
+                room = 7;
+                if (currentmodus == soulmodus) {
+                    soulisinroom = 7;
+                } else {
+                    robotisinroom = 7;
+                }
+                reloadRoom();
+                themaincharacter->position.y = startposroom8to7;
+            }
+            break;
+        case 9:
+            if (themaincharacter->position.y >= doorfromroom9to10) {
+                if (areAllFirebowlsActivatedInRoom(9)) {
+                    room = 10;
+                    if (currentmodus == soulmodus) {
+                        soulisinroom = 10;
+                    } else {
+                        robotisinroom = 10;
+                    }
+                    reloadRoom();
+                    themaincharacter->position.y = startposroom9to10;
+                } else if (!areAllFirebowlsActivatedInRoom(9)) {
+                    showDoorIsLockedMessage = true;
+                } else {
+                    showDoorIsLockedMessage = false;
+                }
+            } else if (themaincharacter->position.x <= doorfromroom9to8) {
+                room = 8;
+                if (currentmodus == soulmodus) {
+                    soulisinroom = 8;
+                } else {
+                    robotisinroom = 8;
+                }
+                reloadRoom();
+                themaincharacter->position.x = startposroom9to8;
+            }
+            break;
+        case 10:
+            if (themaincharacter->position.y >= doorfromroom10to9) {
+                room = 9;
+                if (currentmodus == soulmodus) {
+                    soulisinroom = 9;
+                } else {
+                    robotisinroom = 9;
+                }
+                reloadRoom();
+                themaincharacter->position.y = startposroom10to9;
+            } else if (themaincharacter->position.y <= doorfromroom10to11) {
+                if (areAllFirebowlsActivatedInRoom(10)) {
+                    showDemoMessage = true;
+                }
+                if (!areAllFirebowlsActivatedInRoom(10)) {
+                    showDoorIsLockedMessage = true;
+                }
             } else {
                 showDemoMessage = false;
             }
             break;
-/*case 6:
-    if (themaincharacter->position.y >= doorfromroom6to5) {
-        room = 5;
-        if (currentmodus == soulmodus) {
-            soulisinroom = 6;
-        } else { robotisinroom = 6; }
-        reloadRoom();
-        themaincharacter->position.y = startposroom6to5;
     }
-    break;*/
-    }
-
 }
 
 bool gameplay::isAdjacentToFirebowl(Vector2 pos) const {
@@ -320,16 +457,37 @@ void gameplay::activateFirebowl(int x, int y) {
 
 bool gameplay::areAllFirebowlsActivatedInRoom(int roomNumber) const {
     int requiredCount = 0;
-    if (roomNumber == 1) {
-        requiredCount = 2;  // Room 1 requires 2 firebowls
-    } else if (roomNumber == 3) {
-        requiredCount = 1;  // Room 3 requires only 1 firebowl
+    switch (room) {
+        case 1:
+            requiredCount = 2;
+            break;
+        case 3:
+            requiredCount = 1;
+            break;
+        case 5:
+            requiredCount = 5;
+            break;
+        case 6:
+            requiredCount = 4;
+            break;
+        case 7:
+            requiredCount = 4;
+            break;
+        case 8:
+            requiredCount = 3;
+            break;
+        case 9:
+            requiredCount = 1;
+            break;
+        case 10:
+            requiredCount = 3;
+            break;
+
     }
-    //conditions for other rooms if needed HERE
 
     int activatedCount = 0;
     for (const auto &bowl: activatedFirebowls) {
-        if (bowl.room == roomNumber) {
+        if (bowl.room == room) {
             activatedCount++;
         }
     }
@@ -415,14 +573,6 @@ void gameplay::draw() {
     drawBlocks();
     drawSwitches();
     drawActivatedFirebowls(GetFrameTime());
-    if (showDoorIsLockedMessage) {
-        if (room == 1) {
-            DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32, 4 * 32, 15, DARKBLUE);
-        }
-        if (room == 3) {
-            DrawText("This door is locked!\nActivate the firebowl to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
-        }
-    }
 
     if (IsKeyDown(KEY_H)) {
         this->drawDebug();
@@ -432,12 +582,12 @@ void gameplay::draw() {
         bomb->draw();
     }
 
-    if(isAdjacentToTable(themaincharacter->position)){
-        DrawText("You found a journal.\nPress T to open.", 15*32,100,20,WHITE);
+    if (isAdjacentToTable(themaincharacter->position)) {
+        DrawText("You found a journal.\nPress T to open.", 15 * 32, 100, 20, WHITE);
     }
-    if(room==4){
+    if (room == 4) {
         updateJournalSparklesAnimation(GetFrameTime());
-        drawJournalSparklesAnimation({17.0f*32, 9.0f*32});
+        drawJournalSparklesAnimation({17.0f * 32, 9.0f * 32});
     }
 }
 
@@ -495,6 +645,39 @@ void gameplay::drawtextonscreen() {
     if (showDemoMessage == true) {
         DrawText("This is the end of the SoulSteel Demo version.", 200, 120, 20, WHITE);
     }
+
+    if (showDoorIsLockedMessage) {
+        switch(room){
+            case 1:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32, 4 * 32, 15, DARKBLUE);
+                break;
+            case 3:
+                DrawText("This door is locked!\nActivate the firebowl to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 5:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 6:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 20 * 32 + 16, 15, WHITE);
+                break;
+            case 7:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 8:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 9:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+            case 10:
+                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+                break;
+        }
+    }
+
+    if(showHeavyDoorMessage){
+        DrawText("This door is too heavy. Maybe your friend could help?", 200, 120, 20, WHITE);
+    }
 }
 
 void gameplay::drawicons() {
@@ -549,13 +732,71 @@ void gameplay::reloadRoom() {
         switch (room) {
             case 2:
                 spawnStone(2, {23 * 32, 8 * 32});
-
                 spawnStone(2, {10 * 32, 3 * 32});
                 spawnStone(2, {11 * 32, 4 * 32});
                 spawnStone(2, {12 * 32, 3 * 32});
                 spawnStone(2, {13 * 32, 4 * 32});
                 spawnStone(2, {14 * 32, 3 * 32});
                 break;
+            case 6:
+                spawnStone(6, {21 * 32, 3 * 32});
+                spawnStone(6, {21 * 32, 5 * 32});
+                spawnStone(6, {21 * 32, 7 * 32});
+                spawnStone(6, {21 * 32, 9 * 32});
+                spawnStone(6, {21 * 32, 11 * 32});
+                spawnStone(6, {22 * 32, 4 * 32});
+                spawnStone(6, {22 * 32, 6 * 32});
+                spawnStone(6, {22 * 32, 8 * 32});
+                spawnStone(6, {22 * 32, 10 * 32});
+                spawnStone(6, {22 * 32, 12 * 32});
+                spawnStone(6, {23 * 32, 5 * 32});
+                spawnStone(6, {23 * 32, 7 * 32});
+                spawnStone(6, {23 * 32, 9 * 32});
+                spawnStone(6, {23 * 32, 11 * 32});
+                break;
+            case 7:
+                spawnStone(7, {6 * 32, 12 * 32});
+                spawnStone(7, {9 * 32, 4 * 32});
+                spawnStone(7, {12 * 32, 4 * 32});
+                spawnStone(7, {13 * 32, 3 * 32});
+                spawnStone(7, {17 * 32, 4 * 32});
+                spawnStone(7, {16 * 32, 3 * 32});
+                spawnStone(7, {17 * 32, 13 * 32});
+                spawnStone(7, {13 * 32, 7 * 32});
+                spawnStone(7, {14 * 32, 6 * 32});
+                spawnStone(7, {14 * 32, 8 * 32});
+                spawnStone(7, {15 * 32, 6 * 32});
+                spawnStone(7, {15 * 32, 7 * 32});
+                spawnStone(7, {15 * 32, 9 * 32});
+                break;
+            case 8:
+                spawnStone(8, {6 * 32, 5 * 32});
+                spawnStone(8, {3 * 32, 6 * 32});
+                spawnStone(8, {4 * 32, 6 * 32});
+                spawnStone(8, {5 * 32, 6 * 32});
+                spawnStone(8, {2 * 32, 7 * 32});
+                spawnStone(8, {3 * 32, 7 * 32});
+                spawnStone(8, {1 * 32, 8 * 32});
+                spawnStone(8, {10 * 32, 12 * 32});
+                spawnStone(8, {17 * 32, 13 * 32});
+                spawnStone(8, {20 * 32, 12 * 32});
+                spawnStone(8, {21 * 32, 9 * 32});
+                spawnStone(8, {20 * 32, 8 * 32});
+                spawnStone(8, {22 * 32, 4 * 32});
+                break;
+            case 9:
+                spawnStone(9, {18 * 32, 6 * 32});
+                spawnStone(9, {19 * 32, 6 * 32});
+                spawnStone(9, {20 * 32, 10 * 32});
+                break;
+            case 10:
+                spawnStone(10, {2 * 32, 6 * 32});
+                spawnStone(10, {3 * 32, 7 * 32});
+                spawnStone(10, {3 * 32, 8 * 32});
+                spawnStone(10, {4 * 32, 7 * 32});
+                break;
+
+
                 // Add cases for other rooms if needed
         }
     }
@@ -581,6 +822,114 @@ void gameplay::reloadRoom() {
                 spawnSwitch({22 * 32, 12 * 32}, false);  // Blue switch
                 //std::cout << "Switches spawned at (1, 3) and (22, 12)" << std::endl;
                 break;
+            case 6:
+                spawnBlock({8 * 32, 3 * 32}, true);
+                spawnBlock({8 * 32, 4 * 32}, true);
+                spawnBlock({8 * 32, 5 * 32}, true);
+                spawnBlock({8 * 32, 6 * 32}, true);
+                spawnBlock({8 * 32, 7 * 32}, true);
+                spawnBlock({8 * 32, 8 * 32}, true);
+                spawnBlock({8 * 32, 9 * 32}, true);
+                spawnBlock({8 * 32, 10 * 32}, true);
+                spawnBlock({8 * 32, 11 * 32}, true);
+                spawnBlock({8 * 32, 12 * 32}, true);
+                spawnBlock({8 * 32, 13 * 32}, true);
+                spawnBlock({16 * 32, 3 * 32}, true);
+                spawnBlock({16 * 32, 4 * 32}, true);
+                spawnBlock({16 * 32, 5 * 32}, true);
+                spawnBlock({16 * 32, 6 * 32}, true);
+                spawnBlock({16 * 32, 7 * 32}, true);
+                spawnBlock({16 * 32, 8 * 32}, true);
+                spawnBlock({16 * 32, 9 * 32}, true);
+                spawnBlock({16 * 32, 10 * 32}, true);
+                spawnBlock({16 * 32, 11 * 32}, true);
+                spawnBlock({16 * 32, 12 * 32}, true);
+                spawnBlock({16 * 32, 13 * 32}, true);
+                spawnSwitch({12 * 32, 9 * 32}, true);  // yellow switch
+
+                spawnBlock({20 * 32, 3 * 32}, false);
+                spawnBlock({20 * 32, 4 * 32}, false);
+                spawnBlock({20 * 32, 5 * 32}, false);
+                spawnBlock({20 * 32, 6 * 32}, false);
+                spawnBlock({20 * 32, 7 * 32}, false);
+                spawnBlock({20 * 32, 8 * 32}, false);
+                spawnBlock({20 * 32, 9 * 32}, false);
+                spawnBlock({20 * 32, 10 * 32}, false);
+                spawnBlock({20 * 32, 11 * 32}, false);
+                spawnBlock({20 * 32, 12 * 32}, false);
+                spawnBlock({20 * 32, 13 * 32}, false);
+                spawnSwitch({18 * 32, 9 * 32}, false);  // blue switch
+                break;
+            case 7:
+                spawnBlock({1 * 32, 11 * 32}, true);
+                spawnBlock({2 * 32, 10 * 32}, true);
+                spawnBlock({2 * 32, 11 * 32}, true);
+                spawnBlock({1 * 32, 7 * 32}, true);
+                spawnBlock({2 * 32, 7 * 32}, true);
+                spawnBlock({3 * 32, 7 * 32}, true);
+                spawnBlock({4 * 32, 7 * 32}, true);
+                spawnBlock({5 * 32, 7 * 32}, true);
+                spawnBlock({5 * 32, 6 * 32}, true);
+                spawnBlock({5 * 32, 5 * 32}, true);
+                spawnBlock({5 * 32, 4 * 32}, true);
+                spawnBlock({5 * 32, 3 * 32}, true);
+                spawnSwitch({14 * 32, 7 * 32}, true);  // yellow switch
+
+                spawnBlock({17 * 32, 3 * 32}, false);
+                spawnBlock({18 * 32, 4 * 32}, false);
+                spawnBlock({19 * 32, 4 * 32}, false);
+                spawnBlock({20 * 32, 4 * 32}, false);
+                spawnBlock({20 * 32, 5 * 32}, false);
+                spawnBlock({20 * 32, 6 * 32}, false);
+                spawnBlock({21 * 32, 6 * 32}, false);
+                spawnBlock({22 * 32, 6 * 32}, false);
+                spawnBlock({23 * 32, 6 * 32}, false);
+                spawnSwitch({1 * 32, 10 * 32}, false);  // blue switch
+                break;
+            case 8:
+                spawnBlock({2 * 32, 3 * 32}, false);
+                spawnBlock({3 * 32, 3 * 32}, false);
+                spawnBlock({4 * 32, 3 * 32}, false);
+                spawnSwitch({23 * 32, 3 * 32}, false);  // blue switch
+                spawnBlock({23 * 32, 8 * 32}, true);
+                spawnSwitch({4 * 32, 4 * 32}, true);  // yellow switch
+            break;
+            case 9:
+                spawnBlock({11 * 32, 3 * 32}, true);
+                spawnBlock({12 * 32, 3 * 32}, true);
+                spawnBlock({13 * 32, 3 * 32}, true);
+                spawnSwitch({23 * 32, 11 * 32}, true);  // yellow switch
+
+                spawnBlock({10 * 32, 3 * 32}, false);
+                spawnBlock({10 * 32, 4 * 32}, false);
+                spawnBlock({11 * 32, 4 * 32}, false);
+                spawnBlock({12 * 32, 4 * 32}, false);
+                spawnBlock({13 * 32, 4 * 32}, false);
+                spawnBlock({14 * 32, 4 * 32}, false);
+                spawnSwitch({23 * 32, 3 * 32}, false);  // blue switch
+
+                break;
+            case 10:
+                spawnBlock({6 * 32, 3 * 32}, false);
+                spawnBlock({7 * 32, 4 * 32}, false);
+                spawnBlock({8 * 32, 3 * 32}, false);
+                spawnBlock({14 * 32, 3 * 32}, false);
+                spawnBlock({15 * 32, 4 * 32}, false);
+                spawnBlock({16 * 32, 5 * 32}, false);
+                spawnBlock({17 * 32, 6 * 32}, false);
+                spawnBlock({18 * 32, 6 * 32}, false);
+                spawnSwitch({3 * 32, 4 * 32}, false);  // blue switch
+
+                spawnBlock({17 * 32, 3 * 32}, true);
+                spawnBlock({18 * 32, 4 * 32}, true);
+                spawnBlock({19 * 32, 5 * 32}, true);
+                spawnBlock({20 * 32, 6 * 32}, true);
+                spawnBlock({21 * 32, 6 * 32}, true);
+                spawnBlock({22 * 32, 6 * 32}, true);
+                spawnBlock({23 * 32, 6 * 32}, true);
+                spawnSwitch({12 * 32, 8 * 32}, true);  // yellow switch
+                break;
+
         }
     }
     //enemies
@@ -749,8 +1098,21 @@ void gameplay::loadMap() {
             mapFile = "assets/graphics/tilesets/room4.tmj";
             break;
         case 6:
-            mapFile = "assets/graphics/tilesets/room5test.tmj";
+            mapFile = "assets/graphics/tilesets/room6.tmj";
             break;
+        case 7:
+            mapFile = "assets/graphics/tilesets/room7.tmj";
+            break;
+        case 8:
+            mapFile = "assets/graphics/tilesets/room8.tmj";
+            break;
+        case 9:
+            mapFile = "assets/graphics/tilesets/room9.tmj";
+            break;
+        case 10:
+            mapFile = "assets/graphics/tilesets/room10.tmj";
+            break;
+
     }
     auto map = tileson.parse(mapFile);
     if (map->getStatus() != tson::ParseStatus::OK) {
@@ -1311,14 +1673,14 @@ void gameplay::drawJournalSparklesAnimation(Vector2 position) {
     Rectangle sourceRec = {
             static_cast<float>(journalSparklesCurrentFrame * frameWidth),
             0.0f,
-            (float)frameWidth,
-            (float)journal_sparkles.height
+            (float) frameWidth,
+            (float) journal_sparkles.height
     };
     Rectangle destRec = {
             position.x,
             position.y,
-            (float)frameWidth,
-            (float)journal_sparkles.height
+            (float) frameWidth,
+            (float) journal_sparkles.height
     };
     DrawTexturePro(journal_sparkles, sourceRec, destRec, Vector2{0, 0}, 0.0f, WHITE);
 }
