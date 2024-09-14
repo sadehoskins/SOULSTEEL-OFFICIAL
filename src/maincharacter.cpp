@@ -283,7 +283,7 @@ void maincharacter::drawsoul() {
         DrawTexturePro(dustTexture, dustSourceRect, dustDestRect, dustOrigin, 0.0f, WHITE);
     }
 
-    // Debug drawing
+    /*/ Debug drawing
     DrawRectangleLines(
             static_cast<int>(position.x - frameWidth / 2),
             static_cast<int>(position.y - frameHeight / 2),
@@ -297,7 +297,7 @@ void maincharacter::drawsoul() {
             static_cast<int>(position.y) + 40,
             10,
             RED
-    );
+    );*/
 
     if (souldustcanbeused()) {
         DrawText("Press L to use Soul Dust", position.x - 50, position.y - 40, 10, YELLOW);
@@ -334,7 +334,7 @@ void maincharacter::drawrobot() {
     // Draw only one body texture
     DrawTexturePro(bodyTexture, sourceRect, destRect, origin, 0.0f, WHITE);
 
-    // Draw debug info
+    /*/ Draw debug info
     DrawRectangleLines(
             static_cast<int>(position.x - frameWidth / 2),
             static_cast<int>(position.y - frameHeight / 2),
@@ -348,7 +348,7 @@ void maincharacter::drawrobot() {
             static_cast<int>(position.y) + 40,
             10,
             RED
-    );
+    );*/
 }
 
 Rectangle maincharacter::getCollisionRectangle() const {
