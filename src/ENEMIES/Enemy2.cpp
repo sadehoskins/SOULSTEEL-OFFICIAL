@@ -26,7 +26,7 @@ void Enemy2::draw()
 {
     Enemy::draw();  // Draw the base enemy
     //*NEW CODE*
-    drawHealthStatus();  // Draw the health status
+    //drawHealthStatus();  // Draw the health status
 
     if (isAttacking)
     {
