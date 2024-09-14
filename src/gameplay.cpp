@@ -258,19 +258,22 @@ void gameplay::doRoomSwitch() {
         case 6:
             if (themaincharacter->position.y >= (doorfromroom6to5)) {
                 if (areAllFirebowlsActivatedInRoom(6)) {
-                    room = 5;
-                    if (currentmodus == soulmodus) {
+                    if(currentmodus==robotmodus){
+                        room = 5;
                         soulisinroom = 5;
-                    } else {
                         robotisinroom = 5;
+                        reloadRoom();
+                        themaincharacter->position.y = startposroom6to5;
+                        showDoorIsLockedMessage = false;
+                    }else{
+                        showHeavyDoorMessage=true;
                     }
-                    reloadRoom();
-                    themaincharacter->position.y = startposroom6to5;
-                    showDoorIsLockedMessage = false;
+
                 } else if (themaincharacter->position.y >= doorfromroom6to5 && !(areAllFirebowlsActivatedInRoom(6))) {
                     showDoorIsLockedMessage = true;
                 } else {
                     showDoorIsLockedMessage = false;
+                    showHeavyDoorMessage=false;
                 }
             }
             break;
