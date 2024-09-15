@@ -16,8 +16,6 @@ public:
     Texture2D getCurrentTexture() override;
     ~Enemy1() override;
 
-    //std::string enemyType;
-    //static std::string toLowerCase(const std::string& str);
 
 private:
     bool isThrowing;
@@ -26,10 +24,12 @@ private:
     void updateBombThrow();
     void drawBombThrow();
 
-    //void updateAnimation(float deltaTime) override;
-    //void drawAnimation() override;
+    //bomb throwing
+    float detectionRadius;
+    float bombCooldown;
+    float timeSinceLastBomb;
+    bool canThrowBomb();
 
-    //void loadAnimations() override;
 
 
 

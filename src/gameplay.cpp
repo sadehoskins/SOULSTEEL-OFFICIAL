@@ -88,6 +88,15 @@ void gameplay::update() {
                            }),
             activeBombs.end());
 
+    for (auto it = activeBombs.begin(); it != activeBombs.end();) {
+        (*it)->update();
+        if ((*it)->state == bombs::finished) {
+            it = activeBombs.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
     for (auto& bomb : activeBombs) {
         if (bomb) {
             std::cout << "Updating bomb at address: " << bomb.get() << std::endl;

@@ -145,9 +145,8 @@ struct ActivatedFirebowl {
         bool isAdjacentToSwitch(Vector2 position) const;
 
         //bombs
-        //std::vector<bombs*> activeBombs;
+
         std::vector<std::unique_ptr<bombs>> activeBombs;
-        //void addBomb(bombs* bomb);
         void addBomb(Vector2 position);
 
 

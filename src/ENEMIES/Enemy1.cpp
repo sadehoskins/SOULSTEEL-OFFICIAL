@@ -10,29 +10,24 @@
 
 
 Enemy1::Enemy1(gameplay *scene)
-        : Enemy(scene, 1, 1, true, false, false, 12 * 32 + 16, 10 * 32 - 16, 11 * 32 - 16, 6 * 32 + 16)
+        : Enemy(scene, 1, 1, true, false, false, 12 * 32 + 16, 10 * 32 - 16, 11 * 32 - 16, 6 * 32 + 16),
+          isThrowing(false), bombAnimationTimer(0.0f),
+          detectionRadius(200.0f), bombCooldown(5.0f), timeSinceLastBomb(0.0f)
 {
     enemyType = "teddy";
     animData.entityType = "teddy";
     animData.currentAnimationState = AnimationState::IDLE;
     animData.facingDirection = Direction::Down;
     animData.currentFrame = 0;
-
-    isThrowing = false;
-    bombAnimationTimer = 0.0f;
-    bombPosition = {0, 0};
 }
 
 void Enemy1::draw() {
-    Enemy::draw();  // This will draw the main body
+    Enemy::draw();  // draw main body
 
-    //*NEW CODE*
     drawHealthStatus();  // Draw the health status
 
-    if (isThrowing)
-    {
+    if (isThrowing){
         drawBombThrow();
-
     }
 }
 
@@ -42,24 +37,31 @@ Texture2D Enemy1::getCurrentTexture()
 }
 
 
-void Enemy1::throwBomb() {
+void Enemy1::throwBomb()
+{
     isThrowing = true;
     animData.currentFrame = 0;
     bombAnimationTimer = 0.0f;
-    bombPosition = {position.x + (animData.facingDirection == Direction::Right ? 20.0f : -20.0f), position.y};
+
+    maincharacter* player = _scene->themaincharacter;
+    Vector2 direction = Vector2Normalize(Vector2Subtract(player->position, position));
+    bombPosition = Vector2Add(position, Vector2Scale(direction, 32.0f));
+
+    _scene->addBomb(bombPosition);
+    timeSinceLastBomb = 0.0f;
 }
 
 void Enemy1::update() {
     Enemy::update();
     updateAnimation(GetFrameTime());
+    timeSinceLastBomb += GetFrameTime();
 
-    if (isThrowing) {
-        animData.currentAnimationState = AnimationState::ATTACK_NORMAL;
-    } else if (!isThrowing) {
-        animData.currentAnimationState = AnimationState::WALK;
-    } else {
-        animData.currentAnimationState = AnimationState::IDLE;
+    if (canThrowBomb()) {
+        throwBomb();
     }
+
+    animData.currentAnimationState = isThrowing ? AnimationState::ATTACK_NORMAL
+                                                : AnimationState::WALK;
 
     updateBombThrow();
 }
@@ -77,7 +79,7 @@ void Enemy1::updateBombThrow()
         {
             isThrowing = false;
             animData.currentFrame = 0;
-            // Here you would typically create an actual bomb object
+
         }
     }
 }
@@ -96,6 +98,21 @@ void Enemy1::drawBombThrow() {
     };
     DrawTextureRec(bombTexture, sourceRec, drawPos, WHITE);
 }
+
+bool Enemy1::canThrowBomb()
+{
+    if (timeSinceLastBomb < bombCooldown)
+        return false;
+
+    maincharacter* player = _scene->themaincharacter;
+    if (!player)
+        return false;
+
+    float distanceToPlayer = Vector2Distance(position, player->position);
+    return distanceToPlayer <= detectionRadius;
+}
+
+
 
 Enemy1::~Enemy1() {
 }
