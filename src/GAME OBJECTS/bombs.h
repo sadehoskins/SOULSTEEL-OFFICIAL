@@ -25,11 +25,13 @@ public:
     //are made public for debugging radius
     static const float explosion_radius;
     static const int explosion_damage;
+    static const float thrown_duration;
+    static const float exploding_duration;
+
 
 private:
     float stateTimer;
-    static const float thrown_duration;
-    static const float exploding_duration;
+
 
 
     Texture2D bomb_thrown = assestmanagergraphics::getTexture("item/bomb_thrown");

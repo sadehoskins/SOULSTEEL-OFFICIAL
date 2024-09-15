@@ -5,8 +5,8 @@
 #include "bombs.h"
 #include "../gameplay.h"
 
-const float bombs::thrown_duration = 0.5f;
-const float bombs::exploding_duration = 0.5f;
+const float bombs::thrown_duration = 1.5f;
+const float bombs::exploding_duration = 1.0f;
 const float bombs::explosion_radius = 64.0f; //radius in which bomb gives damage
 const int bombs::explosion_damage = 2; //change this to whatever damage the bomb gives
 const float bombs::frame_duration = 0.1f;
@@ -58,15 +58,17 @@ void bombs::update() {
     std::cout << "Exiting bombs::update. Final state: " << state << std::endl;
 }
 
+
 void bombs::updateAnimation() {
     frameTimer += GetFrameTime();
-    if (frameTimer >= frame_duration) {
+    float frameDuration = (state == thrown) ? 0.2f : 0.125f;  // Slower for thrown state, faster for exploding
+    if (frameTimer >= frameDuration) {
         frameTimer = 0;
         currentFrame++;
         if (state == thrown && currentFrame >= thrown_frame_count) {
             currentFrame = 0;
         } else if (state == exploding && currentFrame >= exploding_frame_count) {
-            currentFrame = 0;
+            currentFrame = exploding_frame_count - 1;  // Stay on last frame
         }
     }
 }
@@ -139,6 +141,13 @@ void bombs::draw() {
         return;
     }
 
+    /* Draw explosion radius for debug
+    if (state == exploding) {
+        float alpha = (sinf(stateTimer * 10) + 1) / 4 + 0.5f;  // Creates a value between 0.5 and 1
+        DrawCircleLines(position.x, position.y, explosion_radius, ColorAlpha(RED, alpha));
+    }*/
+
+
     float frameWidth = currentTexture.width / frameCount;
     float frameHeight = currentTexture.height;
 
@@ -146,10 +155,6 @@ void bombs::draw() {
     Rectangle destRec = { position.x - frameWidth / 2, position.y - frameHeight / 2, frameWidth, frameHeight };
 
     DrawTexturePro(currentTexture, sourceRec, destRec, Vector2{0, 0}, 0, WHITE);
-    // Optionally, draws the explosion radius for debugging
-     if (state == exploding) {
-         DrawCircleLines(position.x, position.y, explosion_radius, RED);
-     }
 
     std::cout << "Exiting bombs::draw" << std::endl;
 }
