@@ -16,7 +16,7 @@
 #include "Wall.h"
 #include "GAME OBJECTS/stone.h"
 #include <map>
-
+#include <memory>
 
 
 class maincharacter;
@@ -94,6 +94,7 @@ struct ActivatedFirebowl {
         int mapWidth = 25;
         int mapHeight = 15;
 
+
         gameplay();
 
         maincharactermodus currentmodus = soulmodus;
@@ -144,8 +145,11 @@ struct ActivatedFirebowl {
         bool isAdjacentToSwitch(Vector2 position) const;
 
         //bombs
-        std::vector<bombs*> activeBombs;
-        void addBomb(bombs* bomb);
+        //std::vector<bombs*> activeBombs;
+        std::vector<std::unique_ptr<bombs>> activeBombs;
+        //void addBomb(bombs* bomb);
+        void addBomb(Vector2 position);
+
 
         //secret room note
         bool isAdjacentToTable(Vector2 pos) const;

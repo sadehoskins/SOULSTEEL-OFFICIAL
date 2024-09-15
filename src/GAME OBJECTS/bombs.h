@@ -13,7 +13,6 @@ class bombs : public gameobjects {
 public:
     bombs(gameplay* scene, Vector2 position);
     void update() override;
-
     void draw() override;
 
     enum BombState {
@@ -23,12 +22,15 @@ public:
     };
     BombState state;
 
+    //are made public for debugging radius
+    static const float explosion_radius;
+    static const int explosion_damage;
+
 private:
     float stateTimer;
     static const float thrown_duration;
     static const float exploding_duration;
-    static const float explosion_radius;
-    static const int explosion_damage;
+
 
     Texture2D bomb_thrown = assestmanagergraphics::getTexture("item/bomb_thrown");
     Texture2D bomb_exploding = assestmanagergraphics::getTexture("item/bomb_exploding");

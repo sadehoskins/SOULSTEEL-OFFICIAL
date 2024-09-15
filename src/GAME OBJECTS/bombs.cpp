@@ -14,6 +14,8 @@ const int bombs::thrown_frame_count = 8;
 const int bombs::exploding_frame_count = 8;
 
 bombs::bombs(gameplay* scene, Vector2 position) : gameobjects(scene) {
+    std::cout << "Creating bomb. Scene address: " << scene << std::endl;
+    _scene = scene;
     this->position = position;
     state = thrown;
     stateTimer = 0;
@@ -22,27 +24,38 @@ bombs::bombs(gameplay* scene, Vector2 position) : gameobjects(scene) {
 }
 
 void bombs::update() {
+    std::cout << "Entering bombs::update. This address: " << this << std::endl;
+    std::cout << "Bomb state: " << state << ", Timer: " << stateTimer << std::endl;
+
     stateTimer += GetFrameTime();
     updateAnimation();
 
     switch (state) {
         case thrown:
             if (stateTimer >= thrown_duration) {
+                std::cout << "Transitioning from thrown to exploding" << std::endl;
                 state = exploding;
                 stateTimer = 0;
-                currentFrame=0;
+                currentFrame = 0;
             }
             break;
         case exploding:
             if (stateTimer >= exploding_duration) {
+                std::cout << "Applying damage" << std::endl;
                 applyDamage();
+                std::cout << "Transitioning to finished state" << std::endl;
                 state = finished;
             }
             break;
         case finished:
-            // The bomb will be deleted in the gameplay class
+            std::cout << "Bomb in finished state" << std::endl;
+            break;
+        default:
+            std::cout << "Error: Invalid bomb state" << std::endl;
             break;
     }
+
+    std::cout << "Exiting bombs::update. Final state: " << state << std::endl;
 }
 
 void bombs::updateAnimation() {
@@ -58,7 +71,53 @@ void bombs::updateAnimation() {
     }
 }
 
+void bombs::applyDamage() {
+    std::cout << "Entering applyDamage. This address: " << this << std::endl;
+    std::cout << "Applying damage: Position = (" << position.x << ", " << position.y << ")" << std::endl;//debug
+
+    if (!_scene || !_scene->themaincharacter) {
+        std::cout << "Scene or main character is null in applyDamage" << std::endl;
+        return;  // Add this line to return early
+    }//debug
+
+    //if (!_scene) return;
+    if (!_scene) {
+        std::cout << "Error: _scene is null in applyDamage" << std::endl;
+        return;
+    }
+    std::cout << "_scene address: " << _scene << std::endl;
+
+    if (!_scene->themaincharacter) {
+        std::cout << "Error: themaincharacter is null in applyDamage" << std::endl;
+        return;
+    }
+    std::cout << "themaincharacter address: " << _scene->themaincharacter << std::endl;
+
+    const std::vector<Enemy*>& enemies = _scene->getEnemies();
+    maincharacter* player = _scene->themaincharacter;
+
+    if (player && CheckCollisionCircles(position, explosion_radius, player->position, player->size)) {
+        player->healthManager.takeDamage(explosion_damage);
+    }
+
+    for (Enemy* enemy : enemies) {
+        if (enemy && CheckCollisionCircles(position, explosion_radius, enemy->position, enemy->size)) {
+            enemy->healthManager.takeDamage(explosion_damage);
+        }
+    }
+    std::cout << "Exiting applyDamage" << std::endl;
+}
+
 void bombs::draw() {
+
+    if (state == finished) {
+        std::cout << "Skipping draw for finished bomb at address: " << this << std::endl;
+        return;
+    }
+
+
+    std::cout << "Entering bombs::draw. This address: " << this << ", State: " << state << std::endl;
+
     Texture2D currentTexture;
     int frameCount;
     switch (state) {
@@ -70,8 +129,14 @@ void bombs::draw() {
             currentTexture = bomb_exploding;
             frameCount = exploding_frame_count;
             break;
-        case finished:
-            return;  // Don't draw anything
+        default:
+            std::cout << "Invalid bomb state in draw" << std::endl;
+            return;
+    }
+
+    if (currentTexture.id == 0) {
+        std::cout << "Invalid texture for bomb in state " << state << std::endl;
+        return;
     }
 
     float frameWidth = currentTexture.width / frameCount;
@@ -79,11 +144,13 @@ void bombs::draw() {
 
     Rectangle sourceRec = { currentFrame * frameWidth, 0, frameWidth, frameHeight };
     Rectangle destRec = { position.x - frameWidth / 2, position.y - frameHeight / 2, frameWidth, frameHeight };
+
     DrawTexturePro(currentTexture, sourceRec, destRec, Vector2{0, 0}, 0, WHITE);
+    // Optionally, draws the explosion radius for debugging
+     if (state == exploding) {
+         DrawCircleLines(position.x, position.y, explosion_radius, RED);
+     }
+
+    std::cout << "Exiting bombs::draw" << std::endl;
 }
 
-void bombs::applyDamage() {
-    // Placeholder function for applying damage
-    // TODO: Implement damage application to characters and enemies within explosion_radius
-    // Implement this function later when damage system exists
-}

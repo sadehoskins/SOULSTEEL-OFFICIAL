@@ -22,9 +22,11 @@
 #include "Wall.h"
 #include "GAME OBJECTS/yellowblock.h"
 #include "GAME OBJECTS/blueblock.h"
+
 //test
 
 void gameplay::update() {
+    std::cout << "Entering gameplay::update" << std::endl;
 
 // Check maincharacter health
     if (!themaincharacter->healthManager.isAlive()) {
@@ -75,16 +77,61 @@ void gameplay::update() {
         }
     }
 
-    //bombs
-    for (auto it = activeBombs.begin(); it != activeBombs.end();) {
-        (*it)->update();
-        if ((*it)->state == bombs::finished) {
-            delete *it;
-            it = activeBombs.erase(it);
+
+    // Update bombs
+    std::cout << "Updating bombs. Number of active bombs: " << activeBombs.size() << std::endl;
+
+    activeBombs.erase(
+            std::remove_if(activeBombs.begin(), activeBombs.end(),
+                           [](const std::unique_ptr<bombs>& bomb) {
+                               return bomb == nullptr || bomb->state == bombs::finished;
+                           }),
+            activeBombs.end());
+
+    for (auto& bomb : activeBombs) {
+        if (bomb) {
+            std::cout << "Updating bomb at address: " << bomb.get() << std::endl;
+            bomb->update();
         } else {
-            ++it;
+            std::cout << "Null bomb pointer found during update" << std::endl;
         }
     }
+
+    std::cout << "Number of active bombs after update: " << activeBombs.size() << std::endl;
+
+
+    std::vector<std::unique_ptr<bombs>> bombsToRemove;
+
+    for (auto& bomb : activeBombs) {
+        if (bomb) {
+            std::cout << "Updating bomb at address: " << bomb.get() << std::endl;
+            try {
+                bomb->update();
+                if (bomb->state == bombs::finished) {
+                    std::cout << "Marking bomb for removal" << std::endl;
+                    bombsToRemove.push_back(std::move(bomb));
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Exception while updating bomb: " << e.what() << std::endl;
+            } catch (...) {
+                std::cerr << "Unknown exception while updating bomb" << std::endl;
+            }
+        } else {
+            std::cout << "Null bomb pointer found" << std::endl;
+        }
+    }
+
+    std::cout << "Removing finished bombs" << std::endl;
+    for (auto& bomb : bombsToRemove) {
+        auto it = std::find_if(activeBombs.begin(), activeBombs.end(),
+                               [&bomb](const std::unique_ptr<bombs>& b) { return b.get() == bomb.get(); });
+        if (it != activeBombs.end()) {
+            activeBombs.erase(it);
+        }
+    }
+
+    std::cout << "Number of active bombs after removal: " << activeBombs.size() << std::endl;
+
 
     //enables room-switch and checks which version of the character is the one leaving the room
     doRoomSwitch();
@@ -96,7 +143,10 @@ void gameplay::update() {
     updateBlocks();
     updateSwitches();
 
+    std::cout << "Exiting gameplay::update" << std::endl;
 }
+
+
 
 void gameplay::doRoomSwitch() {
     switch (room) {
@@ -526,6 +576,9 @@ scene *gameplay::evaluateSceneChange() {
 }
 
 void gameplay::draw() {
+
+    std::cout << "Entering gameplay::draw" << std::endl;
+
     ClearBackground(GRAY);
 
     // Debug information
@@ -580,10 +633,20 @@ void gameplay::draw() {
     if (IsKeyDown(KEY_H)) {
         this->drawDebug();
     }
-    //bombs
-    for (auto &bomb: activeBombs) {
-        bomb->draw();
+    //draws bombs
+    std::cout << "Drawing bombs. Number of active bombs: " << activeBombs.size() << std::endl;
+    for (const auto& bomb : activeBombs) {
+        if (bomb && bomb->state != bombs::finished) {
+            std::cout << "Drawing bomb at address: " << bomb.get() << ", State: " << bomb->state << std::endl;
+            bomb->draw();
+        } else if (bomb) {
+            std::cout << "Skipping finished bomb at address: " << bomb.get() << std::endl;
+        } else {
+            std::cout << "Null bomb pointer found in draw" << std::endl;
+        }
     }
+
+
 
     if (isAdjacentToTable(themaincharacter->position)) {
         DrawText("You found a journal.\nPress T to open.", 15 * 32, 100, 20, WHITE);
@@ -592,6 +655,7 @@ void gameplay::draw() {
         updateJournalSparklesAnimation(GetFrameTime());
         drawJournalSparklesAnimation({17.0f * 32, 9.0f * 32});
     }
+    std::cout << "Exiting gameplay::draw" << std::endl;
 }
 
 void gameplay::drawActivatedFirebowls(float deltaTime) {
@@ -719,6 +783,7 @@ gameplay::gameplay() : scene(this) {
     //std::cout << "Gameplay instance created\n";
     tson::Tileson tileson;
     themaincharacter = new class maincharacter(this);
+    std::cout << "Initialized themaincharacter. Address: " << themaincharacter << std::endl;
     therobot = new robot(this);
     reloadRoom();
     initJournalSparklesAnimation();
@@ -1651,9 +1716,9 @@ bool gameplay::isAdjacentToSwitch(Vector2 position) const {
     return false;
 }
 
-void gameplay::addBomb(bombs *bomb) {
-    //std::cout << "Adding bomb to game!" << std::endl;
-    activeBombs.push_back(bomb);
+void gameplay::addBomb(Vector2 position) {
+    std::cout << "Adding bomb to game at position (" << position.x << ", " << position.y << ")" << std::endl;
+    activeBombs.push_back(std::make_unique<bombs>(this, position));
 }
 
 void gameplay::initJournalSparklesAnimation() {

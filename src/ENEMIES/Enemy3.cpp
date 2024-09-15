@@ -32,7 +32,7 @@ void Enemy3::draw()
     // Tackle Spider doesn't have a separate attack animation, so we don't need to draw anything extra
 
     //*NEW CODE*
-    //drawHealthStatus();  // Draw the health status
+    drawHealthStatus();  // Draw the health status
     if (isAttacking) {
         drawTackleAttack();
     }

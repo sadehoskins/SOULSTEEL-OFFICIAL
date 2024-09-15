@@ -27,7 +27,7 @@ void Enemy1::draw() {
     Enemy::draw();  // This will draw the main body
 
     //*NEW CODE*
-    //drawHealthStatus();  // Draw the health status
+    drawHealthStatus();  // Draw the health status
 
     if (isThrowing)
     {

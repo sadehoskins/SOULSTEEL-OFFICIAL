@@ -566,8 +566,8 @@ void maincharacter::throwBomb() {
             bombPosition = {position.x - bombthrowing_range, position.y};
             break;
     }
-    bombs* newBomb = new bombs(_scene, bombPosition);
-    _scene->addBomb(newBomb);
+    //bombs* newBomb = new bombs(_scene, bombPosition);
+    _scene->addBomb(bombPosition);  // Changed this line
     lastBombThrowTime = GetTime();
 }
 
