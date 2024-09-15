@@ -12,7 +12,7 @@
 Enemy1::Enemy1(gameplay *scene)
         : Enemy(scene, 1, 1, true, false, false, 12 * 32 + 16, 10 * 32 - 16, 11 * 32 - 16, 6 * 32 + 16),
           isThrowing(false), bombAnimationTimer(0.0f),
-          detectionRadius(200.0f), bombCooldown(5.0f), timeSinceLastBomb(0.0f)
+          detectionRadius(100.0f), bombCooldown(5.0f), timeSinceLastBomb(0.0f)
 {
     enemyType = "teddy";
     animData.entityType = "teddy";

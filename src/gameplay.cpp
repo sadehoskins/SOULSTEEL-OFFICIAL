@@ -81,71 +81,38 @@ void gameplay::update() {
     // Update bombs
     std::cout << "Updating bombs. Number of active bombs: " << activeBombs.size() << std::endl;
 
+    //*NEW CODE*
     activeBombs.erase(
             std::remove_if(activeBombs.begin(), activeBombs.end(),
                            [](const std::unique_ptr<bombs>& bomb) {
-                               return bomb == nullptr || bomb->state == bombs::finished;
+                               if (!bomb) {
+                                   std::cout << "Null bomb pointer found" << std::endl;
+                                   return true;
+                               }
+                               try {
+                                   bomb->update();
+                                   if (bomb->state == bombs::finished) {
+                                       std::cout << "Marking bomb for removal" << std::endl;
+                                       return true;
+                                   }
+                               } catch (const std::exception& e) {
+                                   std::cerr << "Exception while updating bomb: " << e.what() << std::endl;
+                                   return true;
+                               } catch (...) {
+                                   std::cerr << "Unknown exception while updating bomb" << std::endl;
+                                   return true;
+                               }
+                               return false;
                            }),
-            activeBombs.end());
-
-    for (auto it = activeBombs.begin(); it != activeBombs.end();) {
-        (*it)->update();
-        if ((*it)->state == bombs::finished) {
-            it = activeBombs.erase(it);
-        } else {
-            ++it;
-        }
-    }
-
-    for (auto& bomb : activeBombs) {
-        if (bomb) {
-            std::cout << "Updating bomb at address: " << bomb.get() << std::endl;
-            bomb->update();
-        } else {
-            std::cout << "Null bomb pointer found during update" << std::endl;
-        }
-    }
+            activeBombs.end()
+    );
 
     std::cout << "Number of active bombs after update: " << activeBombs.size() << std::endl;
 
-
-    std::vector<std::unique_ptr<bombs>> bombsToRemove;
-
-    for (auto& bomb : activeBombs) {
-        if (bomb) {
-            std::cout << "Updating bomb at address: " << bomb.get() << std::endl;
-            try {
-                bomb->update();
-                if (bomb->state == bombs::finished) {
-                    std::cout << "Marking bomb for removal" << std::endl;
-                    bombsToRemove.push_back(std::move(bomb));
-                }
-            } catch (const std::exception& e) {
-                std::cerr << "Exception while updating bomb: " << e.what() << std::endl;
-            } catch (...) {
-                std::cerr << "Unknown exception while updating bomb" << std::endl;
-            }
-        } else {
-            std::cout << "Null bomb pointer found" << std::endl;
-        }
-    }
-
-    std::cout << "Removing finished bombs" << std::endl;
-    for (auto& bomb : bombsToRemove) {
-        auto it = std::find_if(activeBombs.begin(), activeBombs.end(),
-                               [&bomb](const std::unique_ptr<bombs>& b) { return b.get() == bomb.get(); });
-        if (it != activeBombs.end()) {
-            activeBombs.erase(it);
-        }
-    }
-
-    std::cout << "Number of active bombs after removal: " << activeBombs.size() << std::endl;
-
-
-    //enables room-switch and checks which version of the character is the one leaving the room
+    // Room switch
     doRoomSwitch();
 
-
+    // Update other game elements
     themaincharacter->update();
     therobot->update();
     updateStones();
