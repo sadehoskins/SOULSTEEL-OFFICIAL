@@ -8,41 +8,34 @@
 
 
 
-Enemy3::Enemy3(gameplay* scene)
+Enemy3::Enemy3(gameplay *scene)
         : Enemy(scene, 2, 2, false, true, false,
                 6.0f * 32.0f - 16.0f, 8 * 32 + 16, 8 * 32 - 16, 6 * 32 + 16),
-          isAttacking(false)
+          isShooting(false), shootingRange(200.0f), spiderToothSpeed(5.0f),
+          shootCooldown(2.0f), shootTimer(0.0f)
 {
     enemyType = "tacklespider";
     animData.entityType = "tacklespider";
     animData.currentAnimationState = AnimationState::IDLE;
     animData.facingDirection = Direction::Down;
     animData.currentFrame = 0;
-
-    isAttacking = false;
-    attackAnimationTimer = 0.0f;
-    toothPosition = {0, 0};
-    isToothFlying = false;
 }
 
-
-void Enemy3::draw()
+void Enemy3::drawSpiderToothAttack()
 {
-    Enemy::draw();  // Draw the base enemy
-    // Tackle Spider doesn't have a separate attack animation, so we don't need to draw anything extra
-
-    //*NEW CODE*
-    drawHealthStatus();  // Draw the health status
-    if (isAttacking) {
-        drawTackleAttack();
-    }
-    if (isToothFlying) {
-        drawToothAttack();
-    }
-}
-
-void Enemy3::drawTackleAttack() {
-    // The tackle attack uses the walk animation, so we don't need to draw anything extra here
+    Texture2D spiderToothTexture = assestmanagergraphics::getAnimationTexture(animData.entityType, AnimationState::SPIDERTOOTH, animData.facingDirection);
+    Rectangle sourceRec = {
+            0, 0,
+            static_cast<float>(spiderToothTexture.width),
+            static_cast<float>(spiderToothTexture.height)
+    };
+    Rectangle destRec = {
+            spiderToothPosition.x,
+            spiderToothPosition.y,
+            static_cast<float>(spiderToothTexture.width),
+            static_cast<float>(spiderToothTexture.height)
+    };
+    DrawTexturePro(spiderToothTexture, sourceRec, destRec, {0, 0}, 0, WHITE);
 }
 
 Texture2D Enemy3::getCurrentTexture()
@@ -50,114 +43,68 @@ Texture2D Enemy3::getCurrentTexture()
     return assestmanagergraphics::getAnimationTexture(animData.entityType, animData.currentAnimationState, animData.facingDirection);
 }
 
-void Enemy3::update() {
-    Enemy::update();
-
-    if (isAttacking) {
-        animData.currentAnimationState = AnimationState::WALK;  // Use walk animation for tackle
-    } else if (stopdown || stopleft || stopright || stopup) {
-        animData.currentAnimationState = AnimationState::WALK;
-    } else {
-        animData.currentAnimationState = AnimationState::IDLE;
-    }
-
-    std::cout << "Enemy3 update: state = " << static_cast<int>(animData.currentAnimationState)
-              << ", direction = " << static_cast<int>(animData.facingDirection) << std::endl;
-
-    updateTackleAttack();
-    updateToothAttack();
-}
-
-void Enemy3::performTackleAttack() {
-    isAttacking = true;
-    animData.currentFrame = 0;
-    attackAnimationTimer = 0.0f;
-}
-
-void Enemy3::performToothAttack() {
-    isToothFlying = true;
-    animData.currentFrame = 0;
-    attackAnimationTimer = 0.0f;
-    toothPosition = position;
-}
-
-void Enemy3::updateTackleAttack() {
-    if (!isAttacking) return;
-
-    attackAnimationTimer += GetFrameTime();
-    if (attackAnimationTimer >= FRAME_DURATION) {
-        attackAnimationTimer -= FRAME_DURATION;
-        animData.currentFrame++;
-        if (animData.currentFrame >= AnimationData::FRAME_COUNT) {
-            isAttacking = false;
-            animData.currentFrame = 0;
-        }
-    }
-
-    // Implement tackle attack logic here
-    // This might involve moving the enemy quickly in a certain direction
-    // and checking for collisions with the player
-    position.x += (animData.facingDirection == Direction::Right ? 5.0f : -5.0f);
-}
-
-void Enemy3::updateToothAttack() {
-    if (!isToothFlying) return;
-
-    attackAnimationTimer += GetFrameTime();
-    if (attackAnimationTimer >= FRAME_DURATION) {
-        attackAnimationTimer -= FRAME_DURATION;
-        animData.currentFrame++;
-        if (animData.currentFrame >= AnimationData::FRAME_COUNT) {
-            animData.currentFrame = 0;
-        }
-    }
-
-    // Update tooth position
-    float toothSpeed = 5.0f;
-    switch (animData.facingDirection) {
-        case Direction::Up:
-            toothPosition.y -= toothSpeed;
-            break;
-        case Direction::Down:
-            toothPosition.y += toothSpeed;
-            break;
-        case Direction::Left:
-            toothPosition.x -= toothSpeed;
-            break;
-        case Direction::Right:
-            toothPosition.x += toothSpeed;
-            break;
-    }
-
-    // Check if tooth is out of bounds and deactivate if necessary
-    // This is a simple example, you might want to adjust based on your game's needs
-    if (toothPosition.x < 0 || toothPosition.x > GetScreenWidth() ||
-        toothPosition.y < 0 || toothPosition.y > GetScreenHeight()) {
-        isToothFlying = false;
-    }
-}
-
-void Enemy3::drawToothAttack() {
-    Texture2D toothTexture = assestmanagergraphics::getAnimationTexture(enemyType, AnimationState::SPIDERTOOTH, animData.facingDirection);
-
-    Rectangle sourceRec = {
-            static_cast<float>(animData.currentFrame * toothTexture.width / AnimationData::FRAME_COUNT), 0.0f,
-            static_cast<float>(toothTexture.width / AnimationData::FRAME_COUNT),
-            static_cast<float>(toothTexture.height)
-    };
-    Vector2 drawPos = {
-            toothPosition.x - static_cast<float>(toothTexture.width) / (2.0f * AnimationData::FRAME_COUNT),
-            toothPosition.y - static_cast<float>(toothTexture.height) / 2.0f
-    };
-    DrawTextureRec(toothTexture, sourceRec, drawPos, WHITE);
-}
-
-bool Enemy3::isNearMainCharacter() const
+void Enemy3::update()
 {
-    // Implement logic to check if the main character is near
-    // This could involve checking the distance between the enemy and the main character
-    // Return true if the main character is within attack range
-    return false; // Placeholder return
+    if (!healthManager.isAlive()) {
+        // Handle death
+        return;
+    }
+
+    Enemy::update();
+    updateAnimation(GetFrameTime());
+
+    // Check if main character is in range
+    Vector2 characterPos = _scene->themaincharacter->position;
+    float distanceToCharacter = Vector2Distance(position, characterPos);
+
+    if (distanceToCharacter <= shootingRange)
+    {
+        if (!isShooting && shootTimer <= 0)
+        {
+            shootSpiderTooth();
+        }
+    }
+
+    updateSpiderToothAttack();
+    shootTimer -= GetFrameTime();
+}
+
+void Enemy3::shootSpiderTooth()
+{
+    isShooting = true;
+    spiderToothPosition = position;
+    Vector2 characterPos = _scene->themaincharacter->position;
+    spiderToothDirection = Vector2Normalize(Vector2Subtract(characterPos, position));
+    shootTimer = shootCooldown;
+}
+
+void Enemy3::updateSpiderToothAttack()
+{
+    if (isShooting)
+    {
+        spiderToothPosition = Vector2Add(spiderToothPosition, Vector2Scale(spiderToothDirection, spiderToothSpeed));
+
+        // Check if the spidertooth is out of range or hits the character
+        if (Vector2Distance(position, spiderToothPosition) > shootingRange ||
+            CheckCollisionCircles(spiderToothPosition, 5, _scene->themaincharacter->position, _scene->themaincharacter->size))
+        {
+            isShooting = false;
+            // Apply damage to the character if hit
+            if (CheckCollisionCircles(spiderToothPosition, 5, _scene->themaincharacter->position, _scene->themaincharacter->size))
+            {
+                _scene->themaincharacter->healthManager.takeDamage(enemyDamage);
+            }
+        }
+    }
+}
+
+void Enemy3::draw()
+{
+    Enemy::draw();
+    if (isShooting)
+    {
+        drawSpiderToothAttack();
+    }
 }
 
 Enemy3::~Enemy3() {

@@ -94,8 +94,8 @@ public:
     void updateDashAnimation(float deltaTime);
     bool isDashing() const {return currentState == AnimationState::DASH;}
 
-    int getHealth(const maincharacter& maincharacter);
-    void calculateDamage(maincharacter& maincharacter, int damage);
+    //int getHealth(const maincharacter& maincharacter);
+    //void calculateDamage(maincharacter& maincharacter, int damage);
 
     //attack
     void setAttackPower(int attack);

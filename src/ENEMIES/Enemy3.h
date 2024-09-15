@@ -13,20 +13,31 @@ public:
     void update() override;
     void draw() override;
     Texture2D getCurrentTexture() override;
-    void performTackleAttack();
-    void performToothAttack();
+    void shootSpiderTooth();
     ~Enemy3();
 
 private:
-    bool isAttacking;
-    void updateTackleAttack();
+    bool isShooting;
+    Vector2 spiderToothPosition;
+    Vector2 spiderToothDirection;
+    float shootingRange;
+    float spiderToothSpeed;
+    float shootCooldown;
+    float shootTimer;
+
+    void updateSpiderToothAttack();
+    void drawSpiderToothAttack();
+
+
+
+    /*void updateTackleAttack();
     bool isNearMainCharacter() const;
     void drawTackleAttack();
     void updateToothAttack();
     void drawToothAttack();
     Vector2 toothPosition;
     float attackAnimationTimer;
-    bool isToothFlying;
+    bool isToothFlying;*/
 };
 
 
