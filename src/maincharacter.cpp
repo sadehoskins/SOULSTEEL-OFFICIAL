@@ -170,10 +170,12 @@ void maincharacter::draw() {
     }
 
     // Draw health
-    //DrawText(TextFormat("Health: %i/%i", healthManager.getCurrentHealth(), healthManager.getMaxHealth()), 10, 10, 20, WHITE);
+    DrawText(TextFormat("Health: %i/%i", healthManager.getCurrentHealth(), healthManager.getMaxHealth()), 10, 10, 20, WHITE);
+    // Draw health bar
     float healthPercentage = healthManager.getHealthPercentage();
-    DrawRectangle(position.x - 20, position.y - 30, 40 * healthPercentage, 5, RED);
+    DrawRectangle(position.x - 20, position.y - 30, 40 * healthPercentage, 5, PURPLE);
     DrawRectangleLines(position.x - 20, position.y - 30, 40, 5, WHITE);
+
 
 
     // Optionally, indicate immunity

@@ -5,14 +5,15 @@
 #include <regex>
 #include "Enemy3.h"
 
-
+//*NEW CODE*
+const float Enemy3::SPIDERTOOTH_FRAME_DURATION = 0.1f;
 
 
 Enemy3::Enemy3(gameplay *scene)
         : Enemy(scene, 2, 2, false, true, false,
                 6.0f * 32.0f - 16.0f, 8 * 32 + 16, 8 * 32 - 16, 6 * 32 + 16),
           isShooting(false), shootingRange(200.0f), spiderToothSpeed(5.0f),
-          shootCooldown(2.0f), shootTimer(0.0f)
+          shootCooldown(2.0f), shootTimer(0.0f), spiderToothFrame(0), spiderToothFrameTimer(0.0f)
 {
     enemyType = "tacklespider";
     animData.entityType = "tacklespider";
@@ -24,15 +25,17 @@ Enemy3::Enemy3(gameplay *scene)
 void Enemy3::drawSpiderToothAttack()
 {
     Texture2D spiderToothTexture = assestmanagergraphics::getAnimationTexture(animData.entityType, AnimationState::SPIDERTOOTH, animData.facingDirection);
+
+    float frameWidth = static_cast<float>(spiderToothTexture.width) / SPIDERTOOTH_FRAME_COUNT;
     Rectangle sourceRec = {
-            0, 0,
-            static_cast<float>(spiderToothTexture.width),
+            spiderToothFrame * frameWidth, 0,
+            frameWidth,
             static_cast<float>(spiderToothTexture.height)
     };
     Rectangle destRec = {
-            spiderToothPosition.x,
-            spiderToothPosition.y,
-            static_cast<float>(spiderToothTexture.width),
+            spiderToothPosition.x - frameWidth / 2,
+            spiderToothPosition.y - spiderToothTexture.height / 2,
+            frameWidth,
             static_cast<float>(spiderToothTexture.height)
     };
     DrawTexturePro(spiderToothTexture, sourceRec, destRec, {0, 0}, 0, WHITE);
@@ -73,9 +76,25 @@ void Enemy3::shootSpiderTooth()
 {
     isShooting = true;
     spiderToothPosition = position;
-    Vector2 characterPos = _scene->themaincharacter->position;
-    spiderToothDirection = Vector2Normalize(Vector2Subtract(characterPos, position));
+    // Set the spiderToothDirection based on the enemy's facing direction
+    switch (animData.facingDirection)
+    {
+        case Direction::Up:
+            spiderToothDirection = {0, -1};
+            break;
+        case Direction::Down:
+            spiderToothDirection = {0, 1};
+            break;
+        case Direction::Left:
+            spiderToothDirection = {-1, 0};
+            break;
+        case Direction::Right:
+            spiderToothDirection = {1, 0};
+            break;
+    }
     shootTimer = shootCooldown;
+    spiderToothFrame = 0;
+    spiderToothFrameTimer = 0.0f;
 }
 
 void Enemy3::updateSpiderToothAttack()
@@ -83,6 +102,14 @@ void Enemy3::updateSpiderToothAttack()
     if (isShooting)
     {
         spiderToothPosition = Vector2Add(spiderToothPosition, Vector2Scale(spiderToothDirection, spiderToothSpeed));
+
+        // Update spider tooth animation
+        spiderToothFrameTimer += GetFrameTime();
+        if (spiderToothFrameTimer >= SPIDERTOOTH_FRAME_DURATION)
+        {
+            spiderToothFrame = (spiderToothFrame + 1) % SPIDERTOOTH_FRAME_COUNT;
+            spiderToothFrameTimer -= SPIDERTOOTH_FRAME_DURATION;
+        }
 
         // Check if the spidertooth is out of range or hits the character
         if (Vector2Distance(position, spiderToothPosition) > shootingRange ||
@@ -98,9 +125,13 @@ void Enemy3::updateSpiderToothAttack()
     }
 }
 
+
 void Enemy3::draw()
 {
     Enemy::draw();
+
+    drawHealthStatus();  // Draw the health status
+
     if (isShooting)
     {
         drawSpiderToothAttack();

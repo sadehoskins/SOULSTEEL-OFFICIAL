@@ -13,7 +13,15 @@ public:
     void update() override;
     void draw() override;
     Texture2D getCurrentTexture() override;
-    void shootSpiderTooth();
+
+    //*NEW CODE*
+    int spiderToothFrame;
+    float spiderToothFrameTimer;
+
+    static const int SPIDERTOOTH_FRAME_COUNT = 8;
+    static const float SPIDERTOOTH_FRAME_DURATION;
+
+
     ~Enemy3();
 
 private:
@@ -25,19 +33,12 @@ private:
     float shootCooldown;
     float shootTimer;
 
+    void shootSpiderTooth();
     void updateSpiderToothAttack();
     void drawSpiderToothAttack();
 
 
 
-    /*void updateTackleAttack();
-    bool isNearMainCharacter() const;
-    void drawTackleAttack();
-    void updateToothAttack();
-    void drawToothAttack();
-    Vector2 toothPosition;
-    float attackAnimationTimer;
-    bool isToothFlying;*/
 };
 
 
