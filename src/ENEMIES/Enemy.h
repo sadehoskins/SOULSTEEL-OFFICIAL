@@ -36,8 +36,12 @@ public:
 
     int id = 0;
 
-    //*NEW CODE* HEALTH
+    // Chase maincharacter
+    bool isChasing;
+    float chaseRadius;
+    void updateMovement(const Vector2& targetPosition);
 
+    //HEALTH
     HealthManager healthManager;
     int health;
 

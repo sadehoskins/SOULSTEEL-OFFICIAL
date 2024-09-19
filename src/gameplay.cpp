@@ -999,6 +999,8 @@ void gameplay::reloadRoom() {
                 enemy1->stopright = 12 * 32;
                 enemy1->stopup = 6 * 32 + 16;
                 enemy1->calculatePathAsRectangle();
+                enemy1->isChasing = true;
+                enemy1->chaseRadius = 200.0f; // Set the chase radius
                 enemy1->healthManager = HealthManager(5);  // Set initial health to 5
                 enemies.push_back(enemy1);
 
@@ -1024,6 +1026,7 @@ void gameplay::reloadRoom() {
                 enemy2->stopdown = 6 * 32;
                 enemy2->stopright = 8 * 32;
                 enemy2->stopup = 3 * 32 + 16;
+                enemy2->isChasing = false;
                 enemy2->healthManager = HealthManager(8);  // Set initial health to 8
                 enemies.push_back(enemy2);
 
@@ -1034,26 +1037,12 @@ void gameplay::reloadRoom() {
 
             if (std::find(enemyID.begin(), enemyID.end(), 203) == enemyID.end()) {
 
-                /*Enemy3 *enemy3 = new Enemy3(this); //tacklespider enemy walks in circle
-                enemy3->controltype = ControlType::Path;
-                enemy3->id = 203;
-                enemy3->position.x = 12 * 32;
-                enemy3->position.y = 9 * 32;
-                enemy3->healthManager = HealthManager(10);  // Set initial health to 10
-
-
-
-                float polygons = 180;
-                for (int i = 0; i < polygons; i++) {
-                    float angle = (float) i * PI * 2 / polygons;    //walks in circle
-                    enemy3->path.push_back({cos(angle) * 64 + 12 * 32, sin(angle) * 64 + 7 * 32});
-                }*/
-                //*NEW CODE*
 
                 // Spawn a tacklespider with an octagonal path
                 Vector2 spiderPos = {12 * 32, 9 * 32};
                 Enemy3 *enemy3 = new Enemy3(this, spiderPos);
                 enemy3->id = 203;
+                enemy3->isChasing = false;
 
                 float radius = 64;  // Adjust as needed
                 float diagonalOffset = radius * 0.7071f;  // sqrt(2)/2
@@ -1081,6 +1070,8 @@ void gameplay::reloadRoom() {
             Vector2 spider2Pos = {18 * 32, 5 * 32};
             Enemy3 *enemy3_2 = new Enemy3(this, spider2Pos);
             enemy3_2->id = 204;
+            enemy3_2->isChasing = true;
+            enemy3_2->chaseRadius = 100.0f;  // Set the chase radius
 
             enemy3_2->path = {
                     {spider2Pos.x - 64, spider2Pos.y - 64},

@@ -146,11 +146,47 @@ void Enemy::update() {
         animationTimer -= FRAME_DURATION;
     }
 
+    Vector2 oldPosition = position;
+    updateMovement(_scene->themaincharacter->position);
+    updateAnimationBasedOnMovement(oldPosition);
 
 }
 
-//*NEW CODE*
-void Enemy::updateAnimationBasedOnMovement(const Vector2& oldPosition) {
+void Enemy::updateMovement(const Vector2& targetPosition) {
+    if (isChasing) {
+        float distanceToTarget = Vector2Distance(position, targetPosition);
+        if (distanceToTarget <= chaseRadius) {
+            // Chase the target
+            Vector2 direction = Vector2Normalize(Vector2Subtract(targetPosition, position));
+            position = Vector2Add(position, Vector2Scale(direction, stepsize));
+
+            // Update facing direction based on movement
+            if (fabs(direction.x) > fabs(direction.y)) {
+                animData.facingDirection = (direction.x > 0) ? Direction::Right : Direction::Left;
+            } else {
+                animData.facingDirection = (direction.y > 0) ? Direction::Down : Direction::Up;
+            }
+
+            animData.currentAnimationState = AnimationState::WALK;
+        } else {
+            // Return to original behavior (path following or standing still)
+            if (controltype == ControlType::Path) {
+                moveOnPath();
+            } else {
+                animData.currentAnimationState = AnimationState::IDLE;
+            }
+        }
+    } else {
+        // Original behavior
+        if (controltype == ControlType::Path) {
+            moveOnPath();
+        } else {
+            animData.currentAnimationState = AnimationState::IDLE;
+        }
+    }
+}
+
+/*void Enemy::updateAnimationBasedOnMovement(const Vector2& oldPosition) {
     if (controltype == ControlType::Path) {
         Vector2 movement = Vector2Subtract(position, oldPosition);
 
@@ -172,6 +208,24 @@ void Enemy::updateAnimationBasedOnMovement(const Vector2& oldPosition) {
                 currentMoveDirection = Direction::Left;
                 animData.facingDirection = Direction::Left;
             }
+        }
+
+        if (Vector2Length(movement) > 0) {
+            animData.currentAnimationState = AnimationState::WALK;
+        } else {
+            animData.currentAnimationState = AnimationState::IDLE;
+        }
+    }
+}*/
+
+void Enemy::updateAnimationBasedOnMovement(const Vector2& oldPosition) {
+    if (controltype == ControlType::Path || isChasing) {
+        Vector2 movement = Vector2Subtract(position, oldPosition);
+
+        if (fabs(movement.x) > fabs(movement.y)) {
+            animData.facingDirection = (movement.x > 0) ? Direction::Right : Direction::Left;
+        } else if (fabs(movement.y) > 0) {
+            animData.facingDirection = (movement.y > 0) ? Direction::Down : Direction::Up;
         }
 
         if (Vector2Length(movement) > 0) {
