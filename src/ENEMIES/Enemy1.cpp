@@ -52,6 +52,7 @@ void Enemy1::throwBomb()
 }
 
 void Enemy1::update() {
+    Vector2 oldPosition = position;
     Enemy::update();
     updateAnimation(GetFrameTime());
     timeSinceLastBomb += GetFrameTime();
@@ -62,8 +63,9 @@ void Enemy1::update() {
 
     animData.currentAnimationState = isThrowing ? AnimationState::ATTACK_NORMAL
                                                 : AnimationState::WALK;
-
     updateBombThrow();
+    //*NEW CODE*
+    updateAnimationBasedOnMovement(oldPosition);
 }
 
 void Enemy1::updateBombThrow()

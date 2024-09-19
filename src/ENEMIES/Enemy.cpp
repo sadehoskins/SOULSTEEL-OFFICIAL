@@ -9,7 +9,7 @@
 #include "raymath.h"
 #include "../Wall.h"
 
-
+const float Enemy::FRAME_DURATION = 0.1f;
 
 Enemy::Enemy(gameplay* scene, int hp, int damage, bool melee, bool ranged, bool armed,
              float left, float down, float right, float up)
@@ -57,7 +57,9 @@ float Enemy::getHealthPercentage() const {
     return healthManager.getHealthPercentage();
 }
 
-
+Texture2D Enemy::getCurrentTexture() {
+    return assestmanagergraphics::getAnimationTexture(animData.entityType, animData.currentAnimationState, animData.facingDirection);
+}
 
 
 bool Enemy::isAlive() const {
@@ -132,14 +134,55 @@ void Enemy::update() {
         pushForce = Vector2Scale(pushForce, overlapDistance);
         position = Vector2Add(position, pushForce);
     }
-    updateAnimation(GetFrameTime());
+    /*updateAnimation(GetFrameTime());
     static constexpr int FRAME_COUNT = 8; // Add this line, adjust the value as needed
-    static constexpr float FRAME_DURATION = 0.1f; // Add this line, adjust the value as needed
+    static constexpr float FRAME_DURATION = 0.1f; // Add this line, adjust the value as needed*/
+    //float animationTimer;
+    //int currentFrame;
+    // Update animation
+    animationTimer += GetFrameTime();
+    if (animationTimer >= FRAME_DURATION) {
+        animData.currentFrame = (animData.currentFrame + 1) % AnimationData::FRAME_COUNT;
+        animationTimer -= FRAME_DURATION;
+    }
 
-    float animationTimer;
-    int currentFrame;
+
 }
+
 //*NEW CODE*
+void Enemy::updateAnimationBasedOnMovement(const Vector2& oldPosition) {
+    if (controltype == ControlType::Path) {
+        Vector2 movement = Vector2Subtract(position, oldPosition);
+
+        //*NEW CODE*
+        // Prioritize vertical movement over horizontal
+        if (fabs(movement.y) >= fabs(movement.x)) {
+            if (movement.y > 0) {
+                currentMoveDirection = Direction::Down;
+                animData.facingDirection = Direction::Down;
+            } else if (movement.y < 0) {
+                currentMoveDirection = Direction::Up;
+                animData.facingDirection = Direction::Up;
+            }
+        } else {
+            if (movement.x > 0) {
+                currentMoveDirection = Direction::Right;
+                animData.facingDirection = Direction::Right;
+            } else if (movement.x < 0) {
+                currentMoveDirection = Direction::Left;
+                animData.facingDirection = Direction::Left;
+            }
+        }
+
+        if (Vector2Length(movement) > 0) {
+            animData.currentAnimationState = AnimationState::WALK;
+        } else {
+            animData.currentAnimationState = AnimationState::IDLE;
+        }
+    }
+}
+
+
 void Enemy::drawHealthStatus() const {
     std::string healthText = std::to_string(healthManager.getCurrentHealth()) + "/" + std::to_string(healthManager.getMaxHealth());
     Vector2 textPosition = {
@@ -148,3 +191,4 @@ void Enemy::drawHealthStatus() const {
     };
     DrawText(healthText.c_str(), textPosition.x, textPosition.y, HEALTH_TEXT_FONT_SIZE, RED);
 }
+

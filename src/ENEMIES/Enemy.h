@@ -31,6 +31,8 @@ public:
     float stopright;
     float stopup;
     Vector2 position{}; //current position of enemy
+    void updateAnimationBasedOnMovement(const Vector2& oldPosition); //for Enemy stop points
+    Direction currentMoveDirection; //for Enemy stop points
 
     int id = 0;
 
@@ -52,7 +54,7 @@ public:
 
     virtual void update();
     virtual void draw();
-    virtual Texture2D getCurrentTexture() = 0;
+    virtual Texture2D getCurrentTexture();
 
     void calculatePathAsRectangle();
 
@@ -89,13 +91,12 @@ protected:
 
     std::string enemyType;  // This will be set in derived classes
     AnimationData animData;
+    float animationTimer;
+
+//*NEW CODE*
+    static const float FRAME_DURATION;
 
 
-   float animationTimer;
-    //int currentFrame = 0;
-
-    //static constexpr int FRAME_COUNT = 8; // Add this line, adjust the value as needed
-    static constexpr float FRAME_DURATION = 0.1f; // Add this line, adjust the value as needed
     static std::string toLowercase(const std::string& str);
 
     //std::string enemyType;

@@ -989,7 +989,7 @@ void gameplay::reloadRoom() {
             if (std::find(enemyID.begin(), enemyID.end(), 201) == enemyID.end()) {
 
 
-                Enemy1 *enemy1 = new Enemy1(this);
+                Enemy1 *enemy1 = new Enemy1(this); //teddy enemy walks on path
                 enemy1->controltype = ControlType::Path;
                 enemy1->id = 201;
                 enemy1->position.x = 5 * 32;
@@ -1015,7 +1015,7 @@ void gameplay::reloadRoom() {
 
             if (std::find(enemyID.begin(), enemyID.end(), 202) == enemyID.end()) {
 
-                Enemy2 *enemy2 = new Enemy2(this);
+                Enemy2 *enemy2 = new Enemy2(this); //tacklespider enemy walks in circle
                 enemy2->controltype = ControlType::Random;
                 enemy2->id = 202;
                 enemy2->position.x = 22 * 32 + 16;
