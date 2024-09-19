@@ -68,26 +68,29 @@ bool Enemy::isAlive() const {
 }
 
 void Enemy::moveOnPath() {
-
     if (currentPathIndex >= path.size()) {
         currentPathIndex = 0;
     }
-    Vector2 Delta{};
     Vector2 target = path[currentPathIndex];
-    Delta = Vector2Subtract(target, position);
+    Vector2 direction = Vector2Subtract(target, position);
 
-    if (Vector2Length(Delta) > stepsize) {
-        Delta = Vector2Scale(Vector2Normalize(Delta), stepsize);
+    float currentSpeed = isChasing ? chaseSpeed : normalSpeed;  // Determine speed here
+
+    if (Vector2Length(direction) > currentSpeed) {
+        direction = Vector2Scale(Vector2Normalize(direction), currentSpeed);
     }
-    position = Vector2Add(position, Delta);
+    position = Vector2Add(position, direction);
 
-    // if statement for checking if the enemy reached current target
-    if (Vector2Distance(position, target) <= stepsize * 2) {
+    if (Vector2Distance(position, target) <= currentSpeed) {
         currentPathIndex++;
     }
 }
 
 void Enemy::moveRandomly() {
+    // Implement random movement using the appropriate speed
+    float currentSpeed = isChasing ? chaseSpeed : normalSpeed;
+
+    // Implement  random movement logic here
 }
 
 void Enemy::takeDamage(int amount) {
@@ -112,10 +115,15 @@ void Enemy::updateAnimation(float deltaTime) {
 
 void Enemy::update() {
 
+
+
     if (!isAlive()) {
         // Handle enemy death (e.g., remove from game, play death animation, etc.)
         return;
     }
+
+    float currentSpeed = isChasing ? chaseSpeed : normalSpeed;
+
     if (controltype == ControlType::Path) {
         moveOnPath();
     } else if (controltype == ControlType::Random) {
@@ -135,11 +143,7 @@ void Enemy::update() {
         pushForce = Vector2Scale(pushForce, overlapDistance);
         position = Vector2Add(position, pushForce);
     }
-    /*updateAnimation(GetFrameTime());
-    static constexpr int FRAME_COUNT = 8; // Add this line, adjust the value as needed
-    static constexpr float FRAME_DURATION = 0.1f; // Add this line, adjust the value as needed*/
-    //float animationTimer;
-    //int currentFrame;
+
     // Update animation
     animationTimer += GetFrameTime();
     if (animationTimer >= FRAME_DURATION) {

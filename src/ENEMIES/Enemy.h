@@ -36,6 +36,9 @@ public:
 
     int id = 0;
 
+    // Speed
+    float normalSpeed = 1.0f;  // Default normal movement speed
+
     // Chase maincharacter
     bool isChasing;
     float chaseRadius;

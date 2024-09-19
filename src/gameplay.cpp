@@ -1001,6 +1001,7 @@ void gameplay::reloadRoom() {
                 enemy1->isChasing = true;
                 enemy1->chaseRadius = 100.0f;
                 enemy1->chaseSpeed = 2.5f;
+                enemy1->normalSpeed = 0.5f;
                 enemy1->healthManager = HealthManager(5);
                 enemies.push_back(enemy1);
 
@@ -1035,6 +1036,7 @@ void gameplay::reloadRoom() {
                 Enemy3 *enemy3 = new Enemy3(this, spiderPos);
                 enemy3->id = 203;
                 enemy3->isChasing = false;
+                enemy3->normalSpeed = 1.0f;
 
                 // Path octagonal
                 float radius = 80;  // Larger radius for a more spread out path
