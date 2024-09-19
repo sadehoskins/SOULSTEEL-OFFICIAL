@@ -39,6 +39,7 @@ public:
     // Chase maincharacter
     bool isChasing;
     float chaseRadius;
+    float chaseSpeed;
     void updateMovement(const Vector2& targetPosition);
 
     //HEALTH

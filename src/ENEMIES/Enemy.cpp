@@ -15,9 +15,10 @@ Enemy::Enemy(gameplay* scene, int hp, int damage, bool melee, bool ranged, bool 
              float left, float down, float right, float up)
         : _scene(scene), healthManager(hp), enemyDamage(damage),
           animData{AnimationState::IDLE, Direction::Down, 0, ""},
-          stopleft(left), stopdown(down), stopright(right), stopup(up)
+          stopleft(left), stopdown(down), stopright(right), stopup(up), isChasing(false), chaseRadius(200.0f), chaseSpeed(2.0f)
 {
     // Other initialization...
+
 }
 
 void Enemy::calculatePathAsRectangle() {
@@ -158,7 +159,7 @@ void Enemy::updateMovement(const Vector2& targetPosition) {
         if (distanceToTarget <= chaseRadius) {
             // Chase the target
             Vector2 direction = Vector2Normalize(Vector2Subtract(targetPosition, position));
-            position = Vector2Add(position, Vector2Scale(direction, stepsize));
+            position = Vector2Add(position, Vector2Scale(direction, chaseSpeed));  // Use chaseSpeed here
 
             // Update facing direction based on movement
             if (fabs(direction.x) > fabs(direction.y)) {
@@ -186,37 +187,6 @@ void Enemy::updateMovement(const Vector2& targetPosition) {
     }
 }
 
-/*void Enemy::updateAnimationBasedOnMovement(const Vector2& oldPosition) {
-    if (controltype == ControlType::Path) {
-        Vector2 movement = Vector2Subtract(position, oldPosition);
-
-        //*NEW CODE*
-        // Prioritize vertical movement over horizontal
-        if (fabs(movement.y) >= fabs(movement.x)) {
-            if (movement.y > 0) {
-                currentMoveDirection = Direction::Down;
-                animData.facingDirection = Direction::Down;
-            } else if (movement.y < 0) {
-                currentMoveDirection = Direction::Up;
-                animData.facingDirection = Direction::Up;
-            }
-        } else {
-            if (movement.x > 0) {
-                currentMoveDirection = Direction::Right;
-                animData.facingDirection = Direction::Right;
-            } else if (movement.x < 0) {
-                currentMoveDirection = Direction::Left;
-                animData.facingDirection = Direction::Left;
-            }
-        }
-
-        if (Vector2Length(movement) > 0) {
-            animData.currentAnimationState = AnimationState::WALK;
-        } else {
-            animData.currentAnimationState = AnimationState::IDLE;
-        }
-    }
-}*/
 
 void Enemy::updateAnimationBasedOnMovement(const Vector2& oldPosition) {
     if (controltype == ControlType::Path || isChasing) {

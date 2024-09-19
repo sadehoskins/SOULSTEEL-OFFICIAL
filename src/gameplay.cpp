@@ -1001,6 +1001,7 @@ void gameplay::reloadRoom() {
                 enemy1->calculatePathAsRectangle();
                 enemy1->isChasing = true;
                 enemy1->chaseRadius = 200.0f; // Set the chase radius
+                enemy1->chaseSpeed = 3.5f; // Set chase speed
                 enemy1->healthManager = HealthManager(5);  // Set initial health to 5
                 enemies.push_back(enemy1);
 
@@ -1072,6 +1073,7 @@ void gameplay::reloadRoom() {
             enemy3_2->id = 204;
             enemy3_2->isChasing = true;
             enemy3_2->chaseRadius = 100.0f;  // Set the chase radius
+            enemy3_2->chaseSpeed = 3.0f; // Set chase speed
 
             enemy3_2->path = {
                     {spider2Pos.x - 64, spider2Pos.y - 64},
