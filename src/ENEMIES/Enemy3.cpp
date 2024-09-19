@@ -27,21 +27,34 @@ Enemy3::Enemy3(gameplay *scene, const Vector2& initialPosition)
 
 void Enemy3::drawSpiderToothAttack()
 {
-    Texture2D spiderToothTexture = assestmanagergraphics::getAnimationTexture(animData.entityType, AnimationState::SPIDERTOOTH, animData.facingDirection);
+    if (isShooting)
+    {
+        Direction toothDirection;
+        if (std::abs(spiderToothDirection.x) > std::abs(spiderToothDirection.y))
+        {
+            toothDirection = (spiderToothDirection.x > 0) ? Direction::Right : Direction::Left;
+        }
+        else
+        {
+            toothDirection = (spiderToothDirection.y > 0) ? Direction::Down : Direction::Up;
+        }
 
-    float frameWidth = static_cast<float>(spiderToothTexture.width) / SPIDERTOOTH_FRAME_COUNT;
-    Rectangle sourceRec = {
-            spiderToothFrame * frameWidth, 0,
-            frameWidth,
-            static_cast<float>(spiderToothTexture.height)
-    };
-    Rectangle destRec = {
-            spiderToothPosition.x - frameWidth / 2,
-            spiderToothPosition.y - spiderToothTexture.height / 2,
-            frameWidth,
-            static_cast<float>(spiderToothTexture.height)
-    };
-    DrawTexturePro(spiderToothTexture, sourceRec, destRec, {0, 0}, 0, WHITE);
+        Texture2D spiderToothTexture = assestmanagergraphics::getAnimationTexture(animData.entityType, AnimationState::SPIDERTOOTH, toothDirection);
+
+        float frameWidth = static_cast<float>(spiderToothTexture.width) / SPIDERTOOTH_FRAME_COUNT;
+        Rectangle sourceRec = {
+                spiderToothFrame * frameWidth, 0,
+                frameWidth,
+                static_cast<float>(spiderToothTexture.height)
+        };
+        Rectangle destRec = {
+                spiderToothPosition.x - frameWidth / 2,
+                spiderToothPosition.y - spiderToothTexture.height / 2,
+                frameWidth,
+                static_cast<float>(spiderToothTexture.height)
+        };
+        DrawTexturePro(spiderToothTexture, sourceRec, destRec, {0, 0}, 0, WHITE);
+    }
 }
 
 Texture2D Enemy3::getCurrentTexture()
