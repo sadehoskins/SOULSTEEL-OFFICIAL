@@ -983,52 +983,44 @@ void gameplay::reloadRoom() {
             break;
         case 2: {
 
-            //attack
-
+            // Teddy (Enemy1) - rectangular path near the top door
             //initialize enemies when room is loaded and reloaded
             if (std::find(enemyID.begin(), enemyID.end(), 201) == enemyID.end()) {
 
 
-                Enemy1 *enemy1 = new Enemy1(this); //teddy enemy walks on path
+                Enemy1 *enemy1 = new Enemy1(this);
                 enemy1->controltype = ControlType::Path;
                 enemy1->id = 201;
-                enemy1->position.x = 5 * 32;
-                enemy1->position.y = 4 * 32;
-                enemy1->stopleft = 9 * 32; //creates new stop points for Enemy1 instance enemy1
-                enemy1->stopdown = 9 * 32;
-                enemy1->stopright = 12 * 32;
-                enemy1->stopup = 6 * 32 + 16;
+                enemy1->position.x = 9 * 32;  // Starting position near the left side of the top door
+                enemy1->position.y = 7 * 32;  // Just below the top door
+                enemy1->stopleft = 9 * 32;   // Left boundary
+                enemy1->stopright = 15 * 32; // Right boundary
+                enemy1->stopup = 6 * 32;     // Top boundary (just below the door)
+                enemy1->stopdown = 9 * 32;   // Bottom boundary
                 enemy1->calculatePathAsRectangle();
                 enemy1->isChasing = true;
-                enemy1->chaseRadius = 200.0f; // Set the chase radius
-                enemy1->chaseSpeed = 3.5f; // Set chase speed
-                enemy1->healthManager = HealthManager(5);  // Set initial health to 5
+                enemy1->chaseRadius = 100.0f;
+                enemy1->chaseSpeed = 2.5f;
+                enemy1->healthManager = HealthManager(5);
                 enemies.push_back(enemy1);
-
-                //attack
-                //enemy1->setAttackPower(1);
-                //themaincharacter.attack(enemy1);
-                //enemy1.attack(themaincharacter); //attack on maincharacter
-                //enemy1->attack(maincharacter);
 
                 if (enemy1->health == 0) {
                     enemyID.push_back(enemy1->id);
                 }
             }
 
+            // Spider (Enemy2) - stationary in front of the right door
             if (std::find(enemyID.begin(), enemyID.end(), 202) == enemyID.end()) {
 
                 Enemy2 *enemy2 = new Enemy2(this);
                 enemy2->controltype = ControlType::Random;
                 enemy2->id = 202;
-                enemy2->position.x = 22 * 32 + 16;
-                enemy2->position.y = 8 * 32;
-                enemy2->stopleft = 11 * 32; //creates new stop points for Enemy1 instance enemy1
-                enemy2->stopdown = 6 * 32;
-                enemy2->stopright = 8 * 32;
-                enemy2->stopup = 3 * 32 + 16;
-                enemy2->isChasing = false;
-                enemy2->healthManager = HealthManager(8);  // Set initial health to 8
+                enemy2->position.x = 23 * 32; // In front of the right door
+                enemy2->position.y = 7 * 32;  // Centered vertically with the door
+                enemy2->isChasing = true;
+                enemy2->chaseRadius = 100.0f;
+                enemy2->chaseSpeed = 1.0f;
+                enemy2->healthManager = HealthManager(8);
                 enemies.push_back(enemy2);
 
                 if (enemy2->health == 0) {
@@ -1036,29 +1028,27 @@ void gameplay::reloadRoom() {
                 }
             }
 
+            // Tackle Spider (Enemy3) - octagonal path in the middle of the room
             if (std::find(enemyID.begin(), enemyID.end(), 203) == enemyID.end()) {
 
-
-                // Spawn a tacklespider with an octagonal path
-                Vector2 spiderPos = {12 * 32, 9 * 32};
+                Vector2 spiderPos = {12 * 32, 10 * 32}; // Center of the room
                 Enemy3 *enemy3 = new Enemy3(this, spiderPos);
                 enemy3->id = 203;
                 enemy3->isChasing = false;
 
-                float radius = 64;  // Adjust as needed
-                float diagonalOffset = radius * 0.7071f;  // sqrt(2)/2
-
+                // Path octagonal
+                float radius = 80;  // Larger radius for a more spread out path
+                float diagonalOffset = radius * 0.7071f;
                 enemy3->path = {
-                        {spiderPos.x + radius, spiderPos.y},
+                        {spiderPos.x + radius,         spiderPos.y},
                         {spiderPos.x + diagonalOffset, spiderPos.y + diagonalOffset},
-                        {spiderPos.x, spiderPos.y + radius},
+                        {spiderPos.x,                  spiderPos.y + radius},
                         {spiderPos.x - diagonalOffset, spiderPos.y + diagonalOffset},
-                        {spiderPos.x - radius, spiderPos.y},
+                        {spiderPos.x - radius,         spiderPos.y},
                         {spiderPos.x - diagonalOffset, spiderPos.y - diagonalOffset},
-                        {spiderPos.x, spiderPos.y - radius},
+                        {spiderPos.x,                  spiderPos.y - radius},
                         {spiderPos.x + diagonalOffset, spiderPos.y - diagonalOffset}
                 };
-
 
 
                 if (enemy3->health == 0) {
@@ -1066,23 +1056,6 @@ void gameplay::reloadRoom() {
                 }
                 enemies.push_back(enemy3);
             }
-
-            // Spawn another tacklespider with a rectangular path
-            Vector2 spider2Pos = {18 * 32, 5 * 32};
-            Enemy3 *enemy3_2 = new Enemy3(this, spider2Pos);
-            enemy3_2->id = 204;
-            enemy3_2->isChasing = true;
-            enemy3_2->chaseRadius = 100.0f;  // Set the chase radius
-            enemy3_2->chaseSpeed = 3.0f; // Set chase speed
-
-            enemy3_2->path = {
-                    {spider2Pos.x - 64, spider2Pos.y - 64},
-                    {spider2Pos.x + 64, spider2Pos.y - 64},
-                    {spider2Pos.x + 64, spider2Pos.y + 64},
-                    {spider2Pos.x - 64, spider2Pos.y + 64}
-            };
-
-            enemies.push_back(enemy3_2);
 
         }
             break;
