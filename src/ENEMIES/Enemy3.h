@@ -9,7 +9,8 @@
 
 class Enemy3: public Enemy {
 public:
-    Enemy3(gameplay *scene);
+    //Enemy3(gameplay *scene);
+    Enemy3(gameplay *scene, const Vector2& initialPosition);
     void update() override;
     void draw() override;
     Texture2D getCurrentTexture() override;

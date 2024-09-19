@@ -9,9 +9,9 @@
 const float Enemy3::SPIDERTOOTH_FRAME_DURATION = 0.1f;
 
 
-Enemy3::Enemy3(gameplay *scene)
+Enemy3::Enemy3(gameplay *scene, const Vector2& initialPosition)
         : Enemy(scene, 2, 2, false, true, false,
-                6.0f * 32.0f - 16.0f, 8 * 32 + 16, 8 * 32 - 16, 6 * 32 + 16),
+                initialPosition.x, initialPosition.y, initialPosition.x, initialPosition.y),
           isShooting(false), shootingRange(200.0f), spiderToothSpeed(5.0f),
           shootCooldown(2.0f), shootTimer(0.0f), spiderToothFrame(0), spiderToothFrameTimer(0.0f)
 {
@@ -20,7 +20,10 @@ Enemy3::Enemy3(gameplay *scene)
     animData.currentAnimationState = AnimationState::IDLE;
     animData.facingDirection = Direction::Down;
     animData.currentFrame = 0;
+    controltype = ControlType::Path;
+    position = initialPosition;
 }
+
 
 void Enemy3::drawSpiderToothAttack()
 {
@@ -53,8 +56,10 @@ void Enemy3::update()
         return;
     }
 
-    Enemy::update();
-    updateAnimation(GetFrameTime());
+    Vector2 oldPosition = position;
+    Enemy::update();  // This includes the path movement logic
+
+    updateAnimationBasedOnMovement(oldPosition);
 
     // Check if main character is in range
     Vector2 characterPos = _scene->themaincharacter->position;
