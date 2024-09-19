@@ -52,7 +52,7 @@ public:
     bool canSwitchToRobot() const;
     void performMeleeAttack();
     void applyDamageInDirection();
-
+    void drawSwitchAnimation();
 
     HealthManager healthManager;
 

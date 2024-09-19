@@ -1077,7 +1077,6 @@ void gameplay::reloadRoom() {
                 enemies.push_back(enemy3);
             }
 
-            //another spider
             // Spawn another tacklespider with a rectangular path
             Vector2 spider2Pos = {18 * 32, 5 * 32};
             Enemy3 *enemy3_2 = new Enemy3(this, spider2Pos);
@@ -1091,36 +1090,6 @@ void gameplay::reloadRoom() {
             };
 
             enemies.push_back(enemy3_2);
-
-
-
-            //attack character
-
-
-
-            //creates enemies for room 2
-            /*enemies.push_back((new Enemy1(this)));
-                    //creates enemies with diffrent stop points
-
-
-            enemies.push_back((new Enemy2(this)));
-            enemies.push_back((new Enemy3(this)));
-
-
-
-            gameplay scene; //implements gameplay instance
-
-            Enemy1 enemy1(&scene); //creates Enemy1 instance
-            enemy1.controltype = Path; // sets control type
-
-            Enemy2 enemy2(&scene);
-            enemy2.controltype = Random;
-
-            Enemy3 enemy3(&scene);
-            enemy3.controltype = Path;*/
-            //code
-
-
 
         }
             break;

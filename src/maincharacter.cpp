@@ -133,32 +133,14 @@ void maincharacter::collisionabyss() {
 }
 
 void maincharacter::draw() {
-
     std::cout << "Current mode: " << (currentmodus == robotmodus ? "Robot" : "Soul") << std::endl;
 
-
-    Texture2D currentTexture = getCurrentTexture();
-
     if (currentState == AnimationState::SWITCH) {
-        int currentFrame = static_cast<int>((switchAnimationTimer / SWITCH_ANIMATION_DURATION) * SWITCH_FRAME_COUNT) % SWITCH_FRAME_COUNT;
-
-        float frameWidth = static_cast<float>(currentTexture.width) / SWITCH_FRAME_COUNT;
-        Rectangle sourceRec = {
-                currentFrame * frameWidth,
-                0.0f,
-                frameWidth,
-                static_cast<float>(currentTexture.height)
-        };
-
-        Vector2 drawPosition = {
-                position.x - frameWidth / 2,
-                position.y - currentTexture.height / 2
-        };
-
-        DrawTextureRec(currentTexture, sourceRec, drawPosition, WHITE);
-    } else {
-        // Existing drawing logic for other states
-        drawsoul();  // or drawrobot() depending on your current mode
+        drawSwitchAnimation();
+    } else if (currentmodus == soulmodus) {
+        drawsoul();
+    } else if (currentmodus == robotmodus) {
+        drawrobot();
     }
 
     if (currentState == AnimationState::DUST) {
@@ -176,16 +158,31 @@ void maincharacter::draw() {
     DrawRectangle(position.x - 20, position.y - 30, 40 * healthPercentage, 5, PURPLE);
     DrawRectangleLines(position.x - 20, position.y - 30, 40, 5, WHITE);
 
-
-
     // Optionally, indicate immunity
     if (immunityTimer > 0.0f) {
         DrawText("IMMUNE", position.x - 30, position.y - 40, 10, YELLOW);
     }
-
-
 }
 
+void maincharacter::drawSwitchAnimation() {
+    Texture2D currentTexture = getCurrentTexture();
+    int currentFrame = static_cast<int>((switchAnimationTimer / SWITCH_ANIMATION_DURATION) * SWITCH_FRAME_COUNT) % SWITCH_FRAME_COUNT;
+
+    float frameWidth = static_cast<float>(currentTexture.width) / SWITCH_FRAME_COUNT;
+    Rectangle sourceRec = {
+            currentFrame * frameWidth,
+            0.0f,
+            frameWidth,
+            static_cast<float>(currentTexture.height)
+    };
+
+    Vector2 drawPosition = {
+            position.x - frameWidth / 2,
+            position.y - currentTexture.height / 2
+    };
+
+    DrawTextureRec(currentTexture, sourceRec, drawPosition, WHITE);
+}
 
 void maincharacter::drawDustAnimation() {
     if (isDusting) {
