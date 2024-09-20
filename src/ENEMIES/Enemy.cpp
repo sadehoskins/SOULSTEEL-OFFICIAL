@@ -74,7 +74,7 @@ void Enemy::moveOnPath() {
     Vector2 target = path[currentPathIndex];
     Vector2 direction = Vector2Subtract(target, position);
 
-    float currentSpeed = isChasing ? chaseSpeed : normalSpeed;  // Determine speed here
+    float currentSpeed = isChasing ? chaseSpeed : normalSpeed;  // Use the correct speed
 
     if (Vector2Length(direction) > currentSpeed) {
         direction = Vector2Scale(Vector2Normalize(direction), currentSpeed);

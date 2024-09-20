@@ -391,7 +391,7 @@ struct ActivatedFirebowl {
     protected:
         std::vector<int>enemyID;
 
-        void updateAllenemies();
+        //void updateAllenemies();
     };
 
 #endif //RAYLIBSTARTER_GAMEPLAY_H

@@ -34,8 +34,7 @@ void gameplay::update() {
         const char *gameOverText = "GAME OVER";
         int fontSize = 40;
         int textWidth = MeasureText(gameOverText, fontSize);
-        DrawText(gameOverText, GetScreenWidth() / 2 - textWidth / 2, GetScreenHeight() / 2 - fontSize / 2, fontSize,
-                 RED);
+        DrawText(gameOverText, GetScreenWidth() / 2 - textWidth / 2, GetScreenHeight() / 2 - fontSize / 2, fontSize, RED);
         return; // Stop updating the game
     }
 
@@ -53,10 +52,6 @@ void gameplay::update() {
     }
 
 
-    updateAllenemies();
-    for (int i = 0; i < gameobjects.size(); i++) {
-        gameobjects[i]->update();
-    }
 
     //switch between soul in soul-mode and soul in robot-mode
     if (IsKeyPressed(KEY_SPACE)) {
@@ -532,11 +527,7 @@ bool gameplay::isFirebowlActivated(int x, int y) const {
     return false;
 }
 
-void gameplay::updateAllenemies() {
-    for (int i = 0; i < enemies.size(); i++) {
-        enemies[i]->update();
-    }
-}
+
 
 scene *gameplay::evaluateSceneChange() {
     if (IsKeyPressed(KEY_M)) {
