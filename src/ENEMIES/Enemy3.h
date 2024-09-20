@@ -9,39 +9,25 @@
 
 class Enemy3: public Enemy {
 public:
-    //Enemy3(gameplay *scene);
-    Enemy3(gameplay *scene, const Vector2& initialPosition);
+    Enemy3(gameplay *scene);
     void update() override;
     void draw() override;
+
     Texture2D getCurrentTexture() override;
-
-    //*NEW CODE*
-    int spiderToothFrame;
-    float spiderToothFrameTimer;
-
-    static const int SPIDERTOOTH_FRAME_COUNT = 8;
-    static const float SPIDERTOOTH_FRAME_DURATION;
-
-
+    void updateAnimation(float deltaTime) override;
     ~Enemy3();
 
 private:
-    bool isShooting;
-    Vector2 spiderToothPosition;
-    Vector2 spiderToothDirection;
-    float shootingRange;
-    float spiderToothSpeed;
-    float shootCooldown;
-    float shootTimer;
-
-    void shootSpiderTooth();
-    void updateSpiderToothAttack();
-    void drawSpiderToothAttack();
 
 
+    bool isAttacking;
 
+    //void updateAnimation(float deltaTime) override;
+    //void drawAnimation() override;
+    bool isNearMainCharacter() const;
+
+    void loadAnimations() override;
 };
-
 
 
 #endif //RAYLIBSTARTER_ENEMY3_H

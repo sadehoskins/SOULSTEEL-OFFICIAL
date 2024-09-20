@@ -17,8 +17,6 @@ private:
     Texture2D continue_selected=assestmanagergraphics::getTexture("userinterface/continue_selected");
     Texture2D logo_soulsteel = assestmanagergraphics::getTexture("userinterface/logo_soulsteel");
     Texture2D logo_team = assestmanagergraphics::getTexture("userinterface/logo_team");
-    Texture2D background = assestmanagergraphics::getTexture("background/background");
-
 public:
     gamechoicescreen(gameplay* existingGameplay) : scene(), gameplayInstance(existingGameplay) {
         std::cout << "Game choice screen created\n";

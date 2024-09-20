@@ -6,115 +6,157 @@
 #include <iostream>
 #include <regex>
 #include <algorithm>
-#include "../assestmanagergraphics.h"
 
+
+/*std::string Enemy1::toLowerCase(const std::string& str) {
+    std::string lower = str;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    return lower;
+}*/
 
 Enemy1::Enemy1(gameplay *scene)
-        : Enemy(scene, 1, 1, true, false, false, 12 * 32 + 16, 10 * 32 - 16, 11 * 32 - 16, 6 * 32 + 16),
-          isThrowing(false), bombAnimationTimer(0.0f),
-          detectionRadius(100.0f), bombCooldown(5.0f), timeSinceLastBomb(0.0f)
+        : Enemy(scene, 1, 1, true, false, false, //initialize health
+                12 * 32 + 16, 10 * 32 - 16, 11 * 32 - 16, 6 * 32 + 16),
+          isThrowing(false)
 {
-    enemyType = "teddy";
-    animData.entityType = "teddy";
-    animData.currentAnimationState = AnimationState::IDLE;
-    animData.facingDirection = Direction::Down;
-    animData.currentFrame = 0;
+    m_enemyType = "Teddy";
+    loadAnimations();
 }
 
 void Enemy1::draw() {
-    Enemy::draw();  // draw main body
+    Enemy::draw();
 
-    drawHealthStatus();  // Draw the health status
-
-    if (isThrowing){
-        drawBombThrow();
-    }
-}
-
-Texture2D Enemy1::getCurrentTexture()
-{
-    return assestmanagergraphics::getAnimationTexture(animData.entityType, animData.currentAnimationState, animData.facingDirection);
-}
-
-
-void Enemy1::throwBomb()
-{
-    isThrowing = true;
-    animData.currentFrame = 0;
-    bombAnimationTimer = 0.0f;
-
-    maincharacter* player = _scene->themaincharacter;
-    Vector2 direction = Vector2Normalize(Vector2Subtract(player->position, position));
-    bombPosition = Vector2Add(position, Vector2Scale(direction, 32.0f));
-
-    _scene->addBomb(bombPosition);
-    timeSinceLastBomb = 0.0f;
-}
-
-void Enemy1::update() {
-    Vector2 oldPosition = position;
-    Enemy::update();
-    updateAnimation(GetFrameTime());
-    timeSinceLastBomb += GetFrameTime();
-
-    if (canThrowBomb()) {
-        throwBomb();
-    }
-
-    animData.currentAnimationState = isThrowing ? AnimationState::ATTACK_NORMAL
-                                                : AnimationState::WALK;
-    updateBombThrow();
-    //*NEW CODE*
-    updateAnimationBasedOnMovement(oldPosition);
-}
-
-void Enemy1::updateBombThrow()
-{
-    if (!isThrowing) return;
-
-    bombAnimationTimer += GetFrameTime();
-    if (bombAnimationTimer >= FRAME_DURATION)
-    {
-        bombAnimationTimer -= FRAME_DURATION;
-        animData.currentFrame++;
-        if (animData.currentFrame >= AnimationData::FRAME_COUNT)
-        {
-            isThrowing = false;
-            animData.currentFrame = 0;
-
-        }
+    if (isThrowing) {
+        // Draw bomb
+        std::string bombKey = "enemy1_bomb_throw_" + std::to_string(static_cast<int>(facingDirection));
+        Texture2D bombTexture = assestmanagergraphics::getTexture(bombKey);
+        // ... draw bomb logic ...
     }
 }
 
 void Enemy1::drawBombThrow() {
-    Texture2D bombTexture = assestmanagergraphics::getAnimationTexture(enemyType, AnimationState::BOMB_EFFECT, animData.facingDirection);
+    if (!isThrowing || (facing != Direction::Left && facing != Direction::Right)) {
+        return;
+    }
 
+    std::string bombKey = "teddy_bomb_throw_side_" + std::string(facing == Direction::Left ? "left" : "right") + "_bomb";
+    const AnimationInfo& bombAnim = animations[bombKey];
     Rectangle sourceRec = {
-            static_cast<float>(animData.currentFrame * bombTexture.width / AnimationData::FRAME_COUNT), 0.0f,
-            static_cast<float>(bombTexture.width / AnimationData::FRAME_COUNT),
-            static_cast<float>(bombTexture.height)
+            static_cast<float>(currentFrame * bombAnim.texture.width / bombAnim.frameCount), 0.0f,
+            static_cast<float>(bombAnim.texture.width / bombAnim.frameCount),
+            static_cast<float>(bombAnim.texture.height)
     };
-    Vector2 drawPos = {
-            bombPosition.x - static_cast<float>(bombTexture.width) / (2.0f * AnimationData::FRAME_COUNT),
-            bombPosition.y - static_cast<float>(bombTexture.height) / 2.0f
+    Vector2 position = {
+            bombPosition.x - static_cast<float>(bombAnim.texture.width) / (2.0f * bombAnim.frameCount),
+            bombPosition.y - static_cast<float>(bombAnim.texture.height) / 2.0f
     };
-    DrawTextureRec(bombTexture, sourceRec, drawPos, WHITE);
+    DrawTextureRec(bombAnim.texture, sourceRec, position, WHITE);
 }
 
-bool Enemy1::canThrowBomb()
-{
-    if (timeSinceLastBomb < bombCooldown)
-        return false;
+Texture2D Enemy1::getCurrentTexture() {
+    std::string state;
+    switch (currentAnimationState) {
+        case AnimationState::IDLE: state = "Idle"; break;
+        case AnimationState::WALK: state = "Walk"; break;
+        case AnimationState::ATTACK: state = "Bomb throw"; break;
+        default: state = "Idle";
+    }
 
-    maincharacter* player = _scene->themaincharacter;
-    if (!player)
-        return false;
+    std::string direction;
+    switch (facingDirection) {
+        case Direction::Up: direction = "back"; break;
+        case Direction::Down: direction = "front"; break;
+        case Direction::Left: direction = "side left"; break;
+        case Direction::Right: direction = "side right"; break;
+    }
 
-    float distanceToPlayer = Vector2Distance(position, player->position);
-    return distanceToPlayer <= detectionRadius;
+    std::string key = "Character - Enemy - " + m_enemyType + " - " + state + " " + direction;
+
+    if (state == "Bomb throw" && (direction == "side left" || direction == "side right")) {
+        key += " - body";
+    }
+
+    return assestmanagergraphics::getCharacterTexture("enemies", key + " - animated");
 }
 
+void Enemy1::loadAnimations() {
+    std::vector<std::string> actions = {"Idle", "Walk", "Bomb throw"};
+    std::vector<std::string> directions = {"back", "front", "side left", "side right"};
 
+    for (const auto& action : actions) {
+        for (const auto& direction : directions) {
+            std::string key = "Character - Enemy - " + m_enemyType + " - " + action + " " + direction;
+
+            animations[key] = AnimationInfo(
+                    FRAME_COUNT,
+                    FRAME_DURATION,
+                    assestmanagergraphics::getCharacterTexture("enemies", key + " - animated")
+            );
+
+            if (action == "Bomb throw" && (direction == "side left" || direction == "side right")) {
+                animations[key + " - body"] = AnimationInfo(
+                        FRAME_COUNT,
+                        FRAME_DURATION,
+                        assestmanagergraphics::getCharacterTexture("enemies", key + " - body - animated")
+                );
+                animations[key + " - bomb"] = AnimationInfo(
+                        FRAME_COUNT,
+                        FRAME_DURATION,
+                        assestmanagergraphics::getCharacterTexture("enemies", key + " - bomb - animated")
+                );
+            }
+        }
+    }
+}
+
+void Enemy1::throwBomb() {
+    isThrowing = true;
+    currentFrame = 0;
+    bombAnimationTimer = 0.0f;
+    // Set the bomb's initial position relative to the enemy
+    bombPosition = {position.x + (facing == Direction::Right ? 20.0f : -20.0f), position.y};
+}
+
+void Enemy1::update() {
+    Enemy::update();
+    updateAnimation(GetFrameTime());
+// Update currentAnimationState and facingDirection based on enemy state
+    if (isThrowing) {
+        currentAnimationState = AnimationState::ATTACK;
+    } else if (!isThrowing) {
+        currentAnimationState = AnimationState::WALK;
+    } else {
+        currentAnimationState = AnimationState::IDLE;
+    }
+
+    // Update facingDirection based on movement or target direction
+
+
+    //updateAnimation();
+    //updateBombThrow();
+
+
+    // Add logic to decide when to throw a bomb
+    //for example when enemy is near character
+}
+
+void Enemy1::updateBombThrow() {
+    if (!isThrowing) return;
+
+    bombAnimationTimer += GetFrameTime();
+    if (bombAnimationTimer >= FRAME_DURATION) {
+        bombAnimationTimer -= FRAME_DURATION;
+        currentFrame++;
+        if (currentFrame >= FRAME_COUNT) {
+            isThrowing = false;
+            currentFrame = 0;
+            // Here you would typically create an actual bomb object
+        }
+    }
+
+    // Update bomb position if needed
+    // bombPosition.x += (facing == Direction::Right ? 2.0f : -2.0f);
+}
 
 Enemy1::~Enemy1() {
 }

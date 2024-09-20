@@ -20,6 +20,7 @@
 #include "HealthManager.h"
 //
 
+
 struct ActivatedFirebowls;
 
 class gameplay;
@@ -32,7 +33,7 @@ public:
 
     AnimationState currentState = AnimationState::IDLE;
     Direction currentDirection = Direction::Down;
-    //Direction intendedDirection = Direction::Down;
+    Direction intendedDirection = Direction::Down;
     Direction lookingdirection = Direction::Down;
 
     void update();
@@ -51,10 +52,9 @@ public:
     void drawDustAnimation();
     bool canSwitchToRobot() const;
     void performMeleeAttack();
-    void applyDamageInDirection();
-    void drawSwitchAnimation();
 
-    HealthManager healthManager;
+    //*NEWCODE*
+    //HealthManager healthManager;
 
     // Abyss Message Timer
     float abyssMessageTimer = 0.0f;
@@ -68,7 +68,6 @@ public:
     //health & Damage
     int health = 10;
     static int attackPower;
-
 
     //code for idle animation
     static const int FRAME_COUNT = 8;
@@ -94,8 +93,8 @@ public:
     void updateDashAnimation(float deltaTime);
     bool isDashing() const {return currentState == AnimationState::DASH;}
 
-    //int getHealth(const maincharacter& maincharacter);
-    //void calculateDamage(maincharacter& maincharacter, int damage);
+    int getHealth(const maincharacter& maincharacter);
+    void calculateDamage(maincharacter& maincharacter, int damage);
 
     //attack
     void setAttackPower(int attack);
@@ -189,5 +188,5 @@ private:
 
 };
 
-//test
+
 #endif //RAYLIBSTARTER_MAINCHARACTER_H

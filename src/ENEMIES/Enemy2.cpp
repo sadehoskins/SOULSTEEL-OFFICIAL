@@ -4,106 +4,83 @@
 
 #include <regex>
 #include "Enemy2.h"
-#include "../assestmanagergraphics.h"
 
 Enemy2::Enemy2(gameplay *scene)
-        : Enemy(scene, 2, 2, false, true, false,
+        : Enemy(scene,2, 2, false, true, false,
                 6.0f * 32.0f - 16.0f, 8 * 32 + 16, 8 * 32 - 16, 6 * 32 + 16),
-          isAttacking(false)
-{
-    enemyType = "spider";
-    animData.entityType = "spider";
-    animData.currentAnimationState = AnimationState::IDLE;
-    animData.facingDirection = Direction::Down;
-    animData.currentFrame = 0;
-
-    isAttacking = false;
-    attackAnimationTimer = 0.0f;
-    attackPosition = {0, 0};
+                isAttacking(false){
+    loadAnimations();
 }
 
-void Enemy2::draw()
-{
-    Enemy::draw();  // Draw the base enemy
-    //*NEW CODE*
-    drawHealthStatus();  // Draw the health status
+void Enemy2::draw() {
+    Enemy::draw();
 
-    if (isAttacking)
-    {
-        drawRangedAttack();
+    if (isAttacking) {
+        // Draw bomb
+        std::string bombKey = "enemy2_attack_range_" + std::to_string(static_cast<int>(facingDirection));
+        Texture2D rangeAttackTexture = assestmanagergraphics::getTexture(bombKey);
+        // ... draw bomb logic ...
     }
-}
-
-void Enemy2::drawRangedAttack() {
-    std::string effectKey = "ranged_effect_" + std::string(animData.facingDirection == Direction::Left ? "left" :
-                                                           animData.facingDirection == Direction::Right ? "right" :
-                                                           animData.facingDirection == Direction::Up ? "back" : "front");
-    Texture2D effectTexture = assestmanagergraphics::getAnimationTexture(enemyType, AnimationState::ATTACK_RANGED, animData.facingDirection);
-
-    Rectangle sourceRec = {
-            static_cast<float>(animData.currentFrame * effectTexture.width / AnimationData::FRAME_COUNT), 0.0f,
-            static_cast<float>(effectTexture.width / AnimationData::FRAME_COUNT),
-            static_cast<float>(effectTexture.height)
-    };
-    Vector2 drawPos = {
-            attackPosition.x - static_cast<float>(effectTexture.width) / (2.0f * AnimationData::FRAME_COUNT),
-            attackPosition.y - static_cast<float>(effectTexture.height) / 2.0f
-    };
-    DrawTextureRec(effectTexture, sourceRec, drawPos, WHITE);
-}
-
-Texture2D Enemy2::getCurrentTexture()
-{
-    return assestmanagergraphics::getAnimationTexture(animData.entityType, animData.currentAnimationState, animData.facingDirection);
 }
 
 void Enemy2::update() {
     Enemy::update();
-
-    if (isAttacking) {
-        animData.currentAnimationState = AnimationState::ATTACK_RANGED;
-    } else if (stopdown || stopleft || stopright || stopup) {
-        animData.currentAnimationState = AnimationState::WALK;
-    } else {
-        animData.currentAnimationState = AnimationState::IDLE;
-    }
-
-    std::cout << "Enemy2 update: state = " << static_cast<int>(animData.currentAnimationState)
-              << ", direction = " << static_cast<int>(animData.facingDirection) << std::endl;
-
-    updateRangedAttack();
+    updateAnimation(GetFrameTime());
 }
 
-void Enemy2::performRangedAttack()
-{
-    isAttacking = true;
-    animData.currentFrame = 0;
-    attackAnimationTimer = 0.0f;
-    // Set the attack's initial position relative to the enemy
-    attackPosition = {position.x + (animData.facingDirection == Direction::Right ? 20.0f : -20.0f), position.y};
-}
+void Enemy2::loadAnimations() {
+    std::vector<std::string> actions = {"Idle", "Walk", "Ranged"};
+    std::vector<std::string> directions = {"back", "front", "side left", "side right"};
 
-void Enemy2::updateRangedAttack()
-{
-    if (!isAttacking) return;
+    for (const auto& action : actions) {
+        for (const auto& direction : directions) {
+            std::string key = "spider_" + toLowercase(action) + "_" +
+                              (direction == "side left" ? "left" :
+                               direction == "side right" ? "right" : direction);
+            key = std::regex_replace(key, std::regex("\\s+"), "_");
+            std::string fileName = "Character - Enemy - Spider - " + action + " " + direction;
 
-    attackAnimationTimer += GetFrameTime();
-    if (attackAnimationTimer >= FRAME_DURATION)
-    {
-        attackAnimationTimer -= FRAME_DURATION;
-        animData.currentFrame++;
-        if (animData.currentFrame >= AnimationData::FRAME_COUNT)
-        {
-            isAttacking = false;
-            animData.currentFrame = 0;
-            // Here you would typically create an actual projectile or apply damage
+            //*NEW CODE*
+            animations[key] = AnimationInfo(
+                    FRAME_COUNT,
+                    FRAME_DURATION,
+                    assestmanagergraphics::getCharacterTexture("enemies", fileName + " - animated")
+            );
         }
     }
+}
 
-    // Update attack effect position if needed
-    // attackPosition.x += (animData.facingDirection == Direction::Right ? 2.0f : -2.0f);
+
+Texture2D Enemy2::getCurrentTexture() {
+    std::string state;
+    switch (currentAnimationState) {
+        case AnimationState::IDLE: state = "idle"; break;
+        case AnimationState::WALK: state = "walk"; break;
+        case AnimationState::ATTACK: state = "bomb_throw"; break;
+        default: state = "idle";
+    }
+
+    std::string direction;
+    switch (facingDirection) {
+        case Direction::Up: direction = "back"; break;
+        case Direction::Down: direction = "front"; break;
+        case Direction::Left: direction = "left"; break;
+        case Direction::Right: direction = "right"; break;
+    }
+
+    std::string key = state + "_" + direction;
+    if (isAttacking && (facingDirection == Direction::Left || facingDirection == Direction::Right)) {
+        key += "_ranged";
+    }
+
+    auto it = animations.find(key);
+    if (it != animations.end()) {
+        return it->second.texture;
+    }
+
+    // Return a default texture if the animation is not found
+    return animations["idle_front"].texture;
 }
 
 Enemy2::~Enemy2() {
-    // Destructor implementation (if needed)
-}
+    }

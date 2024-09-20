@@ -20,7 +20,18 @@ class gameplay;
 class Wall;
 class maincharacter;
 
+struct AnimationInfo {
+    int frameCount;
+    float frameDuration;  // Add this line
+    Texture2D texture;
+
+    AnimationInfo() : frameCount(0), frameDuration(0.0f), texture{0} {}
+    AnimationInfo(int count, float duration, Texture2D tex)
+            : frameCount(count), frameDuration(duration), texture(tex) {}
+};
+
 class Enemy{
+
 public:
     Enemy(gameplay*scene,int hp, int damage, bool melee, bool ranged, bool armed,
           float left, float down, float right, float up);
@@ -31,48 +42,44 @@ public:
     float stopright;
     float stopup;
     Vector2 position{}; //current position of enemy
-    void updateAnimationBasedOnMovement(const Vector2& oldPosition); //for Enemy stop points
-    Direction currentMoveDirection; //for Enemy stop points
 
     int id = 0;
 
-    // Speed
-    float normalSpeed = 1.0f;  // Default normal movement speed
+    //*NEW CODE* HEALTH
 
-    // Chase maincharacter
-    bool isChasing;
-    float chaseRadius;
-    float chaseSpeed;
-    void updateMovement(const Vector2& targetPosition);
-
-    //HEALTH
-    HealthManager healthManager;
-    int health;
+    //HealthManager healthManager;
 
     void takeDamage(int amount);
-    //void heal(int amount);
+    void heal(int amount);
     bool isAlive() const;
     float getHealthPercentage() const;
 
-    //*NEW CODE*
-    void drawHealthStatus() const;
-    static constexpr float HEALTH_TEXT_OFFSET_X = 20.0f;
-    static constexpr float HEALTH_TEXT_OFFSET_Y = -20.0f;
-    static constexpr int HEALTH_TEXT_FONT_SIZE = 15;
+    //health
+    int health;
+    int getHealth(const Enemy& enemy);
+    void calculateDamage(Enemy& enemy, int damage);
+    virtual Texture2D getCurrentTexture() = 0;
+    //attack
+
+
+    void attack(maincharacter* target);
 
     virtual void update();
-    virtual void draw();
-    virtual Texture2D getCurrentTexture();
+    virtual void draw() = 0;
 
     void calculatePathAsRectangle();
 
-    ControlType controltype;
+    void setAnimation(const std::string& animationKey);
 
+    //direction
+    Direction facing = Direction::Down;
     Direction facingDirection = Direction::Down;
+
+    ControlType controltype;
 
     gameplay *_scene;
 
-   // Enemy(gameplay *scene);
+    Enemy(gameplay *scene);
 
     virtual ~Enemy() = default; //virtual destructor for proper cleanup
 
@@ -80,8 +87,14 @@ public:
 
     //Collision check
     bool checkCollision(const Wall &wall);
+
     Rectangle getCollisionRectangle() const;
 
+    //*NEW CODE*
+    //static const int MAX_HEALTH = 10;
+
+
+    //int m_health = MAX_HEALTH;
 
     float stepsize = 2;
     float size = 12;
@@ -89,43 +102,59 @@ public:
 
 
 protected:
-    struct AnimationData {
-        AnimationState currentAnimationState;
-        Direction facingDirection;
-        int currentFrame;
-        static const int FRAME_COUNT = 8;
-        std::string entityType;
-    };
+    //animation enemy
 
-    std::string enemyType;  // This will be set in derived classes
-    AnimationData animData;
+
+    AnimationState currentAnimationState = AnimationState::IDLE;
     float animationTimer;
+    int currentFrame = 0;
 
-//*NEW CODE*
-    static const float FRAME_DURATION;
-
-
+    static constexpr int FRAME_COUNT = 8; // Add this line, adjust the value as needed
+    static constexpr float FRAME_DURATION = 0.1f; // Add this line, adjust the value as needed
     static std::string toLowercase(const std::string& str);
 
-    //std::string enemyType;
+    std::string m_enemyType;
 
+
+    std::map<std::string, AnimationInfo> animations;
+    std::string currentAnimationKey;
+
+
+    virtual void loadAnimations() = 0;
+
+
+    // New method to handle animations
 
     virtual void updateAnimation(float deltaTime);
+    //virtual std::string getTextureKey() const = 0;
 
 
+    // Texture loading helper
+    Texture2D loadTexture(const std::string& animationName, const std::string& direction);
+
+
+    int enemyHP{};
     int enemyDamage{};
     bool enemyTypeMelee{};
     bool enemyTypeRanged{};
     bool enemyTypeArmed{};
 
 
+    //health
+    int maxHealth{};
+
+
     // position and direction
-    //Direction direction{};
+    Direction direction{};
     ControlRandom controlrandom;
 
+
+
+    //methods for movement: path or random
     virtual void moveOnPath();
     virtual void moveRandomly();
 
+    void takeDamage(Enemy &enemy, int damage);
 };
 
 

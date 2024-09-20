@@ -16,7 +16,7 @@
 #include "Wall.h"
 #include "GAME OBJECTS/stone.h"
 #include <map>
-#include <memory>
+
 
 
 class maincharacter;
@@ -50,6 +50,7 @@ struct ActivatedFirebowl {
         void clearEnemies();
         bool isAlive;
 
+
         //firebowls
         std::vector<ActivatedFirebowls> activeFirebowlAnimations;
         std::vector<ActivatedFirebowl> activatedFirebowls;
@@ -66,6 +67,10 @@ struct ActivatedFirebowl {
         Texture2D icon_stone = assestmanagergraphics::getTexture("userinterface/icon_stone");
 
     public:
+        //Jan
+        maincharactermodus getCurrentModus() const{
+            return currentmodus;
+        }
 
         void update() override;
         void doRoomSwitch();
@@ -81,19 +86,18 @@ struct ActivatedFirebowl {
 
         void drawDebug() override;
 
-        bool showHeavyDoorMessage=false;
-
         //loads the necessary textures
         Texture2D heart = assestmanagergraphics::getTexture("userinterface/heart_smaller");
 
         //loads the textures on the map (Kachelsatz)
+        //Texture2D tilesetgrass = assestmanagergraphics::getTexture("tilesets/greyboxing1");
+        //Texture2D tileset_room1 = assestmanagergraphics::getTexture("tileset/level1");
         Texture2D tileset_final = assestmanagergraphics::getTexture("tileset/final");
 
         //attributes necessary for using the map
         std::vector<int> tiles;
         int mapWidth = 25;
         int mapHeight = 15;
-
 
         gameplay();
 
@@ -109,7 +113,7 @@ struct ActivatedFirebowl {
         float getTakeoverRadius() const;
 
         //soul dust
-        Texture2D activatedFirebowlTexture=assestmanagergraphics::getTexture("item/animated_firebowl");
+        Texture2D activatedFirebowlTexture=assestmanagergraphics::getTexture("item/souldust");
         bool isAdjacentToFirebowl(Vector2 pos) const;
         std::pair<int, int> getNearestFirebowlTile(Vector2 pos) const;
         void activateFirebowl(int x, int y);
@@ -124,6 +128,8 @@ struct ActivatedFirebowl {
         void spawnStone(Vector2 position);
         void updateStones();
         void drawStones();
+        //Jan
+        bool isStoneMoved = false;
         std::map<int, std::vector<Stone*>> stonesInRooms;
         void spawnStone(int room, Vector2 position);
         bool touchesStone(Vector2 tilePosition) const;
@@ -145,22 +151,8 @@ struct ActivatedFirebowl {
         bool isAdjacentToSwitch(Vector2 position) const;
 
         //bombs
-
-        std::vector<std::unique_ptr<bombs>> activeBombs;
-        void addBomb(Vector2 position);
-
-
-        //secret room note
-        bool isAdjacentToTable(Vector2 pos) const;
-        Texture2D journal_sparkles=assestmanagergraphics::getTexture("item/journal_sparkles");
-        float journalSparklesTimer;
-        int journalSparklesCurrentFrame;
-        int journalSparklesTotalFrames;
-        float journalSparklesFrameTime;
-        void initJournalSparklesAnimation();
-        void updateJournalSparklesAnimation(float deltaTime);
-        void drawJournalSparklesAnimation(Vector2 position);
-
+        std::vector<bombs*> activeBombs;
+        void addBomb(bombs* bomb);
 
         //collision functions
         int getTileAt(float x, float y) const;
@@ -211,26 +203,10 @@ struct ActivatedFirebowl {
         float doorfromroom5to4=14*32+20;
         float startposroom5to4=3*32;
         float doorfromroom5to6=3*32;
-        float startposroom5to6=13*32;
-        float doorfromroom6to5=13*32+16;
-        float startposroom6to5=3*32+16;
+        float startposroom5to6=14*32+16;
+        float doorfromroom6to5=14*32+20;
+        float startposroom6to5=2*32+16;
         float doorfromroom5to7=32+16;
-        float startposroom5to7=32*23+16;
-        float doorfromroom7to5=24*32+16;
-        float startposroom7to5=2*32;
-        float doorfromroom7to8=2*32;
-        float startposroom7to8=14*32;
-        float doorfromroom8to7=14*32+16;
-        float startposroom8to7=3*32;
-        float doorfromroom8to9=24*32+16;
-        float startposroom8to9=32;
-        float doorfromroom9to8=16;
-        float startposroom9to8=24*32;
-        float doorfromroom9to10=2*32;
-        float startposroom9to10=14*32;
-        float doorfromroom10to9=14*32+16;
-        float startposroom10to9=3*32;
-        float doorfromroom10to11=2*32;
 
         bool showDemoMessage=false;
 
@@ -391,7 +367,7 @@ struct ActivatedFirebowl {
     protected:
         std::vector<int>enemyID;
 
-        //void updateAllenemies();
+        void updateAllenemies();
     };
 
 #endif //RAYLIBSTARTER_GAMEPLAY_H

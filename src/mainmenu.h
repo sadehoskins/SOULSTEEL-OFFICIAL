@@ -9,6 +9,7 @@
 #include "scene.h"
 #include "assestmanagergraphics.h"
 #include "gameplay.h"
+#include "AudioPlayer.h"
 
 class mainmenu: public scene {
 private:
@@ -19,7 +20,6 @@ private:
     Texture2D logo_soulsteel = assestmanagergraphics::getTexture("userinterface/logo_soulsteel");
     Texture2D logo_team = assestmanagergraphics::getTexture("userinterface/logo_team");
 
-    Texture2D background = assestmanagergraphics::getTexture("background/background");
 
     Texture2D start=assestmanagergraphics::getTexture("userinterface/start");
     Texture2D start_selected=assestmanagergraphics::getTexture("userinterface/start_selected");
@@ -28,13 +28,17 @@ private:
     Texture2D close=assestmanagergraphics::getTexture("userinterface/close");
     Texture2D close_selected=assestmanagergraphics::getTexture("userinterface/close_selected");
 
-
+//Jan
+    SoundManager* soundManager;
 
 public:
 
     int cursor = 0;
 
-    mainmenu() : scene() {}
+//Jan Changed
+    mainmenu(SoundManager* sm) : scene(), soundManager(sm) {}
+
+    //mainmenu() : scene() {}
 
     void update() override;
 
@@ -43,6 +47,9 @@ public:
     void draw() override;
 
     void drawDebug() override;
+
+    //Jan
+    static bool IsGameRunning;
 
     //creates the boxes that will be used as buttons; marked boxes are to create an outline that shows which button is selected
     Rectangle hitbox_play = {90, 330, 150, 90};

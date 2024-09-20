@@ -22,25 +22,25 @@
 #include "Wall.h"
 #include "GAME OBJECTS/yellowblock.h"
 #include "GAME OBJECTS/blueblock.h"
-
 //test
 
 void gameplay::update() {
-    std::cout << "Entering gameplay::update" << std::endl;
 
 // Check maincharacter health
-    if (!themaincharacter->healthManager.isAlive()) {
+/*
+if (!themaincharacter->healthManager.isAlive()) {
         // Draw game over message
-        const char *gameOverText = "GAME OVER";
+        const char* gameOverText = "GAME OVER";
         int fontSize = 40;
         int textWidth = MeasureText(gameOverText, fontSize);
-        DrawText(gameOverText, GetScreenWidth() / 2 - textWidth / 2, GetScreenHeight() / 2 - fontSize / 2, fontSize, RED);
+        DrawText(gameOverText, GetScreenWidth()/2 - textWidth/2, GetScreenHeight()/2 - fontSize/2, fontSize, RED);
         return; // Stop updating the game
     }
 
+
     // Update and check enemies
     for (auto it = enemies.begin(); it != enemies.end();) {
-        Enemy *enemy = *it;
+        Enemy* enemy = *it;
         if (!enemy->healthManager.isAlive()) {
             // Handle enemy death
             delete enemy; // Free the memory
@@ -50,8 +50,14 @@ void gameplay::update() {
             ++it;
         }
     }
+    */
 
 
+
+    updateAllenemies();
+    for (int i = 0; i < gameobjects.size(); i++) {
+        gameobjects[i]->update();
+    }
 
     //switch between soul in soul-mode and soul in robot-mode
     if (IsKeyPressed(KEY_SPACE)) {
@@ -72,52 +78,30 @@ void gameplay::update() {
         }
     }
 
+    //Jan Changed
 
-    // Update bombs
-    std::cout << "Updating bombs. Number of active bombs: " << activeBombs.size() << std::endl;
+    //bombs
+    for (auto it = activeBombs.begin(); it != activeBombs.end();) {
+        (*it)->update();
+        if ((*it)->state == bombs::finished) {
+            delete *it;
+            it = activeBombs.erase(it);
+        } else {
+            ++it;
+        }
+    }
 
-    //*NEW CODE*
-    activeBombs.erase(
-            std::remove_if(activeBombs.begin(), activeBombs.end(),
-                           [](const std::unique_ptr<bombs>& bomb) {
-                               if (!bomb) {
-                                   std::cout << "Null bomb pointer found" << std::endl;
-                                   return true;
-                               }
-                               try {
-                                   bomb->update();
-                                   if (bomb->state == bombs::finished) {
-                                       std::cout << "Marking bomb for removal" << std::endl;
-                                       return true;
-                                   }
-                               } catch (const std::exception& e) {
-                                   std::cerr << "Exception while updating bomb: " << e.what() << std::endl;
-                                   return true;
-                               } catch (...) {
-                                   std::cerr << "Unknown exception while updating bomb" << std::endl;
-                                   return true;
-                               }
-                               return false;
-                           }),
-            activeBombs.end()
-    );
-
-    std::cout << "Number of active bombs after update: " << activeBombs.size() << std::endl;
-
-    // Room switch
+    //enables room-switch and checks which version of the character is the one leaving the room
     doRoomSwitch();
 
-    // Update other game elements
+
     themaincharacter->update();
     therobot->update();
     updateStones();
     updateBlocks();
     updateSwitches();
 
-    std::cout << "Exiting gameplay::update" << std::endl;
 }
-
-
 
 void gameplay::doRoomSwitch() {
     switch (room) {
@@ -134,7 +118,7 @@ void gameplay::doRoomSwitch() {
                     themaincharacter->position.y = startposroom1to2;
                     reloadRoom();
                 }
-            } else if (themaincharacter->position.y <= (doortextarea) && !(areAllFirebowlsActivatedInRoom(1))) {
+            } else if (themaincharacter->position.y <= (doortextarea)&&!(areAllFirebowlsActivatedInRoom(1))) {
                 showDoorIsLockedMessage = true;
             } else {
                 showDoorIsLockedMessage = false;
@@ -239,170 +223,30 @@ void gameplay::doRoomSwitch() {
                 } else {
                     robotisinroom = 3;
                 }
-                reloadRoom();
-                themaincharacter->position.y = startposroom5to4;
-            } else if (themaincharacter->position.y <= (doorfromroom5to6)) {
-                if (areAllFirebowlsActivatedInRoom(5)) {
-                    if(currentmodus==robotmodus){
-                        room = 6;
-                        soulisinroom = 6;
-                        robotisinroom = 6;
-                        reloadRoom();
-                        themaincharacter->position.y = startposroom5to6;
-                        showDoorIsLockedMessage = false;
-                    }else {
-                        showHeavyDoorMessage=true;
-                    }
-                }
-            } else if (themaincharacter->position.x <= doorfromroom5to7 && !areAllFirebowlsActivatedInRoom(5)||themaincharacter->position.y <= doorfromroom5to6 && !areAllFirebowlsActivatedInRoom(5)) {
-                showDoorIsLockedMessage = true;
-            } else if (themaincharacter->position.x <= (doorfromroom5to7)) {
-                if (areAllFirebowlsActivatedInRoom(5)) {
-                    showDemoMessage=true;
-                    /*
-                    room = 7;
-                    if (currentmodus == soulmodus) {
-                        soulisinroom = 7;
-                    } else {
-                        robotisinroom = 7;
-                    }
-                    reloadRoom();
-                    themaincharacter->position.x = startposroom5to7;
-                    showDoorIsLockedMessage = false;*/
-                }
-            } else {
-                showDoorIsLockedMessage = false;
-                showHeavyDoorMessage=false;
-                showDemoMessage=false;
-            }
-            break;
-        case 6:
-            if (themaincharacter->position.y >= (doorfromroom6to5)) {
-                if (areAllFirebowlsActivatedInRoom(6)) {
-                    if(currentmodus==robotmodus){
-                        room = 5;
-                        soulisinroom = 5;
-                        robotisinroom = 5;
-                        reloadRoom();
-                        themaincharacter->position.y = startposroom6to5;
-                        showDoorIsLockedMessage = false;
-                    }else{
-                        showHeavyDoorMessage=true;
-                    }
 
-                } else if (themaincharacter->position.y >= doorfromroom6to5 && !(areAllFirebowlsActivatedInRoom(6))) {
-                    showDoorIsLockedMessage = true;
-                } else {
-                    showDoorIsLockedMessage = false;
-                    showHeavyDoorMessage=false;
-                }
-            }
-            break;
-        case 7:
-            if (themaincharacter->position.y <= (doorfromroom7to8)) {
-                if (areAllFirebowlsActivatedInRoom(7)) {
-                    room = 8;
-                    if (currentmodus == soulmodus) {
-                        soulisinroom = 8;
-                    } else {
-                        robotisinroom = 8;
-                    }
-                    reloadRoom();
-                    themaincharacter->position.y = startposroom7to8;
-                    showDoorIsLockedMessage = false;
-                } else if (themaincharacter->position.y <= doorfromroom7to8) {
-                    showDoorIsLockedMessage = true;
-                }
-            } else if (themaincharacter->position.x <= (doorfromroom7to5)) {
-                room = 5;
-                if (currentmodus == soulmodus) {
-                    soulisinroom = 5;
-                } else {
-                    robotisinroom = 5;
-                }
                 reloadRoom();
-                themaincharacter->position.x = startposroom7to5;
-                showDoorIsLockedMessage = false;
-            } else {
-                showDoorIsLockedMessage = false;
-            }
-            break;
-        case 8:
-            if (themaincharacter->position.x >= doorfromroom8to9) {
-                if (areAllFirebowlsActivatedInRoom(8)) {
-                    room = 9;
-                    if (currentmodus == soulmodus) {
-                        soulisinroom = 9;
-                    } else {
-                        robotisinroom = 9;
-                    }
-                    reloadRoom();
-                    themaincharacter->position.x = startposroom8to9;
-                } else if (!areAllFirebowlsActivatedInRoom(8)) {
-                    showDoorIsLockedMessage = true;
-                } else {
-                    showDoorIsLockedMessage = false;
-                }
-            } else if (themaincharacter->position.y <= doorfromroom8to7) {
-                room = 7;
-                if (currentmodus == soulmodus) {
-                    soulisinroom = 7;
-                } else {
-                    robotisinroom = 7;
-                }
-                reloadRoom();
-                themaincharacter->position.y = startposroom8to7;
-            }
-            break;
-        case 9:
-            if (themaincharacter->position.y >= doorfromroom9to10) {
-                if (areAllFirebowlsActivatedInRoom(9)) {
-                    room = 10;
-                    if (currentmodus == soulmodus) {
-                        soulisinroom = 10;
-                    } else {
-                        robotisinroom = 10;
-                    }
-                    reloadRoom();
-                    themaincharacter->position.y = startposroom9to10;
-                } else if (!areAllFirebowlsActivatedInRoom(9)) {
-                    showDoorIsLockedMessage = true;
-                } else {
-                    showDoorIsLockedMessage = false;
-                }
-            } else if (themaincharacter->position.x <= doorfromroom9to8) {
-                room = 8;
-                if (currentmodus == soulmodus) {
-                    soulisinroom = 8;
-                } else {
-                    robotisinroom = 8;
-                }
-                reloadRoom();
-                themaincharacter->position.x = startposroom9to8;
-            }
-            break;
-        case 10:
-            if (themaincharacter->position.y >= doorfromroom10to9) {
-                room = 9;
-                if (currentmodus == soulmodus) {
-                    soulisinroom = 9;
-                } else {
-                    robotisinroom = 9;
-                }
-                reloadRoom();
-                themaincharacter->position.y = startposroom10to9;
-            } else if (themaincharacter->position.y <= doorfromroom10to11) {
-                if (areAllFirebowlsActivatedInRoom(10)) {
-                    showDemoMessage = true;
-                }
-                if (!areAllFirebowlsActivatedInRoom(10)) {
-                    showDoorIsLockedMessage = true;
-                }
+
+                themaincharacter->position.
+                        y = startposroom5to4;
+            } else if (themaincharacter->position.x <= doorfromroom5to7 ||
+                       themaincharacter->position.y <= doorfromroom5to6) {
+                showDemoMessage = true;
             } else {
                 showDemoMessage = false;
             }
             break;
+/*case 6:
+    if (themaincharacter->position.y >= doorfromroom6to5) {
+        room = 5;
+        if (currentmodus == soulmodus) {
+            soulisinroom = 6;
+        } else { robotisinroom = 6; }
+        reloadRoom();
+        themaincharacter->position.y = startposroom6to5;
     }
+    break;*/
+    }
+
 }
 
 bool gameplay::isAdjacentToFirebowl(Vector2 pos) const {
@@ -427,32 +271,6 @@ bool gameplay::isAdjacentToFirebowl(Vector2 pos) const {
     }
     return false;
 }
-
-bool gameplay::isAdjacentToTable(Vector2 pos) const {
-    int tileX = static_cast<int>(pos.x) / 32;
-    int tileY = static_cast<int>(pos.y) / 32;
-
-    // Only check for tables in room 4
-    if (room == 4) {
-        for (int dy = -1; dy <= 1; dy++) {
-            for (int dx = -1; dx <= 1; dx++) {
-                if (dx == 0 && dy == 0) continue; // Skip the tile the character is on
-                int checkX = tileX + dx;
-                int checkY = tileY + dy;
-
-                // Make sure we're not checking out of bounds
-                if (checkX >= 0 && checkX < mapWidth && checkY >= 0 && checkY < mapHeight) {
-                    int tileID = getTileAt(checkX * 32, checkY * 32);
-                    if (std::find(tableIDs.begin(), tableIDs.end(), tileID) != tableIDs.end()) {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-    return false;
-}
-
 
 std::pair<int, int> gameplay::getNearestFirebowlTile(Vector2 pos) const {
     int tileX = pos.x / 32;
@@ -481,37 +299,16 @@ void gameplay::activateFirebowl(int x, int y) {
 
 bool gameplay::areAllFirebowlsActivatedInRoom(int roomNumber) const {
     int requiredCount = 0;
-    switch (room) {
-        case 1:
-            requiredCount = 2;
-            break;
-        case 3:
-            requiredCount = 1;
-            break;
-        case 5:
-            requiredCount = 5;
-            break;
-        case 6:
-            requiredCount = 4;
-            break;
-        case 7:
-            requiredCount = 4;
-            break;
-        case 8:
-            requiredCount = 3;
-            break;
-        case 9:
-            requiredCount = 1;
-            break;
-        case 10:
-            requiredCount = 3;
-            break;
-
+    if (roomNumber == 1) {
+        requiredCount = 2;  // Room 1 requires 2 firebowls
+    } else if (roomNumber == 3) {
+        requiredCount = 1;  // Room 3 requires only 1 firebowl
     }
+    // Add conditions for other rooms if needed
 
     int activatedCount = 0;
     for (const auto &bowl: activatedFirebowls) {
-        if (bowl.room == room) {
+        if (bowl.room == roomNumber) {
             activatedCount++;
         }
     }
@@ -527,11 +324,16 @@ bool gameplay::isFirebowlActivated(int x, int y) const {
     return false;
 }
 
-
+void gameplay::updateAllenemies() {
+    for (int i = 0; i < enemies.size(); i++) {
+        enemies[i]->update();
+    }
+}
 
 scene *gameplay::evaluateSceneChange() {
     if (IsKeyPressed(KEY_M)) {
-        return new mainmenu();
+        //Jan Changed (nullptr added)
+        return new mainmenu(nullptr);
     } else if (IsKeyPressed(KEY_P)) {
         return new pausescreen(this);
     } else if (IsKeyPressed(KEY_T)) {
@@ -543,22 +345,7 @@ scene *gameplay::evaluateSceneChange() {
 }
 
 void gameplay::draw() {
-
-    std::cout << "Entering gameplay::draw" << std::endl;
-
     ClearBackground(GRAY);
-
-    // Debug information
-    std::cout << "Current room: " << room << std::endl;
-    std::cout << "Number of enemies: " << enemies.size() << std::endl;
-    std::cout << "Number of game objects: " << gameobjects.size() << std::endl;
-
-    // Check if tileset_final is loaded
-    if (tileset_final.id == 0) {
-        std::cout << "Error: tileset_final texture not loaded!" << std::endl;
-        return;
-    }
-
 
     //draws the map
     int tilesetCols = 1;
@@ -596,33 +383,22 @@ void gameplay::draw() {
     drawBlocks();
     drawSwitches();
     drawActivatedFirebowls(GetFrameTime());
+    if (showDoorIsLockedMessage) {
+        if (room == 1) {
+            DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32, 4 * 32, 15, DARKBLUE);
+        }
+        if (room == 3) {
+            DrawText("This door is locked!\nActivate the firebowl to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
+        }
+    }
 
     if (IsKeyDown(KEY_H)) {
         this->drawDebug();
     }
-    //draws bombs
-    std::cout << "Drawing bombs. Number of active bombs: " << activeBombs.size() << std::endl;
-    for (const auto& bomb : activeBombs) {
-        if (bomb && bomb->state != bombs::finished) {
-            std::cout << "Drawing bomb at address: " << bomb.get() << ", State: " << bomb->state << std::endl;
-            bomb->draw();
-        } else if (bomb) {
-            std::cout << "Skipping finished bomb at address: " << bomb.get() << std::endl;
-        } else {
-            std::cout << "Null bomb pointer found in draw" << std::endl;
-        }
+    //bombs
+    for (auto &bomb: activeBombs) {
+        bomb->draw();
     }
-
-
-
-    if (isAdjacentToTable(themaincharacter->position)) {
-        DrawText("You found a journal.\nPress T to open.", 15 * 32, 100, 20, WHITE);
-    }
-    if (room == 4) {
-        updateJournalSparklesAnimation(GetFrameTime());
-        drawJournalSparklesAnimation({17.0f * 32, 9.0f * 32});
-    }
-    std::cout << "Exiting gameplay::draw" << std::endl;
 }
 
 void gameplay::drawActivatedFirebowls(float deltaTime) {
@@ -679,39 +455,6 @@ void gameplay::drawtextonscreen() {
     if (showDemoMessage == true) {
         DrawText("This is the end of the SoulSteel Demo version.", 200, 120, 20, WHITE);
     }
-
-    if (showDoorIsLockedMessage) {
-        switch(room){
-            case 1:
-                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32, 4 * 32, 15, DARKBLUE);
-                break;
-            case 3:
-                DrawText("This door is locked!\nActivate the firebowl to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
-                break;
-            case 5:
-                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
-                break;
-            case 6:
-                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 20 * 32 + 16, 15, WHITE);
-                break;
-            case 7:
-                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
-                break;
-            case 8:
-                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
-                break;
-            case 9:
-                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
-                break;
-            case 10:
-                DrawText("This door is locked!\nActivate the firebowls to open.", 9 * 32 + 16, 5 * 32 + 16, 15, WHITE);
-                break;
-        }
-    }
-
-    if(showHeavyDoorMessage){
-        DrawText("This door is too heavy. Maybe your friend could help?", 200, 120, 20, WHITE);
-    }
 }
 
 void gameplay::drawicons() {
@@ -750,10 +493,8 @@ gameplay::gameplay() : scene(this) {
     //std::cout << "Gameplay instance created\n";
     tson::Tileson tileson;
     themaincharacter = new class maincharacter(this);
-    std::cout << "Initialized themaincharacter. Address: " << themaincharacter << std::endl;
     therobot = new robot(this);
     reloadRoom();
-    initJournalSparklesAnimation();
 }
 
 void gameplay::reloadRoom() {
@@ -767,71 +508,13 @@ void gameplay::reloadRoom() {
         switch (room) {
             case 2:
                 spawnStone(2, {23 * 32, 8 * 32});
+
                 spawnStone(2, {10 * 32, 3 * 32});
                 spawnStone(2, {11 * 32, 4 * 32});
                 spawnStone(2, {12 * 32, 3 * 32});
                 spawnStone(2, {13 * 32, 4 * 32});
                 spawnStone(2, {14 * 32, 3 * 32});
                 break;
-            case 6:
-                spawnStone(6, {21 * 32, 3 * 32});
-                spawnStone(6, {21 * 32, 5 * 32});
-                spawnStone(6, {21 * 32, 7 * 32});
-                spawnStone(6, {21 * 32, 9 * 32});
-                spawnStone(6, {21 * 32, 11 * 32});
-                spawnStone(6, {22 * 32, 4 * 32});
-                spawnStone(6, {22 * 32, 6 * 32});
-                spawnStone(6, {22 * 32, 8 * 32});
-                spawnStone(6, {22 * 32, 10 * 32});
-                spawnStone(6, {22 * 32, 12 * 32});
-                spawnStone(6, {23 * 32, 5 * 32});
-                spawnStone(6, {23 * 32, 7 * 32});
-                spawnStone(6, {23 * 32, 9 * 32});
-                spawnStone(6, {23 * 32, 11 * 32});
-                break;
-            case 7:
-                spawnStone(7, {6 * 32, 12 * 32});
-                spawnStone(7, {9 * 32, 4 * 32});
-                spawnStone(7, {12 * 32, 4 * 32});
-                spawnStone(7, {13 * 32, 3 * 32});
-                spawnStone(7, {17 * 32, 4 * 32});
-                spawnStone(7, {16 * 32, 3 * 32});
-                spawnStone(7, {17 * 32, 13 * 32});
-                spawnStone(7, {13 * 32, 7 * 32});
-                spawnStone(7, {14 * 32, 6 * 32});
-                spawnStone(7, {14 * 32, 8 * 32});
-                spawnStone(7, {15 * 32, 6 * 32});
-                spawnStone(7, {15 * 32, 7 * 32});
-                spawnStone(7, {15 * 32, 9 * 32});
-                break;
-            case 8:
-                spawnStone(8, {6 * 32, 5 * 32});
-                spawnStone(8, {3 * 32, 6 * 32});
-                spawnStone(8, {4 * 32, 6 * 32});
-                spawnStone(8, {5 * 32, 6 * 32});
-                spawnStone(8, {2 * 32, 7 * 32});
-                spawnStone(8, {3 * 32, 7 * 32});
-                spawnStone(8, {1 * 32, 8 * 32});
-                spawnStone(8, {10 * 32, 12 * 32});
-                spawnStone(8, {17 * 32, 13 * 32});
-                spawnStone(8, {20 * 32, 12 * 32});
-                spawnStone(8, {21 * 32, 9 * 32});
-                spawnStone(8, {20 * 32, 8 * 32});
-                spawnStone(8, {22 * 32, 4 * 32});
-                break;
-            case 9:
-                spawnStone(9, {18 * 32, 6 * 32});
-                spawnStone(9, {19 * 32, 6 * 32});
-                spawnStone(9, {20 * 32, 10 * 32});
-                break;
-            case 10:
-                spawnStone(10, {2 * 32, 6 * 32});
-                spawnStone(10, {3 * 32, 7 * 32});
-                spawnStone(10, {3 * 32, 8 * 32});
-                spawnStone(10, {4 * 32, 7 * 32});
-                break;
-
-
                 // Add cases for other rooms if needed
         }
     }
@@ -857,116 +540,9 @@ void gameplay::reloadRoom() {
                 spawnSwitch({22 * 32, 12 * 32}, false);  // Blue switch
                 //std::cout << "Switches spawned at (1, 3) and (22, 12)" << std::endl;
                 break;
-            case 6:
-                spawnBlock({8 * 32, 3 * 32}, true);
-                spawnBlock({8 * 32, 4 * 32}, true);
-                spawnBlock({8 * 32, 5 * 32}, true);
-                spawnBlock({8 * 32, 6 * 32}, true);
-                spawnBlock({8 * 32, 7 * 32}, true);
-                spawnBlock({8 * 32, 8 * 32}, true);
-                spawnBlock({8 * 32, 9 * 32}, true);
-                spawnBlock({8 * 32, 10 * 32}, true);
-                spawnBlock({8 * 32, 11 * 32}, true);
-                spawnBlock({8 * 32, 12 * 32}, true);
-                spawnBlock({8 * 32, 13 * 32}, true);
-                spawnBlock({16 * 32, 3 * 32}, true);
-                spawnBlock({16 * 32, 4 * 32}, true);
-                spawnBlock({16 * 32, 5 * 32}, true);
-                spawnBlock({16 * 32, 6 * 32}, true);
-                spawnBlock({16 * 32, 7 * 32}, true);
-                spawnBlock({16 * 32, 8 * 32}, true);
-                spawnBlock({16 * 32, 9 * 32}, true);
-                spawnBlock({16 * 32, 10 * 32}, true);
-                spawnBlock({16 * 32, 11 * 32}, true);
-                spawnBlock({16 * 32, 12 * 32}, true);
-                spawnBlock({16 * 32, 13 * 32}, true);
-                spawnSwitch({12 * 32, 9 * 32}, true);  // yellow switch
-
-                spawnBlock({20 * 32, 3 * 32}, false);
-                spawnBlock({20 * 32, 4 * 32}, false);
-                spawnBlock({20 * 32, 5 * 32}, false);
-                spawnBlock({20 * 32, 6 * 32}, false);
-                spawnBlock({20 * 32, 7 * 32}, false);
-                spawnBlock({20 * 32, 8 * 32}, false);
-                spawnBlock({20 * 32, 9 * 32}, false);
-                spawnBlock({20 * 32, 10 * 32}, false);
-                spawnBlock({20 * 32, 11 * 32}, false);
-                spawnBlock({20 * 32, 12 * 32}, false);
-                spawnBlock({20 * 32, 13 * 32}, false);
-                spawnSwitch({18 * 32, 9 * 32}, false);  // blue switch
-                break;
-            case 7:
-                spawnBlock({1 * 32, 11 * 32}, true);
-                spawnBlock({2 * 32, 10 * 32}, true);
-                spawnBlock({2 * 32, 11 * 32}, true);
-                spawnBlock({1 * 32, 7 * 32}, true);
-                spawnBlock({2 * 32, 7 * 32}, true);
-                spawnBlock({3 * 32, 7 * 32}, true);
-                spawnBlock({4 * 32, 7 * 32}, true);
-                spawnBlock({5 * 32, 7 * 32}, true);
-                spawnBlock({5 * 32, 6 * 32}, true);
-                spawnBlock({5 * 32, 5 * 32}, true);
-                spawnBlock({5 * 32, 4 * 32}, true);
-                spawnBlock({5 * 32, 3 * 32}, true);
-                spawnSwitch({14 * 32, 7 * 32}, true);  // yellow switch
-
-                spawnBlock({17 * 32, 3 * 32}, false);
-                spawnBlock({18 * 32, 4 * 32}, false);
-                spawnBlock({19 * 32, 4 * 32}, false);
-                spawnBlock({20 * 32, 4 * 32}, false);
-                spawnBlock({20 * 32, 5 * 32}, false);
-                spawnBlock({20 * 32, 6 * 32}, false);
-                spawnBlock({21 * 32, 6 * 32}, false);
-                spawnBlock({22 * 32, 6 * 32}, false);
-                spawnBlock({23 * 32, 6 * 32}, false);
-                spawnSwitch({1 * 32, 10 * 32}, false);  // blue switch
-                break;
-            case 8:
-                spawnBlock({2 * 32, 3 * 32}, false);
-                spawnBlock({3 * 32, 3 * 32}, false);
-                spawnBlock({4 * 32, 3 * 32}, false);
-                spawnSwitch({23 * 32, 3 * 32}, false);  // blue switch
-                spawnBlock({23 * 32, 8 * 32}, true);
-                spawnSwitch({4 * 32, 4 * 32}, true);  // yellow switch
-            break;
-            case 9:
-                spawnBlock({11 * 32, 3 * 32}, true);
-                spawnBlock({12 * 32, 3 * 32}, true);
-                spawnBlock({13 * 32, 3 * 32}, true);
-                spawnSwitch({23 * 32, 11 * 32}, true);  // yellow switch
-
-                spawnBlock({10 * 32, 3 * 32}, false);
-                spawnBlock({10 * 32, 4 * 32}, false);
-                spawnBlock({11 * 32, 4 * 32}, false);
-                spawnBlock({12 * 32, 4 * 32}, false);
-                spawnBlock({13 * 32, 4 * 32}, false);
-                spawnBlock({14 * 32, 4 * 32}, false);
-                spawnSwitch({23 * 32, 3 * 32}, false);  // blue switch
-
-                break;
-            case 10:
-                spawnBlock({6 * 32, 3 * 32}, false);
-                spawnBlock({7 * 32, 4 * 32}, false);
-                spawnBlock({8 * 32, 3 * 32}, false);
-                spawnBlock({14 * 32, 3 * 32}, false);
-                spawnBlock({15 * 32, 4 * 32}, false);
-                spawnBlock({16 * 32, 5 * 32}, false);
-                spawnBlock({17 * 32, 6 * 32}, false);
-                spawnBlock({18 * 32, 6 * 32}, false);
-                spawnSwitch({3 * 32, 4 * 32}, false);  // blue switch
-
-                spawnBlock({17 * 32, 3 * 32}, true);
-                spawnBlock({18 * 32, 4 * 32}, true);
-                spawnBlock({19 * 32, 5 * 32}, true);
-                spawnBlock({20 * 32, 6 * 32}, true);
-                spawnBlock({21 * 32, 6 * 32}, true);
-                spawnBlock({22 * 32, 6 * 32}, true);
-                spawnBlock({23 * 32, 6 * 32}, true);
-                spawnSwitch({12 * 32, 8 * 32}, true);  // yellow switch
-                break;
-
         }
     }
+
     //enemies
     switch (room) {
         case 1:
@@ -974,7 +550,8 @@ void gameplay::reloadRoom() {
             break;
         case 2: {
 
-            // Teddy (Enemy1) - rectangular path near the top door
+            //attack
+
             //initialize enemies when room is loaded and reloaded
             if (std::find(enemyID.begin(), enemyID.end(), 201) == enemyID.end()) {
 
@@ -982,37 +559,37 @@ void gameplay::reloadRoom() {
                 Enemy1 *enemy1 = new Enemy1(this);
                 enemy1->controltype = ControlType::Path;
                 enemy1->id = 201;
-                enemy1->position.x = 9 * 32;  // Starting position near the left side of the top door
-                enemy1->position.y = 7 * 32;  // Just below the top door
-                enemy1->stopleft = 9 * 32;   // Left boundary
-                enemy1->stopright = 15 * 32; // Right boundary
-                enemy1->stopup = 6 * 32;     // Top boundary (just below the door)
-                enemy1->stopdown = 9 * 32;   // Bottom boundary
+                enemy1->position.x = 5 * 32;
+                enemy1->position.y = 4 * 32;
+                enemy1->stopleft = 9 * 32; //creates new stop points for Enemy1 instance enemy1
+                enemy1->stopdown = 9 * 32;
+                enemy1->stopright = 12 * 32;
+                enemy1->stopup = 6 * 32 + 16;
                 enemy1->calculatePathAsRectangle();
-                enemy1->isChasing = true;
-                enemy1->chaseRadius = 100.0f;
-                enemy1->chaseSpeed = 2.5f;
-                enemy1->normalSpeed = 0.5f;
-                enemy1->healthManager = HealthManager(5);
                 enemies.push_back(enemy1);
+
+                //attack
+                //enemy1->setAttackPower(1);
+                //themaincharacter.attack(enemy1);
+                //enemy1.attack(themaincharacter); //attack on maincharacter
+                //enemy1->attack(maincharacter);
 
                 if (enemy1->health == 0) {
                     enemyID.push_back(enemy1->id);
                 }
             }
 
-            // Spider (Enemy2) - stationary in front of the right door
             if (std::find(enemyID.begin(), enemyID.end(), 202) == enemyID.end()) {
 
                 Enemy2 *enemy2 = new Enemy2(this);
                 enemy2->controltype = ControlType::Random;
                 enemy2->id = 202;
-                enemy2->position.x = 23 * 32; // In front of the right door
-                enemy2->position.y = 7 * 32;  // Centered vertically with the door
-                enemy2->isChasing = true;
-                enemy2->chaseRadius = 100.0f;
-                enemy2->chaseSpeed = 1.0f;
-                enemy2->healthManager = HealthManager(8);
+                enemy2->position.x = 22 * 32 + 16;
+                enemy2->position.y = 8 * 32;
+                enemy2->stopleft = 11 * 32; //creates new stop points for Enemy1 instance enemy1
+                enemy2->stopdown = 6 * 32;
+                enemy2->stopright = 8 * 32;
+                enemy2->stopup = 3 * 32 + 16;
                 enemies.push_back(enemy2);
 
                 if (enemy2->health == 0) {
@@ -1020,35 +597,53 @@ void gameplay::reloadRoom() {
                 }
             }
 
-            // Tackle Spider (Enemy3) - octagonal path in the middle of the room
             if (std::find(enemyID.begin(), enemyID.end(), 203) == enemyID.end()) {
 
-                Vector2 spiderPos = {12 * 32, 10 * 32}; // Center of the room
-                Enemy3 *enemy3 = new Enemy3(this, spiderPos);
+                Enemy3 *enemy3 = new Enemy3(this);
+                enemy3->controltype = ControlType::Path;
                 enemy3->id = 203;
-                enemy3->isChasing = false;
-                enemy3->normalSpeed = 1.0f;
+                enemy3->position.x = 12 * 32;
+                enemy3->position.y = 9 * 32;
+                enemies.push_back(enemy3);
 
-                // Path octagonal
-                float radius = 80;  // Larger radius for a more spread out path
-                float diagonalOffset = radius * 0.7071f;
-                enemy3->path = {
-                        {spiderPos.x + radius,         spiderPos.y},
-                        {spiderPos.x + diagonalOffset, spiderPos.y + diagonalOffset},
-                        {spiderPos.x,                  spiderPos.y + radius},
-                        {spiderPos.x - diagonalOffset, spiderPos.y + diagonalOffset},
-                        {spiderPos.x - radius,         spiderPos.y},
-                        {spiderPos.x - diagonalOffset, spiderPos.y - diagonalOffset},
-                        {spiderPos.x,                  spiderPos.y - radius},
-                        {spiderPos.x + diagonalOffset, spiderPos.y - diagonalOffset}
-                };
 
+                float polygons = 180;
+                for (int i = 0; i < polygons; i++) {
+                    float angle = (float) i * PI * 2 / polygons;    //walks in circle
+                    enemy3->path.push_back({cos(angle) * 64 + 12 * 32, sin(angle) * 64 + 7 * 32});
+                }
 
                 if (enemy3->health == 0) {
                     enemyID.push_back(enemy3->id);
                 }
-                enemies.push_back(enemy3);
             }
+
+            //attack character
+
+
+
+            //creates enemies for room 2
+            /*enemies.push_back((new Enemy1(this)));
+                    //creates enemies with diffrent stop points
+
+
+            enemies.push_back((new Enemy2(this)));
+            enemies.push_back((new Enemy3(this)));
+
+
+
+            gameplay scene; //implements gameplay instance
+
+            Enemy1 enemy1(&scene); //creates Enemy1 instance
+            enemy1.controltype = Path; // sets control type
+
+            Enemy2 enemy2(&scene);
+            enemy2.controltype = Random;
+
+            Enemy3 enemy3(&scene);
+            enemy3.controltype = Path;*/
+
+
 
         }
             break;
@@ -1109,21 +704,8 @@ void gameplay::loadMap() {
             mapFile = "assets/graphics/tilesets/room4.tmj";
             break;
         case 6:
-            mapFile = "assets/graphics/tilesets/room6.tmj";
+            mapFile = "assets/graphics/tilesets/room5test.tmj";
             break;
-        case 7:
-            mapFile = "assets/graphics/tilesets/room7.tmj";
-            break;
-        case 8:
-            mapFile = "assets/graphics/tilesets/room8.tmj";
-            break;
-        case 9:
-            mapFile = "assets/graphics/tilesets/room9.tmj";
-            break;
-        case 10:
-            mapFile = "assets/graphics/tilesets/room10.tmj";
-            break;
-
     }
     auto map = tileson.parse(mapFile);
     if (map->getStatus() != tson::ParseStatus::OK) {
@@ -1285,7 +867,7 @@ Rectangle gameplay::getTouchedWall(Vector2 position, float radius) {
 
 
 bool gameplay::isTileYouCantPushStoneOnto(int tileID) const {
-    //all tile IDs that represent walls
+    // Add all tile IDs that represent walls
     static const std::vector<std::vector<int>> wallIDs;
 
     return std::any_of(wallIDs.begin(), wallIDs.end(),
@@ -1659,39 +1241,7 @@ bool gameplay::isAdjacentToSwitch(Vector2 position) const {
     return false;
 }
 
-void gameplay::addBomb(Vector2 position) {
-    std::cout << "Adding bomb to game at position (" << position.x << ", " << position.y << ")" << std::endl;
-    activeBombs.push_back(std::make_unique<bombs>(this, position));
-}
-
-void gameplay::initJournalSparklesAnimation() {
-    journalSparklesTimer = 0.0f;
-    journalSparklesCurrentFrame = 0;
-    journalSparklesTotalFrames = 8;
-    journalSparklesFrameTime = 1.0f / 12.0f;  // 12 FPS, adjust as needed
-}
-
-void gameplay::updateJournalSparklesAnimation(float deltaTime) {
-    journalSparklesTimer += deltaTime;
-    if (journalSparklesTimer >= journalSparklesFrameTime) {
-        journalSparklesCurrentFrame = (journalSparklesCurrentFrame + 1) % journalSparklesTotalFrames;
-        journalSparklesTimer -= journalSparklesFrameTime;
-    }
-}
-
-void gameplay::drawJournalSparklesAnimation(Vector2 position) {
-    int frameWidth = journal_sparkles.width / journalSparklesTotalFrames;
-    Rectangle sourceRec = {
-            static_cast<float>(journalSparklesCurrentFrame * frameWidth),
-            0.0f,
-            (float) frameWidth,
-            (float) journal_sparkles.height
-    };
-    Rectangle destRec = {
-            position.x,
-            position.y,
-            (float) frameWidth,
-            (float) journal_sparkles.height
-    };
-    DrawTexturePro(journal_sparkles, sourceRec, destRec, Vector2{0, 0}, 0.0f, WHITE);
+void gameplay::addBomb(bombs *bomb) {
+    //std::cout << "Adding bomb to game!" << std::endl;
+    activeBombs.push_back(bomb);
 }

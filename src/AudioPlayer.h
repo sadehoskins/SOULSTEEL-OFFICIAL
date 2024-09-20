@@ -20,11 +20,13 @@ public:
     void playBackgroundMusic();
     void updateBackgroundMusic();
     void stopBackgroundMusic();
+    void setMusicVolume(float volume);
 
 private:
     std::vector<Sound> loadedSounds;
     Music backgroundMusic;
     bool isBackgroundMusicLoaded;
+    float musicVolume;
 };
 
 #endif // SOUNDMANAGER_H

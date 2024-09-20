@@ -15,8 +15,6 @@ private:
     Texture2D logo_soulsteel = assestmanagergraphics::getTexture("userinterface/logo_soulsteel");
     Texture2D logo_team = assestmanagergraphics::getTexture("userinterface/logo_team");
     Texture2D pause = assestmanagergraphics::getTexture("userinterface/pause");
-    Texture2D background = assestmanagergraphics::getTexture("background/background");
-
 
 public:
     pausescreen(gameplay* gameplayInstance) : scene(gameplayInstance), gameplayInstance(gameplayInstance) {

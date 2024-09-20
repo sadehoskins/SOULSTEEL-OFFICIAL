@@ -5,157 +5,85 @@
 #include <regex>
 #include "Enemy3.h"
 
-//*NEW CODE*
-const float Enemy3::SPIDERTOOTH_FRAME_DURATION = 0.1f;
 
 
-Enemy3::Enemy3(gameplay *scene, const Vector2& initialPosition)
-        : Enemy(scene, 2, 2, false, true, false,
-                initialPosition.x, initialPosition.y, initialPosition.x, initialPosition.y),
-          isShooting(false), shootingRange(200.0f), spiderToothSpeed(5.0f),
-          shootCooldown(2.0f), shootTimer(0.0f), spiderToothFrame(0), spiderToothFrameTimer(0.0f)
-{
-    enemyType = "tacklespider";
-    animData.entityType = "tacklespider";
-    animData.currentAnimationState = AnimationState::IDLE;
-    animData.facingDirection = Direction::Down;
-    animData.currentFrame = 0;
-    controltype = ControlType::Path;
-    position = initialPosition;
+
+Enemy3::Enemy3(gameplay *scene)
+        : Enemy(scene,2, 2, false, true, false,
+6.0f * 32.0f - 16.0f, 8 * 32 + 16, 8 * 32 - 16, 6 * 32 + 16){
+loadAnimations();
 }
 
+void Enemy3::update() {
+    Enemy::update();
+    updateAnimation(GetFrameTime());
 
-void Enemy3::drawSpiderToothAttack()
-{
-    if (isShooting)
-    {
-        Direction toothDirection;
-        if (std::abs(spiderToothDirection.x) > std::abs(spiderToothDirection.y))
-        {
-            toothDirection = (spiderToothDirection.x > 0) ? Direction::Right : Direction::Left;
-        }
-        else
-        {
-            toothDirection = (spiderToothDirection.y > 0) ? Direction::Down : Direction::Up;
-        }
-
-        Texture2D spiderToothTexture = assestmanagergraphics::getAnimationTexture(animData.entityType, AnimationState::SPIDERTOOTH, toothDirection);
-
-        float frameWidth = static_cast<float>(spiderToothTexture.width) / SPIDERTOOTH_FRAME_COUNT;
-        Rectangle sourceRec = {
-                spiderToothFrame * frameWidth, 0,
-                frameWidth,
-                static_cast<float>(spiderToothTexture.height)
-        };
-        Rectangle destRec = {
-                spiderToothPosition.x - frameWidth / 2,
-                spiderToothPosition.y - spiderToothTexture.height / 2,
-                frameWidth,
-                static_cast<float>(spiderToothTexture.height)
-        };
-        DrawTexturePro(spiderToothTexture, sourceRec, destRec, {0, 0}, 0, WHITE);
-    }
 }
 
-Texture2D Enemy3::getCurrentTexture()
-{
-    return assestmanagergraphics::getAnimationTexture(animData.entityType, animData.currentAnimationState, animData.facingDirection);
+void Enemy3::draw() {
+    Texture2D texture = getCurrentTexture();
+    Rectangle sourceRec = {
+            static_cast<float>(currentFrame * texture.width / FRAME_COUNT), 0.0f,
+            static_cast<float>(texture.width / FRAME_COUNT),
+            static_cast<float>(texture.height)
+    };
+    Vector2 drawPosition = {
+            position.x - static_cast<float>(texture.width) / (2.0f * FRAME_COUNT),
+            position.y - static_cast<float>(texture.height) / 2.0f
+    };
+    DrawTextureRec(texture, sourceRec, drawPosition, WHITE);
+
+
+
 }
 
-void Enemy3::update()
-{
-    if (!healthManager.isAlive()) {
-        // Handle death
-        return;
-    }
+void Enemy3::loadAnimations() {
+    std::vector<std::string> actions = {"Idle", "Walk"};
+    std::vector<std::string> directions = {"back", "front", "side left", "side right"};
 
-    Vector2 oldPosition = position;
-    Enemy::update();  // This includes the path movement logic
+    for (const auto& action : actions) {
+        for (const auto& direction : directions) {
+            std::string key = "tackle_spider_" + toLowercase(action) + "_" +
+                              (direction == "side left" ? "left" :
+                               direction == "side right" ? "right" : direction);
+            key = std::regex_replace(key, std::regex("\\s+"), "_");
+            std::string fileName = "Character - Enemy - Tackle Spider - " + action + " " + direction;
 
-    updateAnimationBasedOnMovement(oldPosition);
-
-    // Check if main character is in range
-    Vector2 characterPos = _scene->themaincharacter->position;
-    float distanceToCharacter = Vector2Distance(position, characterPos);
-
-    if (distanceToCharacter <= shootingRange)
-    {
-        if (!isShooting && shootTimer <= 0)
-        {
-            shootSpiderTooth();
-        }
-    }
-
-    updateSpiderToothAttack();
-    shootTimer -= GetFrameTime();
-}
-
-void Enemy3::shootSpiderTooth()
-{
-    isShooting = true;
-    spiderToothPosition = position;
-    // Set the spiderToothDirection based on the enemy's facing direction
-    switch (animData.facingDirection)
-    {
-        case Direction::Up:
-            spiderToothDirection = {0, -1};
-            break;
-        case Direction::Down:
-            spiderToothDirection = {0, 1};
-            break;
-        case Direction::Left:
-            spiderToothDirection = {-1, 0};
-            break;
-        case Direction::Right:
-            spiderToothDirection = {1, 0};
-            break;
-    }
-    shootTimer = shootCooldown;
-    spiderToothFrame = 0;
-    spiderToothFrameTimer = 0.0f;
-}
-
-void Enemy3::updateSpiderToothAttack()
-{
-    if (isShooting)
-    {
-        spiderToothPosition = Vector2Add(spiderToothPosition, Vector2Scale(spiderToothDirection, spiderToothSpeed));
-
-        // Update spider tooth animation
-        spiderToothFrameTimer += GetFrameTime();
-        if (spiderToothFrameTimer >= SPIDERTOOTH_FRAME_DURATION)
-        {
-            spiderToothFrame = (spiderToothFrame + 1) % SPIDERTOOTH_FRAME_COUNT;
-            spiderToothFrameTimer -= SPIDERTOOTH_FRAME_DURATION;
-        }
-
-        // Check if the spidertooth is out of range or hits the character
-        if (Vector2Distance(position, spiderToothPosition) > shootingRange ||
-            CheckCollisionCircles(spiderToothPosition, 5, _scene->themaincharacter->position, _scene->themaincharacter->size))
-        {
-            isShooting = false;
-            // Apply damage to the character if hit
-            if (CheckCollisionCircles(spiderToothPosition, 5, _scene->themaincharacter->position, _scene->themaincharacter->size))
-            {
-                _scene->themaincharacter->healthManager.takeDamage(enemyDamage);
-            }
+            animations[key] = AnimationInfo(
+                    FRAME_COUNT,
+                    FRAME_DURATION,
+                    assestmanagergraphics::getCharacterTexture("enemies", fileName + " - animated")
+            );
         }
     }
 }
 
-
-void Enemy3::draw()
-{
-    Enemy::draw();
-
-    drawHealthStatus();  // Draw the health status
-
-    if (isShooting)
-    {
-        drawSpiderToothAttack();
+Texture2D Enemy3::getCurrentTexture() {
+    std::string action = (currentAnimationState == AnimationState::IDLE) ? "idle" : "walk";
+    std::string direction;
+    switch(facing) {
+        case Direction::Left: direction = "left"; break;
+        case Direction::Right: direction = "right"; break;
+        case Direction::Up: direction = "back"; break;
+        case Direction::Down: direction = "front"; break;
     }
+    std::string key = "tackle_spider_" + action + "_" + direction;
+
+    if (animations.find(key) != animations.end()) {
+        return animations[key].texture;
+    }
+    return animations["tackle_spider_idle_front"].texture; // Default texture
 }
+
+
 
 Enemy3::~Enemy3() {
-    // Destructor implementation (if needed)
+}
+
+void Enemy3::updateAnimation(float deltaTime) {
+    animationTimer += deltaTime;
+    if (animationTimer >= FRAME_DURATION) {
+        currentFrame = (currentFrame + 1) % FRAME_COUNT;
+        animationTimer -= FRAME_DURATION;
+    }
 }

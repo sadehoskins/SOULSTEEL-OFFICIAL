@@ -9,30 +9,19 @@
 #include <map>
 #include "raylib.h"
 #include <string>
-#include "Enums.h"
 
 class assestmanagergraphics {
 public:
     static void init();
     static Texture2D getTexture(const std::string &name);
-    static Texture2D getAnimationTexture(const std::string& entityType, AnimationState state, Direction direction);
-    static Texture2D getObjectTexture(const std::string& objectName, AnimationState state);
-    static Texture2D getSingleFrameTexture(const std::string& name);
-
+    static Texture2D getCharacterTexture(const std::string& characterName, const std::string& animationName);
 
 private:
-    static void loadCharacterAnimations();
-    static void loadEnemyAnimations();
-    static void loadObjectAnimations();
-    static void loadSingleFrameTextures();
+    static void loadCharacterAnimations(const std::string& characterName);
     static bool m_texturesLoaded;
     static std::map<std::string, Texture2D> m_textures;
-    static std::map<std::string, std::map<AnimationState, std::map<Direction, Texture2D>>> m_animations;
-    static std::map<std::string, std::map<AnimationState, Texture2D>> m_objectAnimations;
-    static std::map<std::string, Texture2D> m_singleFrameTextures;
-
-    void drawTextureAtlas(const std::string &entityType, AnimationState state, Direction direction, int x, int y);
+    static std::map<std::string, std::map<std::string, Texture2D>> m_characterAnimations;
 };
-Texture2D LoadTextureAndLog(const std::string& path);
+
 
 #endif //RAYLIBSTARTER_ASSESTMANAGERGRAPHICS_H

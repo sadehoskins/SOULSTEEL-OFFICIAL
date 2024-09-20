@@ -16,7 +16,8 @@ scene *pausescreen::evaluateSceneChange() {
     if (IsKeyPressed(KEY_P)) {
         return gameplayInstance;  // Return the stored gameplay instance
     }else if (IsKeyPressed(KEY_M)) {
-        return new mainmenu();}
+        //Jan Changed (nullptr added)
+        return new mainmenu(nullptr);}
     else{
         return this;
     }
@@ -24,7 +25,7 @@ scene *pausescreen::evaluateSceneChange() {
 
 void pausescreen::draw() {
 //draws the background and textures
-    DrawTexture(background,0,0,WHITE);
+    ClearBackground(DARKGRAY);
     DrawTexture(logo_soulsteel, 120, 20, WHITE);
     DrawTexture(logo_team, 320, 390, WHITE);
 

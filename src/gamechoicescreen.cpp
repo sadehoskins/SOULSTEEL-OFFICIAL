@@ -38,13 +38,12 @@ scene *gamechoicescreen::evaluateSceneChange() {
         }
     }
     if(IsKeyPressed(KEY_M)){
-        return new mainmenu();
+        //Jan Changed (nullptr added)
+        return new mainmenu(nullptr);
     }else{return this;}
 }
 
 void gamechoicescreen::draw() {
-    DrawTexture(background,0,0,WHITE);
-
     DrawTexture(logo_soulsteel, 120, 20, WHITE);
     DrawTexture(logo_team, 320, 390, WHITE);
 

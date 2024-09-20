@@ -6,34 +6,12 @@
 #include <algorithm>
 #include <regex>
 #include "assestmanagergraphics.h"
-#include <filesystem>
-namespace fs = std::filesystem;
-
-Texture2D LoadTextureAndLog(const std::string& path) {
-    if (fs::exists(path)) {
-        Texture2D texture = LoadTexture(path.c_str());
-        if (texture.id == 0) {
-            TraceLog(LOG_ERROR, "Failed to load texture: %s", path.c_str());
-        } else {
-            TraceLog(LOG_INFO, "Successfully loaded texture: %s", path.c_str());
-        }
-        return texture;
-    } else {
-        TraceLog(LOG_WARNING, "Texture file does not exist: %s", path.c_str());
-        return {0}; // Return an invalid texture
-    }
-}
-
-
-
 
 bool assestmanagergraphics::m_texturesLoaded = false;
 std::map<std::string, Texture2D> assestmanagergraphics::m_textures;
-std::map<std::string, std::map<AnimationState, std::map<Direction, Texture2D>>> assestmanagergraphics::m_animations;
-std::map<std::string, std::map<AnimationState, Texture2D>> assestmanagergraphics::m_objectAnimations;
-std::map<std::string, Texture2D> assestmanagergraphics::m_singleFrameTextures;
+std::map<std::string, std::map<std::string, Texture2D>> assestmanagergraphics::m_characterAnimations;
 
-/*/ Helper functions
+// Helper functions
 std::string toLowercase(const std::string& str) {
     std::string lower = str;
     std::transform(lower.begin(), lower.end(), lower.begin(),
@@ -43,7 +21,7 @@ std::string toLowercase(const std::string& str) {
 
 bool startsWith(const std::string& str, const std::string& prefix) {
     return str.size() >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0;
-}*/
+}
 
 void assestmanagergraphics::init() {
     if (m_texturesLoaded) {
@@ -51,7 +29,6 @@ void assestmanagergraphics::init() {
         return;
     }
     m_texturesLoaded = true;
-
     m_textures["ERROR"] = LoadTexture("assets/graphics/ERROR.png");
     //m_textures["tilesets/level1"] = LoadTexture("assets/graphics/tilesets/tilesets/level1.png");
     //m_textures["tileset/level1"] = LoadTexture("assets/graphics/tilesets/tileset_alles_Stand20240820.png");
@@ -98,12 +75,7 @@ void assestmanagergraphics::init() {
     m_textures["userinterface/continue_selected"] = LoadTexture("assets/graphics/userinterface/UI - Menu Button - pressed Continue - static.png");
     m_textures["userinterface/logo_soulsteel"] = LoadTexture("assets/graphics/userinterface/Logo_resized.png");
     m_textures["userinterface/logo_team"] = LoadTexture("assets/graphics/userinterface/Team Logo White_resized.png");
-    m_textures["background/background"] = LoadTexture("assets/graphics/backgrounds/Menu background_resized.png");
-    m_textures["userinterface/arrowleft"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Arrow_left_-_static_resized.png");
-    m_textures["userinterface/arrowright"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Arrow_right_-_static_resized.png");
-    m_textures["userinterface/closejournal"] = LoadTexture("assets/graphics/userinterface/Ui_-_Journal_-_Closing_X_-_static_resized.png");
-    m_textures["userinterface/background_journal"] = LoadTexture("assets/graphics/userinterface/UI_-_Journal_-_open_-_static_resized.png");
-    m_textures["userinterface/journal_pic"] = LoadTexture("assets/graphics/userinterface/journal_image_resized.png");
+
 
     //ability icons
     m_textures["userinterface/icon_dash"]= LoadTexture("assets/graphics/userinterface/UI - Button symbol - Soul dash - static.png");
@@ -111,19 +83,15 @@ void assestmanagergraphics::init() {
     m_textures["userinterface/icon_stone"]= LoadTexture("assets/graphics/userinterface/UI - Button symbol - Robot Interaction - static.png");
     m_textures["userinterface/icon_bomb"]= LoadTexture("assets/graphics/userinterface/UI - Button symbol - Robot bomb - static.png");
 
-    //health
     m_textures["userinterface/heart_robot"]= LoadTexture("assets/graphics/userinterface/UI - HP heart - Robot - static.png");
     m_textures["userinterface/heart_soul"]= LoadTexture("assets/graphics/userinterface/UI - HP heart - Soul - static.png");
 
-    //bombs
-    m_textures["item/bomb_thrown"] = LoadTexture("assets/graphics/items/bomb_lit.png");
-    m_textures["item/bomb_exploding"] = LoadTexture("assets/graphics/items/bomb_explotion.png");
-
-    //firebowls
-    m_textures["item/animated_firebowl"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Fire bowl - animated - activated.png");
-
-    //stones
-    m_textures["item/stone"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - MovableBlock - Static.png");
+    // Load item textures
+    m_textures["item/bomb"] = LoadTexture("assets/graphics/items/bomb.png");
+    m_textures["item/bomb_activated"] = LoadTexture("assets/items/bomb_abouttoexplode.png");
+    m_textures["item/bomb_exploded"] = LoadTexture("assets/items/bomb_exploded.png");
+    m_textures["item/souldust"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Fire bowl - animated - activated.png");
+    m_textures["ability/souldust_deactivated"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Fire bowl - static - unactivated.png");
 
     // Load block textures
     m_textures["item/yellow_block"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Yellow Block - Static.png");
@@ -137,194 +105,157 @@ void assestmanagergraphics::init() {
     m_textures["item/yellow_switch_on"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Yellow Switch - Animated.png");
     m_textures["item/yellow_switch_off"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Yellow Switch - Static.png");
 
-    //journal sparkles
-    m_textures["item/journal_sparkles"] = LoadTexture("assets/graphics/characters/soul/dust_dust_left.png");
 
     //load switching animation textures
-    m_textures["Switch-Animation/Soul_to_Robot"] = LoadTexture("assets/graphics/characters/soul/soul_switch.png");
-    m_textures["Switch-Animation/Robot_to_Soul"] = LoadTexture("assets/graphics/characters/robot/robot_switch.png");
+    m_textures["Switch-Animation/Soul_to_Robot"] = LoadTexture("assets/graphics/characters/Switch-Animation/Character - Robot+Soul - Switch Soul to Robot - animated.png");
+    m_textures["Switch-Animation/Robot_to_Soul"] = LoadTexture("assets/graphics/characters/Switch-Animation/Character - Robot+Soul - Switch Robot to Soul - animated.png");
 
-    m_textures["placeholder/standby-robot"]= LoadTexture("assets/graphics/characters/robot/robot_notpossessed.png");
 
-    loadObjectAnimations();
-    loadSingleFrameTextures();
-    loadCharacterAnimations();
-    loadEnemyAnimations();
+    m_textures["placeholder/standby-robot"]= LoadTexture("assets/graphics/characters/robot/Character - Robot - Offline - static.png");
+
+
+    //robot functions
+    //bombs
+    m_textures["item/bomb_thrown"]=LoadTexture("assets/graphics/items/Character object - Bomb - animated.png");
+    m_textures["item/bomb_exploding"]=LoadTexture("assets/graphics/items/Character object - Explosion - animated.png");
+    //soul functions
+    //soul dust*/
+    m_textures["item/souldust"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Fire bowl - animated - activated.png");
+    m_textures["ability/souldust_deactivated"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - Fire bowl - static - unactivated.png");
+    //soul dash
+    m_textures["characters/soul/dash_front"] = LoadTexture("assets/graphics/characters/soul/Character - Soul - Dash front - animated.png");
+    m_textures["characters/soul/dash_back"] = LoadTexture("assets/graphics/characters/soul/Character - Soul - Dash back - animated.png");
+    m_textures["characters/soul/dash_left"] = LoadTexture("assets/graphics/characters/soul/Character - Soul - Dash side left - animated.png");
+    m_textures["characters/soul/dash_right"] = LoadTexture("assets/graphics/characters/soul/Character - Soul - Dash side right - animated.png");
+    //stones
+    m_textures["item/stone"] = LoadTexture("assets/graphics/PNG - and Spritesheets/Objects/Tile - Object - MovableBlock - Static.png");
+
+    // Enemy1 (Teddy) textures
+    m_textures["enemy1_idle_back"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Idle back - animated.png");
+    m_textures["enemy1_idle_front"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Idle front - animated.png");
+    m_textures["enemy1_idle_left"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Idle side left - animated.png");
+    m_textures["enemy1_idle_right"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Idle side right - animated.png");
+
+    m_textures["enemy1_walk_back"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Walk back - animated.png");
+    m_textures["enemy1_walk_front"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Walk front - animated.png");
+    m_textures["enemy1_walk_left"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Walk side left - animated.png");
+    m_textures["enemy1_walk_right"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Walk side right - animated.png");
+
+    m_textures["enemy1_bomb_throw_back"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Bomb throw back - animated.png");
+    m_textures["enemy1_bomb_throw_front"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Bomb throw front - animated.png");
+    m_textures["enemy1_bomb_throw_left"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Bomb throw side left - body - animated.png");
+    m_textures["enemy1_bomb_throw_right"] = LoadTexture("assets/graphics/characters/enemies/enemy1/Character - Enemy - Teddy - Bomb throw side right - body - animated.png");
+
+    // Enemy2 (Spider) textures
+    m_textures["enemy2_idle_back"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Idle back - animated.png");
+    m_textures["enemy2_idle_front"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Idle front - animated.png");
+    m_textures["enemy2_idle_left"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Idle side left - animated.png");
+    m_textures["enemy2_idle_right"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Idle side right - animated.png");
+
+    m_textures["enemy2_walk_back"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Walk back - animated.png");
+    m_textures["enemy2_walk_front"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Walk front - animated.png");
+    m_textures["enemy2_walk_left"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Walk side left - animated.png");
+    m_textures["enemy2_walk_right"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Walk side right - animated.png");
+
+    m_textures["enemy2_ranged_back"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Ranged back - animated.png");
+    m_textures["enemy2_ranged_front"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Ranged front - animated.png");
+    m_textures["enemy2_ranged_left"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Ranged side left - animated.png");
+    m_textures["enemy2_ranged_right"] = LoadTexture("assets/graphics/characters/enemies/enemy2/Character - Enemy - Spider - Ranged side right - animated.png");
+
+    // Enemy3 (Tackle Spider) textures
+    m_textures["enemy3_idle_back"] = LoadTexture("assets/graphics/characters/enemies/enemy3/Character - Enemy - Tackle Spider - Idle back - animated.png");
+    m_textures["enemy3_idle_front"] = LoadTexture("assets/graphics/characters/enemies/enemy3/Character - Enemy - Tackle Spider - Idle front - animated.png");
+    m_textures["enemy3_idle_left"] = LoadTexture("assets/graphics/characters/enemies/enemy3/Character - Enemy - Tackle Spider - Idle side left - animated.png");
+    m_textures["enemy3_idle_right"] = LoadTexture("assets/graphics/characters/enemies/enemy3/Character - Enemy - Tackle Spider - Idle side right - animated.png");
+
+    m_textures["enemy3_walk_back"] = LoadTexture("assets/graphics/characters/enemies/enemy3/Character - Enemy - Tackle Spider - Walk back - animated.png");
+    m_textures["enemy3_walk_front"] = LoadTexture("assets/graphics/characters/enemies/enemy3/Character - Enemy - Tackle Spider - Walk front - animated.png");
+    m_textures["enemy3_walk_left"] = LoadTexture("assets/graphics/characters/enemies/enemy3/Character - Enemy - Tackle Spider - Walk side left - animated.png");
+    m_textures["enemy3_walk_right"] = LoadTexture("assets/graphics/characters/enemies/enemy3/Character - Enemy - Tackle Spider - Walk side right - animated.png");
+
+
+
+    //bombtexture Teddy
+    m_textures["bomb_teddy_left"]  = LoadTexture("assets/graphics/items/Character - Enemy - Teddy - Bomb throw side left - bomb – animated.png");
+    m_textures["bomb_teddy_right"]  = LoadTexture("assets/graphics/items/Character - Enemy - Teddy - Bomb throw side right - bomb – animated.png");
+
+    // Load character animations
+    loadCharacterAnimations("soul");
+    loadCharacterAnimations("robot");
+    //loadCharacterAnimations("enemies");
 }
 
+void assestmanagergraphics::loadCharacterAnimations(const std::string &characterName) {
+    std::string basePath = "assets/graphics/characters/" + characterName + "/";
 
-void assestmanagergraphics::loadCharacterAnimations() {
-    std::string basePath = "assets/graphics/characters/";
-    std::vector<std::string> characters = {"soul", "robot"};
-    std::vector<std::string> states = {"idle", "walk", "normal", "ranged", "dust", "dash"};
-    std::vector<std::string> directions = {"back", "front", "left", "right"};
+    std::vector<std::pair<std::string, std::string>> animations;
 
-    for (const auto& character : characters) {
-        for (const auto& state : states) {
-            for (const auto& dir : directions) {
-                AnimationState animState;
-                if (state == "idle") animState = AnimationState::IDLE;
-                else if (state == "walk") animState = AnimationState::WALK;
-                else if (state == "normal") animState = AnimationState::ATTACK_NORMAL;
-                else if (state == "ranged") animState = AnimationState::ATTACK_RANGED;
-                else if (state == "dust") animState = AnimationState::DUST;
-                else if (state == "dash") animState = AnimationState::DASH;
-                else continue; // Skip if not a valid state for this character
-
-                Direction direction = (dir == "back") ? Direction::Up :
-                                      (dir == "front") ? Direction::Down :
-                                      (dir == "left") ? Direction::Left : Direction::Right;
-
-                std::string path = basePath + character + "/" + character + "_" + state + "_" + dir + ".png";
-                Texture2D texture = LoadTexture(path.c_str());
-                m_animations[character][animState][direction] = texture;
-
-                std::cout << "Loaded " << character << " animation: " << path << std::endl;
-                std::cout << "Texture ID: " << texture.id << ", Width: " << texture.width << ", Height: " << texture.height << std::endl;
-
-                if (character == "soul" && state == "dust") {
-                    // Special case for soul dust effect
-                    path = basePath + character + "/dust_dust_" + dir + ".png";
-                } else {
-                    path = basePath + character + "/" + character + "_" + state + "_" + dir + ".png";
-                }
-
-                m_animations[character][animState][direction] = LoadTexture(path.c_str());
-
-                // Print debug information
-                std::cout << "Loaded " << character << " animation: " << path << std::endl;
-
+    if (characterName == "soul") {
+        std::vector<std::string> actions = {"Dash", "Idle", "Walk"};
+        std::vector<std::string> directions = {"back", "front", "side left", "side right"};
+        for (const auto &action: actions) {
+            for (const auto &direction: directions) {
+                std::string key = toLowercase(action) + "_" +
+                                  (direction == "side left" ? "left" :
+                                   direction == "side right" ? "right" : direction);
+                std::string fileName = "Character - Soul - " + action + " " + direction + " - animated";
+                animations.push_back({key, fileName});
             }
         }
-    }
 
-    // Load special animations
-    // Soul switch animation
-    m_animations["soul"][AnimationState::SWITCH][Direction::Down] = LoadTexture((basePath + "soul/soul_switch.png").c_str());
+        // Special case for Dust animations
+        std::vector<std::string> dustDirections = {"back", "front", "side left", "side right"};
+        for (const auto &direction: dustDirections) {
+            std::string key = "dust_" + (direction == "side left" ? "left" :
+                                         direction == "side right" ? "right" : direction);
+            animations.push_back(
+                    {key + "_character", "Character - Soul - Dust " + direction + " - character - animated"});
+            animations.push_back({key + "_dust", "Character - Soul - Dust " + direction + " - dust - animated"});
+        }
+    } else if (characterName == "robot") {
+        std::vector<std::string> actions = {"Idle", "Walk", "Melee", "Ranged"};
+        std::vector<std::string> directions = {"Back", "Front", "side left", "side right"};
 
-    // Robot switch animation
-    m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTexture((basePath + "robot/robot_switch.png").c_str());
-
-    // Robot special animations
-    m_animations["robot"][AnimationState::RANGED_EFFECT][Direction::Left] = LoadTexture((basePath + "robot/screwers_ranged_left.png").c_str());
-    m_animations["robot"][AnimationState::RANGED_EFFECT][Direction::Right] = LoadTexture((basePath + "robot/screwers_ranged_right.png").c_str());
-    m_animations["robot"][AnimationState::FLYINGSCREWS][Direction::Down] = LoadTexture((basePath + "robot/screws_flyingscrews.png").c_str());
-
-
-    //
-// Load soul dust body animations
-    m_animations["soul"][AnimationState::DUST][Direction::Up] = LoadTexture("assets/graphics/characters/soul/soul_dust_back.png");
-    m_animations["soul"][AnimationState::DUST][Direction::Down] = LoadTexture("assets/graphics/characters/soul/soul_dust_front.png");
-    m_animations["soul"][AnimationState::DUST][Direction::Left] = LoadTexture("assets/graphics/characters/soul/soul_dust_left.png");
-    m_animations["soul"][AnimationState::DUST][Direction::Right] = LoadTexture("assets/graphics/characters/soul/soul_dust_right.png");
-
-    // Load dust effect animations
-    m_animations["dust"][AnimationState::DUST][Direction::Up] = LoadTexture("assets/graphics/characters/soul/dust_dust_back.png");
-    m_animations["dust"][AnimationState::DUST][Direction::Down] = LoadTexture("assets/graphics/characters/soul/dust_dust_front.png");
-    m_animations["dust"][AnimationState::DUST][Direction::Left] = LoadTexture("assets/graphics/characters/soul/dust_dust_left.png");
-    m_animations["dust"][AnimationState::DUST][Direction::Right] = LoadTexture("assets/graphics/characters/soul/dust_dust_right.png");
-
-
-
-
-
-    std::cout << "Loaded special animations" << std::endl;
-}
-
-//*NEW CODE*
-void assestmanagergraphics::loadEnemyAnimations() {
-    std::cout << "Starting to load enemy animations..." << std::endl;
-
-    std::vector<std::string> enemyTypes = {"enemy1", "enemy2", "enemy3"};
-    std::vector<std::string> states = {"idle", "walk", "normal", "ranged"};
-    std::vector<std::string> directions = {"back", "front", "left", "right"};
-
-    for (const auto& enemyType : enemyTypes) {
-        std::string entityName = (enemyType == "enemy1") ? "teddy" :
-                                 (enemyType == "enemy2") ? "spider" :
-                                 (enemyType == "enemy3") ? "tacklespider" : enemyType;
-
-        for (const auto& state : states) {
-            for (const auto& dir : directions) {
-                std::string fileName = entityName + "_" + state + "_" + dir + ".png";
-                std::string path = "assets/graphics/characters/enemies/" + enemyType + "/" + fileName;
-
-                std::cout << "Attempting to load texture: " << path << std::endl;
-
-                Texture2D texture = LoadTexture(path.c_str());
-                if (texture.id == 0) {
-                    std::cout << "Failed to load texture: " << path << std::endl;
-                    if (!FileExists(path.c_str())) {
-                        std::cout << "File does not exist: " << path << std::endl;
+        for (const auto &action: actions) {
+            for (const auto &direction: directions) {
+                std::string key = toLowercase(action) + "_" +
+                                  (direction == "side left" ? "left" :
+                                   direction == "side right" ? "right" : toLowercase(direction));
+                std::string fileName = "Character - Robot - " + action + " " + direction;
+                if (action == "Idle" || action == "Walk") {
+                    if (direction == "Front" || startsWith(direction, "side")) {
+                        animations.push_back({key + "_normal", fileName + " - normal - animated"});
+                        animations.push_back({key + "_possessed", fileName + " - possessed - animated"});
+                    } else {
+                        animations.push_back({key, fileName + " - animated"});
                     }
-                } else {
-                    std::cout << "Successfully loaded texture: " << path << " (ID: " << texture.id << ")" << std::endl;
-
-                    AnimationState animState;
-                    if (state == "idle") animState = AnimationState::IDLE;
-                    else if (state == "walk") animState = AnimationState::WALK;
-                    else if (state == "normal") animState = AnimationState::ATTACK_NORMAL;
-                    else if (state == "ranged") animState = AnimationState::ATTACK_RANGED;
-
-                    Direction direction;
-                    if (dir == "back") direction = Direction::Up;
-                    else if (dir == "front") direction = Direction::Down;
-                    else if (dir == "left") direction = Direction::Left;
-                    else if (dir == "right") direction = Direction::Right;
-
-                    m_animations[entityName][animState][direction] = texture;
-                    std::cout << "Stored texture for " << entityName << ", state: " << static_cast<int>(animState) << ", direction: " << static_cast<int>(direction) << std::endl;
+                } else if (action == "Melee" || action == "Ranged") {
+                    if (startsWith(direction, "side")) {
+                        animations.push_back({key + "_arm", fileName + " - Arm - animated"});
+                        animations.push_back({key + "_body", fileName + " - Body - animated"});
+                    } else {
+                        animations.push_back({key, fileName + " - animated"});
+                    }
                 }
             }
         }
 
-        // Load spidertooth ranged attack animations for Enemy3
-        if (enemyType == "enemy3") {
-            for (const auto& dir : directions) {
-                std::string fileName = "spidertooth_ranged_" + dir + ".png";
-                std::string path = "assets/graphics/characters/enemies/" + enemyType + "/" + fileName;
+                    }
 
-                std::cout << "Attempting to load spidertooth texture: " << path << std::endl;
 
-                Texture2D texture = LoadTexture(path.c_str());
-                if (texture.id == 0) {
-                    std::cout << "Failed to load spidertooth texture: " << path << std::endl;
-                } else {
-                    std::cout << "Successfully loaded spidertooth texture: " << path << " (ID: " << texture.id << ")" << std::endl;
-
-                    Direction direction;
-                    if (dir == "back") direction = Direction::Up;
-                    else if (dir == "front") direction = Direction::Down;
-                    else if (dir == "left") direction = Direction::Left;
-                    else if (dir == "right") direction = Direction::Right;
-
-                    m_animations["tacklespider"][AnimationState::SPIDERTOOTH][direction] = texture;
-                }
-            }
+    for (const auto &[key, fileName]: animations) {
+        std::string path = basePath + fileName + ".png";
+        TraceLog(LOG_INFO, "Attempting to load texture: %s", path.c_str());
+        m_characterAnimations[characterName][key] = LoadTexture(path.c_str());
+        if (m_characterAnimations[characterName][key].id == 0) {
+            TraceLog(LOG_WARNING, "Failed to load texture: %s", path.c_str());
+        } else {
+            TraceLog(LOG_INFO, "Successfully loaded texture: %s", path.c_str());
         }
+
     }
 
-    std::cout << "Finished loading enemy animations." << std::endl;
 }
-
-void assestmanagergraphics::loadObjectAnimations() {
-    std::string basePath = "assets/graphics/items/";
-
-    m_objectAnimations["bomb"][AnimationState::EXPLOTION] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-    (basePath + "bomb_explotion.png");
-    m_objectAnimations["bomb"][AnimationState::LIT] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-    (basePath + "bomb_lit.png");
-}
-
-void assestmanagergraphics::loadSingleFrameTextures() {
-    std::string basePath = "assets/graphics/items/";
-
-    m_singleFrameTextures["souldust"] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-    (basePath + "souldust.png");
-    m_singleFrameTextures["stone"] =     m_animations["robot"][AnimationState::SWITCH][Direction::Down] = LoadTextureAndLog(basePath + "robot_switch.png");
-    (basePath + "stone.png");
-}
-
 Texture2D assestmanagergraphics::getTexture(const std::string &name) {
     if (m_textures.find(name) != m_textures.end()) {
         return m_textures[name];
@@ -334,46 +265,34 @@ Texture2D assestmanagergraphics::getTexture(const std::string &name) {
     return m_textures["ERROR"];
 }
 
-Texture2D assestmanagergraphics::getAnimationTexture(const std::string& entityType, AnimationState state, Direction direction) {
-    std::cout << "Requesting texture for: " << entityType << ", State: " << static_cast<int>(state)
-              << ", Direction: " << static_cast<int>(direction) << std::endl;
-
-    if (m_animations.count(entityType) > 0 &&
-        m_animations[entityType].count(state) > 0 &&
-        m_animations[entityType][state].count(direction) > 0) {
-        Texture2D texture = m_animations[entityType][state][direction];
-        std::cout << "Returning texture ID: " << texture.id << " for " << entityType << std::endl;
-        return texture;
+Texture2D assestmanagergraphics::getCharacterTexture(const std::string &characterName, const std::string &animationName) {
+    // Check if the character exists in the map
+    if (m_characterAnimations.find(characterName) != m_characterAnimations.end()) {
+        // Check if the animation exists for this character
+        if (m_characterAnimations[characterName].find(animationName) != m_characterAnimations[characterName].end()) {
+            return m_characterAnimations[characterName][animationName];
+        }
     }
 
-    std::cout << "Animation texture not found: " << entityType << ", " << static_cast<int>(state) << ", " << static_cast<int>(direction) << std::endl;
-    return m_textures["ERROR"]; // Return a default "error" texture
-}
-
-Texture2D assestmanagergraphics::getObjectTexture(const std::string& objectName, AnimationState state) {
-    if (m_objectAnimations.count(objectName) > 0 &&
-        m_objectAnimations[objectName].count(state) > 0) {
-        return m_objectAnimations[objectName][state];
+    // Handle Switch-Animation separately
+    if (characterName == "Switch-Animation") {
+        std::string textureName = animationName == "Character - Robot+Soul - Switch Soul to Robot - animated"
+                                  ? "Switch-Animation/Soul_to_Robot"
+                                  : "Switch-Animation/Robot_to_Soul";
+        if (m_textures.find(textureName) != m_textures.end()) {
+            return m_textures[textureName];
+        }
     }
-    TraceLog(LOG_WARNING, "Object texture not found: %s, %d", objectName.c_str(), static_cast<int>(state));
-    return m_textures["ERROR"];
-}
 
-Texture2D assestmanagergraphics::getSingleFrameTexture(const std::string& name) {
-    if (m_singleFrameTextures.find(name) != m_singleFrameTextures.end()) {
-        return m_singleFrameTextures[name];
+    // If not found, load the texture
+    std::string path = "assets/graphics/characters/" + characterName + "/" + animationName + ".png";
+    Texture2D texture = LoadTexture(path.c_str());
+    if (texture.id == 0) {
+        TraceLog(LOG_WARNING, "Character texture not found: %s, %s", characterName.c_str(), animationName.c_str());
+        return m_textures["ERROR"];
     }
-    TraceLog(LOG_WARNING, "Single frame texture not found: %s", name.c_str());
-    return m_textures["ERROR"];
-}
 
-void assestmanagergraphics::drawTextureAtlas(const std::string& entityType, AnimationState state, Direction direction, int x, int y) {
-    Texture2D texture = getAnimationTexture(entityType, state, direction);
-    DrawTexture(texture, x, y, WHITE);
-
-    // Draw frame boundaries
-    int frameWidth = texture.width / 8; // Assuming 8 frames
-    for (int i = 1; i < 8; i++) {
-        DrawLine(x + i * frameWidth, y, x + i * frameWidth, y + texture.height, RED);
-    }
+    // Store the loaded texture
+    m_characterAnimations[characterName][animationName] = texture;
+    return texture;
 }

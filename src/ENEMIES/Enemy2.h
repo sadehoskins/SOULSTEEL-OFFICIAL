@@ -12,19 +12,13 @@ public:
     void update() override;
     void draw() override;
     Texture2D getCurrentTexture() override;
-    void performRangedAttack();
     ~Enemy2();
 
 private:
-    Vector2 attackPosition;
+    void loadAnimations() override;
+
     bool isAttacking;
-    void drawRangedAttack();
-
-    float attackAnimationTimer;
-
-    void updateRangedAttack();
 };
-
 
 
 #endif //RAYLIBSTARTER_ENEMY2_H

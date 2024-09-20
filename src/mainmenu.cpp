@@ -13,6 +13,8 @@ void mainmenu::update() {
             cursor = 2; //makes it, so you can't go "more to the right" than last box
         } else {
             cursor++;
+            //Jan
+            soundManager->playSound(4);
         }
     }
 
@@ -21,14 +23,20 @@ void mainmenu::update() {
             cursor = 0; //same here, but for other side of screen
         } else {
             cursor--;
+            //Jan
+            soundManager->playSound(4);
         }
     }
 }
+//Jan
+bool mainmenu::IsGameRunning = false;
 
 scene *mainmenu::evaluateSceneChange() { //gives the buttons their functions
     if (IsKeyPressed(KEY_ENTER)) {
         switch (cursor) {
             case 0:
+                //Jan
+                IsGameRunning = true;
                 return new gamechoicescreen(reinterpret_cast<gameplay *>(this));
                 break;
             case 1:
@@ -44,7 +52,6 @@ scene *mainmenu::evaluateSceneChange() { //gives the buttons their functions
 }
 
 void mainmenu::draw() {
-    DrawTexture(background,0,0,WHITE);
     DrawTexture(logo_soulsteel, 120, 20, WHITE);
     DrawTexture(logo_team, 320, 390, WHITE);
 
