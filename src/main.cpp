@@ -17,6 +17,7 @@
 #include "ENEMIES/Enemy.h"
 #include "gamechoicescreen.h"
 //#include "HealthManager.h"
+#include "AudioPlayer.h"
 
 int main() {
     // Raylib initialization
@@ -25,10 +26,46 @@ int main() {
     InitWindow(Game::ScreenWidth, Game::ScreenHeight, "Soul Steel");
     SetTargetFPS(60);
     assestmanagergraphics::init();
+    //Jan
+    InitAudioDevice();
 
 #ifdef GAME_START_FULLSCREEN
     ToggleFullscreen();
 #endif
+//Jan
+    SoundManager soundManager;
+
+    //Loaded sounds and index numbers
+    std::vector<std::string> filenames = {
+            "assets/audio/sfx/RobottoSoultransition.wav",
+            "assets/audio/sfx/Soultorobottransition.wav",
+            "assets/audio/sfx/souldash.wav",
+            "assets/audio/sfx/souldust.wav",
+            "assets/audio/sfx/menuselectsound.wav",
+            "assets/audio/sfx/Rockmove.wav",
+            "assets/audio/sfx/placebomb.wav",
+            "assets/audio/sfx/bombexplosion.wav",
+            "assets/audio/sfx/RobotAttack.wav",
+            "assets/audio/sfx/Soulsteel_Main_Theme.wav",
+
+    };
+
+    if (!soundManager.loadSounds(filenames)) {
+        printf("sound load failed");
+        return 1;
+    }
+
+    if (!soundManager.loadBackgroundMusic("assets/audio/sfx/Soulsteel_Factory_theme.mp3")) {
+        printf("Failed to load Music.\n");
+        return 1;
+    }
+
+    float volume = 0.5f;
+    const float volumeChange = 0.1f;
+
+    soundManager.setMusicVolume(volume);
+    soundManager.playBackgroundMusic();
+
 
     // Your own initialization code here
 
@@ -46,7 +83,10 @@ int main() {
     scene* currentScene =  new mainmenu();
 
     //std::cout << "Starting main loop\n";
-
+//Jan
+    bool spaceKeyPressedLastFrame = false;
+    bool bombSoundPlayed = false;
+    double bombSoundPlayTime = 0.0;
 
     //SetWindowSize(GetMonitorWidth(GetCurrentMonitor()), GetMonitorHeight(GetCurrentMonitor()));
     //ToggleFullscreen();
@@ -116,6 +156,94 @@ int main() {
                        renderRec,
                        {}, 0, WHITE);
         EndDrawing();
+
+
+        //Jan
+        if (!mainmenu::IsGameRunning) {
+                if (IsKeyDown(KEY_A)) {
+                    soundManager.playSound(4);
+                }
+                if (IsKeyDown(KEY_D)) {
+                    soundManager.playSound(4);
+                }
+                if (IsKeyDown(KEY_LEFT)) {
+                    soundManager.playSound(4);
+                }
+                if (IsKeyDown(KEY_RIGHT)) {
+                    soundManager.playSound(4);
+                }
+        }
+        if (mainmenu::IsGameRunning) {
+
+            soundManager.updateBackgroundMusic();
+
+            bool spaceKeyPressedThisFrame = IsKeyDown(KEY_SPACE);
+            if (spaceKeyPressedThisFrame && !spaceKeyPressedLastFrame) {
+                if (gameplayInstance) {
+                    maincharactermodus modus = gameplayInstance->getCurrentModus();
+                    if (modus == soulmodus) {
+                        soundManager.playSound(0);
+                    } else if (modus == robotmodus) {
+                        soundManager.playSound(1);
+                    }
+                }
+            }
+            spaceKeyPressedLastFrame = spaceKeyPressedThisFrame;
+
+            if (IsKeyDown(KEY_I)) {
+                soundManager.playSound(2);
+            }
+            if (IsKeyDown(KEY_L)) {
+                soundManager.playSound(3);
+            }
+            if (IsKeyPressed(KEY_EQUAL)) { // `+`
+                volume += volumeChange;
+                if (volume > 1.0f) volume = 1.0f; // Max volume
+                soundManager.setMusicVolume(volume);
+            }
+            if (IsKeyPressed(KEY_MINUS)) { // `-`
+                volume -= volumeChange;
+                if (volume < 0.0f) volume = 0.0f; // Min volume
+                soundManager.setMusicVolume(volume);
+            }
+            if (IsKeyPressed(KEY_U)) {
+                if (gameplayInstance) {
+                    maincharactermodus modus = gameplayInstance->getCurrentModus();
+                    if (modus == robotmodus) {
+                        soundManager.playSound(8);
+                    }
+                }
+            }
+            gameplayInstance->updateStones();  // stone update
+
+
+            if (gameplayInstance->isStoneMoved) {
+                soundManager.playSound(5);
+                std::cout << "Stone moved, playing sound..." << std::endl;
+                gameplayInstance->isStoneMoved = false;
+            }
+
+            if (IsKeyPressed(KEY_J)) {
+                if (gameplayInstance) {
+                    maincharactermodus modus = gameplayInstance->getCurrentModus();
+                    if (modus == robotmodus) {
+                        if (!bombSoundPlayed) {
+                            soundManager.playSound(6);
+                            bombSoundPlayTime = GetTime();
+                            bombSoundPlayed = true;
+
+                        }
+                    }
+                }
+            }
+
+// Check if 0.5 seconds have passed since the bomb sound was played
+            if (bombSoundPlayed && (GetTime() - bombSoundPlayTime >= 1.5)) {
+                soundManager.playSound(7);
+                bombSoundPlayed = false;
+            }
+
+        }
 
     } // Main game loop end
     std::cout << "Exiting main loop\n";

@@ -9,6 +9,7 @@
 #include "scene.h"
 #include "assestmanagergraphics.h"
 #include "gameplay.h"
+#include "AudioPlayer.h"
 
 class mainmenu: public scene {
 private:
@@ -43,6 +44,9 @@ public:
     void draw() override;
 
     void drawDebug() override;
+
+    //Jan
+    static bool IsGameRunning;
 
     //creates the boxes that will be used as buttons; marked boxes are to create an outline that shows which button is selected
     Rectangle hitbox_play = {90, 330, 150, 90};

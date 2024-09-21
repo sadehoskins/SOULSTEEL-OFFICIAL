@@ -7,12 +7,14 @@
 #include "gamechoicescreen.h"
 
 
+
 void mainmenu::update() {
     if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) {
         if (cursor == 2) {
             cursor = 2; //makes it, so you can't go "more to the right" than last box
         } else {
             cursor++;
+
         }
     }
 
@@ -21,14 +23,20 @@ void mainmenu::update() {
             cursor = 0; //same here, but for other side of screen
         } else {
             cursor--;
+
         }
     }
 }
+
+//Jan
+bool mainmenu::IsGameRunning = false;
 
 scene *mainmenu::evaluateSceneChange() { //gives the buttons their functions
     if (IsKeyPressed(KEY_ENTER)) {
         switch (cursor) {
             case 0:
+                //Jan
+                IsGameRunning = true;
                 return new gamechoicescreen(reinterpret_cast<gameplay *>(this));
                 break;
             case 1:
