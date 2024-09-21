@@ -66,7 +66,10 @@ struct ActivatedFirebowl {
         Texture2D icon_stone = assestmanagergraphics::getTexture("userinterface/icon_stone");
 
     public:
-
+        //Jan
+        maincharactermodus getCurrentModus() const{
+            return currentmodus;
+        }
         void update() override;
         void doRoomSwitch();
 
@@ -124,6 +127,8 @@ struct ActivatedFirebowl {
         void spawnStone(Vector2 position);
         void updateStones();
         void drawStones();
+        //Jan
+        bool isStoneMoved = false;
         std::map<int, std::vector<Stone*>> stonesInRooms;
         void spawnStone(int room, Vector2 position);
         bool touchesStone(Vector2 tilePosition) const;

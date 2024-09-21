@@ -675,6 +675,7 @@ void gameplay::drawtextonscreen() {
     DrawText("Press P to pause the game.", 10, 420, 10, WHITE);
     DrawText("Press M to go back to the main menu.", 10, 440, 10, WHITE);
     DrawText("Press T to open the journal.", 10, 460, 10, WHITE);
+    DrawText("Press +/- or ß/´ to adjust music volume.", 10, 380, 10, WHITE);
 
     if (showDemoMessage == true) {
         DrawText("This is the end of the SoulSteel Demo version.", 200, 120, 20, WHITE);

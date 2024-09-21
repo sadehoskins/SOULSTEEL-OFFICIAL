@@ -1,6 +1,6 @@
 #include "AudioPlayer.h"
 
-SoundManager::SoundManager() : isBackgroundMusicLoaded(false) {}
+SoundManager::SoundManager() : isBackgroundMusicLoaded(false), musicVolume(0.5f) {}
 
 SoundManager::~SoundManager() {
     for (auto& sound : loadedSounds) {
@@ -48,7 +48,13 @@ bool SoundManager::loadBackgroundMusic(const std::string& filename) {
         return false;
     }
     isBackgroundMusicLoaded = true;
+    SetMusicVolume(backgroundMusic,musicVolume);
     return true;
+}
+void SoundManager::setMusicVolume(float volume) {
+    if (isBackgroundMusicLoaded) {
+        SetMusicVolume(backgroundMusic, volume);
+    }
 }
 
 void SoundManager::playBackgroundMusic() {

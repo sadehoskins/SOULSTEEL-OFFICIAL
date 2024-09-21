@@ -54,5 +54,7 @@ bool Stone::tryMove(Vector2 direction) {
     // If we've passed all checks, move the stone
     position = newPosition;
     //std::cout << "Stone moved successfully to (" << position.x << ", " << position.y << ")" << std::endl;
+    //Jan
+    _scene->isStoneMoved = true;
     return true;
 }
